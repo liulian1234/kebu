@@ -12,6 +12,7 @@
 
 <body>
   <div class="app">
+    <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
       <div class="brand">
         <div class="brand-mark">M</div>
@@ -22,22 +23,22 @@
       </div>
 
       <nav class="menu">
-        <button class="menu-btn active" data-page="expenses">
+        <button class="menu-btn active" data-page="expenses" type="button">
           <span>💳</span>
           <b>開銷首頁</b>
         </button>
 
-        <button class="menu-btn" data-page="tasks">
+        <button class="menu-btn" data-page="tasks" type="button">
           <span>🎮</span>
           <b>任務 RPG</b>
         </button>
 
-        <button class="menu-btn" data-page="plans">
+        <button class="menu-btn" data-page="plans" type="button">
           <span>🏦</span>
           <b>長期付款 / 存款</b>
         </button>
 
-        <button class="menu-btn" data-page="profile">
+        <button class="menu-btn" data-page="profile" type="button">
           <span>📊</span>
           <b>我的資料 / 統計</b>
         </button>
@@ -50,10 +51,12 @@
       </div>
     </aside>
 
+    <!-- Main -->
     <main class="main">
       <header class="topbar">
         <div class="title-row">
           <button class="icon-btn mobile-only" id="mobileMenuBtn" type="button">☰</button>
+
           <div>
             <h1 id="pageTitle">開銷首頁</h1>
             <p id="pageDesc">主頁負責顯示、添加、追蹤與查看開銷歷史。</p>
@@ -63,6 +66,7 @@
         <div class="top-actions">
           <button class="btn ghost" id="themeToggle" type="button">🌙 黑暗</button>
           <button class="btn ghost" id="exportBtn" type="button">匯出</button>
+
           <label class="btn ghost" for="importFile">匯入</label>
           <input id="importFile" type="file" accept="application/json" hidden />
         </div>
@@ -91,7 +95,10 @@
           <div class="panel-head">
             <div>
               <h3>新增開銷</h3>
-              <p>選擇開銷類型，填名稱、金額和日期。固定開銷會從選定月份開始出現。</p>
+              <p>
+                選擇開銷類型，填名稱、金額和日期。
+                固定開銷會從選定月份開始出現；一次性 / 年費的日期會當作截止日期提醒。
+              </p>
             </div>
           </div>
 
@@ -107,22 +114,36 @@
 
             <div class="field">
               <label>名稱</label>
-              <input id="expenseName" type="text" placeholder="例如：房租 / 保險 / 看電影" />
+              <input
+                id="expenseName"
+                type="text"
+                placeholder="例如：房租 / 保險 / 看電影"
+              />
             </div>
 
             <div class="field">
               <label>金額（SGD）</label>
-              <input id="expenseAmount" type="number" min="0" step="0.01" placeholder="例如：500" />
+              <input
+                id="expenseAmount"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="例如：500"
+              />
             </div>
 
             <div class="field">
-              <label>開始日期 / 消費日期</label>
+              <label>開始日期 / 截止日期</label>
               <input id="expenseDate" type="date" />
             </div>
 
             <div class="field">
               <label>備註</label>
-              <input id="expenseNote" type="text" placeholder="可以不填" />
+              <input
+                id="expenseNote"
+                type="text"
+                placeholder="可以不填"
+              />
             </div>
 
             <button class="btn primary" type="submit">加入開銷</button>
@@ -161,6 +182,7 @@
               <h3>固定開銷</h3>
               <span id="fixedCount">0 項</span>
             </div>
+
             <div class="list" id="fixedList"></div>
           </div>
 
@@ -169,6 +191,7 @@
               <h3>每年一次費用</h3>
               <span id="annualCount">0 項</span>
             </div>
+
             <div class="list" id="annualList"></div>
           </div>
 
@@ -177,10 +200,12 @@
               <h3>一次性開銷（娛樂）</h3>
               <span id="oneTimeCount">0 項</span>
             </div>
+
             <div class="list" id="oneTimeList"></div>
           </div>
         </section>
 
+        <!-- JS 會自動把月份控制、預測提醒、歷史記錄放進這裡 -->
         <section id="expenseExtraArea"></section>
       </section>
 
@@ -198,11 +223,14 @@
               <span>LV</span>
               <strong id="playerLevel">1</strong>
             </div>
+
             <div class="player-info">
               <strong id="playerTitle">Beginner</strong>
+
               <div class="progress">
                 <span id="xpBar"></span>
               </div>
+
               <small id="xpText">0 / 100 XP</small>
             </div>
           </div>
@@ -214,13 +242,20 @@
               <h3>任務列表</h3>
               <p>完成任務後按「完成 +XP」，會自動增加分數。</p>
             </div>
-            <button class="btn primary" id="openTaskFormBtn" type="button">＋ 增加任務</button>
+
+            <button class="btn primary" id="openTaskFormBtn" type="button">
+              ＋ 增加任務
+            </button>
           </div>
 
           <form class="smart-form task-form hidden" id="taskForm">
             <div class="field">
               <label>任務名稱</label>
-              <input id="taskTitle" type="text" placeholder="例如：剪一支影片 / 更新存款 / 學一小時 Kali" />
+              <input
+                id="taskTitle"
+                type="text"
+                placeholder="例如：剪一支影片 / 更新存款 / 學一小時 Kali"
+              />
             </div>
 
             <div class="field">
@@ -235,7 +270,11 @@
 
             <div class="field">
               <label>分類</label>
-              <input id="taskCategory" type="text" placeholder="生活 / 工作 / 學習 / 賺錢" />
+              <input
+                id="taskCategory"
+                type="text"
+                placeholder="生活 / 工作 / 學習 / 賺錢"
+              />
             </div>
 
             <div class="field">
@@ -273,7 +312,10 @@
           <div>
             <span class="eyebrow">Long-Term Planner</span>
             <h2>長期需要付款的東西，全部放這裡。</h2>
-            <p>貸款、分期、存款目標都可以記錄。車貸會被固定鎖住，避免不小心改掉。</p>
+            <p>
+              貸款、分期、存款目標都可以記錄。
+              車貸會被固定鎖住，避免不小心改掉。
+            </p>
           </div>
 
           <div class="hero-total">
@@ -302,22 +344,44 @@
 
             <div class="field">
               <label>名稱</label>
-              <input id="planName" type="text" placeholder="例如：10萬存款 / 電腦分期" />
+              <input
+                id="planName"
+                type="text"
+                placeholder="例如：10萬存款 / 電腦分期"
+              />
             </div>
 
             <div class="field">
               <label>目標 / 總額（SGD）</label>
-              <input id="planTotal" type="number" min="0" step="0.01" placeholder="例如：100000" />
+              <input
+                id="planTotal"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="例如：100000"
+              />
             </div>
 
             <div class="field">
               <label>目前已完成 / 已還（SGD）</label>
-              <input id="planCurrent" type="number" min="0" step="0.01" placeholder="例如：1200" />
+              <input
+                id="planCurrent"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="例如：1200"
+              />
             </div>
 
             <div class="field">
               <label>每月付款（貸款才填）</label>
-              <input id="planMonthly" type="number" min="0" step="0.01" placeholder="例如：334" />
+              <input
+                id="planMonthly"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="例如：334"
+              />
             </div>
 
             <div class="field">
@@ -337,6 +401,7 @@
                 <p>根據你的收入和開銷計算每月應存。</p>
               </div>
             </div>
+
             <div class="list" id="savingGoalsList"></div>
           </div>
 
@@ -347,6 +412,7 @@
                 <p>例如車貸、分期、長期固定付款。</p>
               </div>
             </div>
+
             <div class="list" id="loanList"></div>
           </div>
         </section>
@@ -360,23 +426,42 @@
               <h3>我的資料</h3>
               <p>填寫收入和月份後，統計會更準，也可以提前預測未來開銷。</p>
             </div>
-            <button class="btn danger" id="resetBtn" type="button">重置全部資料</button>
+
+            <button class="btn danger" id="resetBtn" type="button">
+              重置全部資料
+            </button>
           </div>
 
           <form class="profile-form" id="profileForm">
             <div class="field">
               <label>名字 / 暱稱</label>
-              <input id="profileName" type="text" placeholder="例如：Liew" />
+              <input
+                id="profileName"
+                type="text"
+                placeholder="例如：Liew"
+              />
             </div>
 
             <div class="field">
               <label>每月工資 / 收入（SGD）</label>
-              <input id="monthlyIncome" type="number" min="0" step="0.01" placeholder="例如：2500" />
+              <input
+                id="monthlyIncome"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="例如：2500"
+              />
             </div>
 
             <div class="field">
               <label>每月娛樂預算（SGD）</label>
-              <input id="entertainmentBudget" type="number" min="0" step="0.01" placeholder="例如：200" />
+              <input
+                id="entertainmentBudget"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="例如：200"
+              />
             </div>
 
             <div class="field">
@@ -431,6 +516,6 @@
     </main>
   </div>
 
-  <script src="./js/myTask.js?v=300" defer></script>
+  <script src="./js/myTask.js?v=400" defer></script>
 </body>
 </html>
