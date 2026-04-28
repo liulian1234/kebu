@@ -92,7 +92,7 @@
             </div>
           </div>
 
-          <form class="smart-form" id="expenseForm">
+          <form class="smart-form expense-form" id="expenseForm">
             <div class="field">
               <label>開銷類型</label>
               <select id="expenseType">
@@ -107,10 +107,20 @@
               <input id="expenseName" type="text" placeholder="例如：房租 / 保險 / 看電影" />
             </div>
 
-            <div class="field">
+           <div class="field">
               <label>金額（SGD）</label>
               <input id="expenseAmount" type="number" min="0" step="0.01" placeholder="例如：500" />
-            </div>
+          </div>
+
+    <div class="field">
+      <label>日期 / 月份</label>
+      <input id="expenseDate" type="date" />
+    </div>
+
+      <div class="field">
+        <label>備註</label>
+        <input id="expenseNote" type="text" placeholder="可以不填" />
+      </div>
 
             <div class="field">
               <label>備註</label>
@@ -367,6 +377,10 @@
             <div class="field">
               <label>每月娛樂預算（SGD）</label>
               <input id="entertainmentBudget" type="number" min="0" step="0.01" placeholder="例如：200" />
+            </div>
+            <div class="field">
+              <label>統計月份</label>
+              <input id="reportMonth" type="month" />
             </div>
 
             <button class="btn primary" type="submit">保存資料</button>
