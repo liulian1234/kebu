@@ -1,13 +1,6 @@
 /* ==========================================================
-   MyTask Pro JS
-   Expense History / Forecast Upgrade
-
-   功能：
-   1. 一次性 / 一年一次：打勾 -> 確認完成 -> 進歷史
-   2. 固定開銷：按月份追蹤，顯示進度條與歷史
-   3. 預測月份：一年一次 / 一次性不管幾月都會顯示提醒
-   4. 固定開銷：對應月份才出現，例如 2026-05 才開始
-   5. 車貸與系統固定開銷鎖定
+   MyTask Pro JS - Stable Copy Version v1004
+   文件位置：js/myTask.js
    ========================================================== */
 
 const STORAGE_KEY = "mytask_pro_clean_v2";
@@ -17,7 +10,7 @@ const FIXED_START_DATE = "2026-05-01";
 const $ = (id) => document.getElementById(id);
 
 /* =========================
-   1. 安全工具
+   Safe DOM Tools
 ========================= */
 
 function on(id, event, handler) {
@@ -62,16 +55,15 @@ function ensureMount(id, parentId, className = "") {
   const parent = $(parentId);
   if (!parent) return null;
 
-  el = document.createElement("div");
+  el = document.createElement("section");
   el.id = id;
   el.className = className;
   parent.appendChild(el);
-
   return el;
 }
 
 /* =========================
-   2. 基本工具
+   Basic Tools
 ========================= */
 
 function uid() {
@@ -91,10 +83,9 @@ function monthValue(dateString) {
 }
 
 function nextMonthISO(baseMonth) {
-  const [y, m] = (baseMonth || thisMonthISO()).split("-").map(Number);
-  const d = new Date(y, m, 1);
-
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+  const [year, month] = String(baseMonth || thisMonthISO()).split("-").map(Number);
+  const date = new Date(year, month, 1);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
 }
 
 function compareMonth(a, b) {
@@ -103,22 +94,17 @@ function compareMonth(a, b) {
 
 function getMonthList(startMonth, endMonth) {
   const result = [];
+  if (!startMonth || !endMonth || compareMonth(startMonth, endMonth) > 0) return result;
 
-  if (!startMonth || !endMonth || compareMonth(startMonth, endMonth) > 0) {
-    return result;
-  }
+  let [year, month] = startMonth.split("-").map(Number);
+  const [endYear, endMonthNumber] = endMonth.split("-").map(Number);
 
-  let [y, m] = startMonth.split("-").map(Number);
-  const [endY, endM] = endMonth.split("-").map(Number);
-
-  while (y < endY || (y === endY && m <= endM)) {
-    result.push(`${y}-${String(m).padStart(2, "0")}`);
-
-    m++;
-
-    if (m > 12) {
-      y++;
-      m = 1;
+  while (year < endYear || (year === endYear && month <= endMonthNumber)) {
+    result.push(`${year}-${String(month).padStart(2, "0")}`);
+    month++;
+    if (month > 12) {
+      year++;
+      month = 1;
     }
   }
 
@@ -177,20 +163,15 @@ function monthsUntil(dateString) {
 
 function countPaidMonthsInclusive(startDate, paidThrough) {
   const start = new Date(startDate + "T00:00:00");
-
   if (Number.isNaN(start.getTime()) || !paidThrough) return 0;
 
   const [paidYear, paidMonth] = paidThrough.split("-").map(Number);
-
   if (!paidYear || !paidMonth) return 0;
 
   const startYear = start.getFullYear();
   const startMonth = start.getMonth() + 1;
 
-  return Math.max(
-    0,
-    (paidYear - startYear) * 12 + (paidMonth - startMonth) + 1
-  );
+  return Math.max(0, (paidYear - startYear) * 12 + (paidMonth - startMonth) + 1);
 }
 
 function selectedReportMonth() {
@@ -202,20 +183,17 @@ function selectedForecastMonth() {
 }
 
 function defaultExpenseDateForType(type) {
-  if (type === "fixed") return FIXED_START_DATE;
-  return todayISO();
+  return type === "fixed" ? FIXED_START_DATE : todayISO();
 }
 
 function isExpenseActiveInMonth(expense, month) {
   const startMonth = monthValue(expense.date || expense.createdAt || todayISO());
-
   if (!startMonth) return true;
-
   return compareMonth(startMonth, month) <= 0;
 }
 
 /* =========================
-   3. 系統固定資料
+   System Fixed Data
 ========================= */
 
 function systemFixedExpenses() {
@@ -282,22 +260,17 @@ function systemFixedExpenses() {
 
 function isSystemFixedExpense(expense) {
   const names = ["房租", "孝敬費（老爸）", "Wifi", "地鐵", "吃飯"];
-
-  return (
-    expense.systemLocked ||
-    expense.locked ||
-    names.includes(String(expense.name || ""))
-  );
+  return Boolean(expense.systemLocked || expense.locked || names.includes(String(expense.name || "")));
 }
 
 /* =========================
-   4. 預設資料
+   Default State
 ========================= */
 
 function defaultState() {
-  const paidMonths = countPaidMonthsInclusive("2025-03-14", "2026-04");
   const today = todayISO();
   const currentMonth = thisMonthISO();
+  const paidMonths = countPaidMonthsInclusive("2025-04-14", "2026-04");
 
   return {
     profile: {
@@ -310,11 +283,11 @@ function defaultState() {
 
     xp: 0,
 
-    expenses: systemFixedExpenses().map(item => ({
+    expenses: systemFixedExpenses().map((item) => ({
       id: uid(),
       flowStatus: "open",
-      historyAt: "",
       checkedAt: "",
+      historyAt: "",
       ...item
     })),
 
@@ -362,7 +335,7 @@ function defaultState() {
         monthly: 334,
         monthlyMYR: 1000,
         currency: "MYR",
-        startDate: "2025-03-14",
+        startDate: "2025-04-14",
         paidThrough: "2026-04",
         nextDue: "2026-05-14",
         note: "5月尚未付款",
@@ -375,7 +348,7 @@ function defaultState() {
 }
 
 /* =========================
-   5. 讀取 / 保存
+   Load / Save / Repair
 ========================= */
 
 let state = loadState();
@@ -383,7 +356,6 @@ let state = loadState();
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-
     if (!raw) return defaultState();
 
     const saved = JSON.parse(raw);
@@ -397,9 +369,7 @@ function loadState() {
         ...(saved.profile || {})
       },
       expenses: Array.isArray(saved.expenses) ? saved.expenses : base.expenses,
-      fixedMonthlyRecords: Array.isArray(saved.fixedMonthlyRecords)
-        ? saved.fixedMonthlyRecords
-        : [],
+      fixedMonthlyRecords: Array.isArray(saved.fixedMonthlyRecords) ? saved.fixedMonthlyRecords : [],
       tasks: Array.isArray(saved.tasks) ? saved.tasks : base.tasks,
       plans: Array.isArray(saved.plans) ? saved.plans : base.plans
     };
@@ -413,30 +383,20 @@ function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
-/* =========================
-   6. 資料修復
-========================= */
-
 function restoreSystemFixedExpenses() {
   const defaults = systemFixedExpenses();
+  const otherExpenses = state.expenses.filter((expense) => !isSystemFixedExpense(expense));
 
-  const otherExpenses = state.expenses.filter(expense => {
-    return !isSystemFixedExpense(expense);
-  });
-
-  const restored = defaults.map(item => {
-    const existing = state.expenses.find(expense => {
-      return (
-        expense.systemId === item.systemId ||
-        String(expense.name || "") === item.name
-      );
+  const restored = defaults.map((item) => {
+    const existing = state.expenses.find((expense) => {
+      return expense.systemId === item.systemId || String(expense.name || "") === item.name;
     });
 
     return {
       id: existing?.id || uid(),
       flowStatus: "open",
-      historyAt: "",
       checkedAt: "",
+      historyAt: "",
       ...item,
       createdAt: existing?.createdAt || todayISO()
     };
@@ -446,19 +406,20 @@ function restoreSystemFixedExpenses() {
 }
 
 function normalizeData() {
-  if (!state.profile.reportMonth) {
-    state.profile.reportMonth = thisMonthISO();
-  }
+  if (!state.profile) state.profile = {};
 
+  if (!state.profile.reportMonth) state.profile.reportMonth = thisMonthISO();
   if (!state.profile.forecastMonth) {
     state.profile.forecastMonth = nextMonthISO(state.profile.reportMonth);
   }
 
-  state.expenses = state.expenses.map(expense => {
+  if (!Array.isArray(state.expenses)) state.expenses = [];
+
+  state.expenses = state.expenses.map((expense) => {
     const normalized = {
       flowStatus: "open",
-      historyAt: "",
       checkedAt: "",
+      historyAt: "",
       ...expense,
       date: expense.date || expense.createdAt || todayISO(),
       createdAt: expense.createdAt || expense.date || todayISO()
@@ -470,16 +431,18 @@ function normalizeData() {
       normalized.locked = true;
       normalized.systemLocked = true;
       normalized.flowStatus = "open";
-      normalized.historyAt = "";
       normalized.checkedAt = "";
+      normalized.historyAt = "";
     }
 
     return normalized;
   });
 
+  if (!Array.isArray(state.fixedMonthlyRecords)) state.fixedMonthlyRecords = [];
+
   state.fixedMonthlyRecords = state.fixedMonthlyRecords
-    .filter(item => item && item.expenseId && item.month)
-    .map(item => ({
+    .filter((item) => item && item.expenseId && item.month)
+    .map((item) => ({
       expenseId: item.expenseId,
       month: item.month,
       status: item.status || "checked",
@@ -488,26 +451,26 @@ function normalizeData() {
       updatedAt: item.updatedAt || todayISO()
     }));
 
-  state.tasks = state.tasks.map(task => ({
+  if (!Array.isArray(state.tasks)) state.tasks = [];
+
+  state.tasks = state.tasks.map((task) => ({
     ...task,
     createdAt: task.createdAt || todayISO()
   }));
 
-  state.plans = state.plans.map(plan => ({
+  if (!Array.isArray(state.plans)) state.plans = [];
+
+  state.plans = state.plans.map((plan) => ({
     ...plan,
     createdAt: plan.createdAt || todayISO()
   }));
 }
 
 function migrateCarLoanData() {
-  const paidMonths = countPaidMonthsInclusive("2025-03-14", "2026-04");
+  const paidMonths = countPaidMonthsInclusive("2025-04-14", "2026-04");
 
-  const existingCar = state.plans.find(plan => {
-    return (
-      plan.carLoan ||
-      plan.locked ||
-      String(plan.name || "").includes("車貸")
-    );
+  const existingCar = state.plans.find((plan) => {
+    return plan.carLoan || String(plan.name || "").includes("車貸");
   });
 
   const carData = {
@@ -519,7 +482,7 @@ function migrateCarLoanData() {
     monthly: 334,
     monthlyMYR: 1000,
     currency: "MYR",
-    startDate: "2025-03-14",
+    startDate: "2025-04-14",
     paidThrough: "2026-04",
     nextDue: "2026-05-14",
     note: "5月尚未付款",
@@ -528,14 +491,14 @@ function migrateCarLoanData() {
     createdAt: existingCar?.createdAt || todayISO()
   };
 
-  state.plans = state.plans.filter(plan => {
+  state.plans = state.plans.filter((plan) => {
     const name = String(plan.name || "");
-    return !(plan.carLoan || plan.locked || name.includes("車貸"));
+    return !(plan.carLoan || name.includes("車貸"));
   });
 
   state.plans.unshift(carData);
 
-  state.expenses = state.expenses.filter(expense => {
+  state.expenses = state.expenses.filter((expense) => {
     const name = String(expense.name || "");
     return name !== "車貸款" && name !== "車貸款預算";
   });
@@ -548,10 +511,8 @@ function repairSystemData() {
   saveState();
 }
 
-repairSystemData();
-
 /* =========================
-   7. Expense 狀態
+   Expense Status / Records
 ========================= */
 
 function expenseIsArchived(expense) {
@@ -559,41 +520,30 @@ function expenseIsArchived(expense) {
 }
 
 function activeExpensesByType(type) {
-  return state.expenses.filter(expense => {
-    return expense.type === type && !expenseIsArchived(expense);
-  });
+  return state.expenses.filter((expense) => expense.type === type && !expenseIsArchived(expense));
 }
 
 function archivedExpensesByType(type) {
-  return state.expenses.filter(expense => {
-    return expense.type === type && expenseIsArchived(expense);
-  });
+  return state.expenses.filter((expense) => expense.type === type && expenseIsArchived(expense));
 }
 
 function getExpenseFlowStatus(expense) {
   return expense.flowStatus || "open";
 }
 
-/* =========================
-   8. Fixed 月份記錄
-========================= */
-
 function getFixedRecord(expenseId, month) {
-  return state.fixedMonthlyRecords.find(record => {
+  return state.fixedMonthlyRecords.find((record) => {
     return record.expenseId === expenseId && record.month === month;
   }) || null;
 }
 
 function setFixedRecord(expenseId, month, patch) {
-  const idx = state.fixedMonthlyRecords.findIndex(record => {
+  const idx = state.fixedMonthlyRecords.findIndex((record) => {
     return record.expenseId === expenseId && record.month === month;
   });
 
   if (patch === null) {
-    if (idx >= 0) {
-      state.fixedMonthlyRecords.splice(idx, 1);
-    }
-
+    if (idx >= 0) state.fixedMonthlyRecords.splice(idx, 1);
     return;
   }
 
@@ -609,9 +559,9 @@ function setFixedRecord(expenseId, month, patch) {
     state.fixedMonthlyRecords.push({
       expenseId,
       month,
+      status: "checked",
       checkedAt: "",
       doneAt: "",
-      status: "checked",
       updatedAt: todayISO(),
       ...patch
     });
@@ -624,16 +574,14 @@ function getFixedStatus(expenseId, month) {
 }
 
 /* =========================
-   9. 計算
+   Calculations
 ========================= */
 
 function fixedExpensesForMonth(month) {
-  return state.expenses.filter(expense => {
-    return (
-      expense.type === "fixed" &&
+  return state.expenses.filter((expense) => {
+    return expense.type === "fixed" &&
       !expenseIsArchived(expense) &&
-      isExpenseActiveInMonth(expense, month)
-    );
+      isExpenseActiveInMonth(expense, month);
   });
 }
 
@@ -645,28 +593,20 @@ function oneTimeExpensesActive() {
   return activeExpensesByType("oneTime");
 }
 
-function oneTimeOpenByMonth() {
-  return oneTimeExpensesActive().filter(expense => {
-    return getExpenseFlowStatus(expense) === "open";
-  });
+function oneTimeOpenList() {
+  return oneTimeExpensesActive().filter((expense) => getExpenseFlowStatus(expense) === "open");
 }
 
-function oneTimeCheckedByMonth() {
-  return oneTimeExpensesActive().filter(expense => {
-    return getExpenseFlowStatus(expense) === "checked";
-  });
+function oneTimeCheckedList() {
+  return oneTimeExpensesActive().filter((expense) => getExpenseFlowStatus(expense) === "checked");
 }
 
 function annualOpenList() {
-  return annualExpensesActive().filter(expense => {
-    return getExpenseFlowStatus(expense) === "open";
-  });
+  return annualExpensesActive().filter((expense) => getExpenseFlowStatus(expense) === "open");
 }
 
 function annualCheckedList() {
-  return annualExpensesActive().filter(expense => {
-    return getExpenseFlowStatus(expense) === "checked";
-  });
+  return annualExpensesActive().filter((expense) => getExpenseFlowStatus(expense) === "checked");
 }
 
 function oneTimeHistoryList() {
@@ -701,13 +641,11 @@ function totalAnnualActive() {
 
 function totalLoanMonthly() {
   return state.plans
-    .filter(plan => plan.type === "loan")
-    .reduce((sum, plan) => {
-      return sum + Number(plan.monthly || 0);
-    }, 0);
+    .filter((plan) => plan.type === "loan")
+    .reduce((sum, plan) => sum + Number(plan.monthly || 0), 0);
 }
 
-function totalOneTimePendingForMonth() {
+function totalOneTimePending() {
   return oneTimeExpensesActive().reduce((sum, expense) => {
     return sum + Number(expense.amount || 0);
   }, 0);
@@ -715,18 +653,14 @@ function totalOneTimePendingForMonth() {
 
 function spentOneTimeThisMonth(month) {
   return oneTimeHistoryList()
-    .filter(expense => monthValue(expense.historyAt) === month)
-    .reduce((sum, expense) => {
-      return sum + Number(expense.amount || 0);
-    }, 0);
+    .filter((expense) => monthValue(expense.historyAt) === month)
+    .reduce((sum, expense) => sum + Number(expense.amount || 0), 0);
 }
 
 function spentAnnualThisMonth(month) {
   return annualHistoryList()
-    .filter(expense => monthValue(expense.historyAt) === month)
-    .reduce((sum, expense) => {
-      return sum + Number(expense.amount || 0);
-    }, 0);
+    .filter((expense) => monthValue(expense.historyAt) === month)
+    .reduce((sum, expense) => sum + Number(expense.amount || 0), 0);
 }
 
 function fixedMonthProgress(month) {
@@ -760,22 +694,14 @@ function monthlyPressure(month) {
 }
 
 function suggestedSaving() {
-  return Math.max(
-    0,
-    Number(state.profile.monthlyIncome || 0) - monthlyPressure(selectedReportMonth())
-  );
+  return Math.max(0, Number(state.profile.monthlyIncome || 0) - monthlyPressure(selectedReportMonth()));
 }
 
 function forecastSummary(month) {
   const fixed = totalFixedForMonth(month);
-
   const annualTotal = totalAnnualActive();
-
   const loans = totalLoanMonthly();
-
-  const oneTime = oneTimeExpensesActive().reduce((sum, expense) => {
-    return sum + Number(expense.amount || 0);
-  }, 0);
+  const oneTime = totalOneTimePending();
 
   return {
     fixed,
@@ -787,8 +713,8 @@ function forecastSummary(month) {
 }
 
 function taskStats() {
-  const done = state.tasks.filter(task => task.done).length;
-  const open = state.tasks.filter(task => !task.done).length;
+  const done = state.tasks.filter((task) => task.done).length;
+  const open = state.tasks.filter((task) => !task.done).length;
   const total = state.tasks.length;
 
   return {
@@ -818,36 +744,19 @@ function playerTitle() {
 }
 
 /* =========================
-   10. 頁面切換
+   Page / Theme / Forms
 ========================= */
 
 const pageInfo = {
-  expenses: [
-    "開銷首頁",
-    "主頁負責顯示、添加、追蹤與查看開銷歷史。"
-  ],
-  tasks: [
-    "任務 RPG",
-    "完成任務就獲得 XP，讓大腦有一點獎勵感。"
-  ],
-  plans: [
-    "長期付款 / 存款",
-    "管理貸款、分期、存款目標和每月應存金額。"
-  ],
-  profile: [
-    "我的資料 / 統計",
-    "查看統計、歷史與每月預測。"
-  ]
+  expenses: ["開銷首頁", "主頁負責顯示、添加、追蹤與查看開銷歷史。"],
+  tasks: ["任務 RPG", "完成任務就獲得 XP，讓大腦有一點獎勵感。"],
+  plans: ["長期付款 / 存款", "管理貸款、分期、存款目標和每月應存金額。"],
+  profile: ["我的資料 / 統計", "查看統計、歷史與每月預測。"]
 };
 
 function showPage(page) {
-  document.querySelectorAll(".page").forEach(el => {
-    el.classList.remove("active");
-  });
-
-  document.querySelectorAll(".menu-btn").forEach(el => {
-    el.classList.remove("active");
-  });
+  document.querySelectorAll(".page").forEach((el) => el.classList.remove("active"));
+  document.querySelectorAll(".menu-btn").forEach((el) => el.classList.remove("active"));
 
   const pageEl = $(`page-${page}`);
   const btnEl = document.querySelector(`[data-page="${page}"]`);
@@ -866,33 +775,21 @@ function showPage(page) {
   render();
 }
 
-document.querySelectorAll(".menu-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    showPage(btn.dataset.page);
-  });
+document.querySelectorAll(".menu-btn").forEach((btn) => {
+  btn.addEventListener("click", () => showPage(btn.dataset.page));
 });
 
 on("mobileMenuBtn", "click", () => {
   const sidebar = $("sidebar");
-
-  if (sidebar) {
-    sidebar.classList.toggle("show");
-  }
+  if (sidebar) sidebar.classList.toggle("show");
 });
-
-/* =========================
-   11. 黑暗模式
-========================= */
 
 function applyTheme(theme) {
   document.documentElement.setAttribute("data-theme", theme);
   localStorage.setItem(THEME_KEY, theme);
 
   const btn = $("themeToggle");
-
-  if (btn) {
-    btn.textContent = theme === "dark" ? "☀️ 亮色" : "🌙 黑暗";
-  }
+  if (btn) btn.textContent = theme === "dark" ? "☀️ 亮色" : "🌙 黑暗";
 }
 
 function initTheme() {
@@ -906,10 +803,6 @@ on("themeToggle", "click", () => {
 });
 
 initTheme();
-
-/* =========================
-   12. 表單：新增開銷
-========================= */
 
 on("expenseType", "change", () => {
   const type = getValue("expenseType");
@@ -945,33 +838,24 @@ on("expenseForm", "submit", (event) => {
     amount,
     date,
     note: note || (type === "fixed" ? "每月一定要付" : ""),
-    spent: false,
     flowStatus: "open",
     checkedAt: "",
     historyAt: "",
     createdAt: todayISO()
   });
 
-  repairSystemData();
+  saveState();
+  render();
 
   setValue("expenseName", "");
   setValue("expenseAmount", "");
   setValue("expenseDate", defaultExpenseDateForType(type));
   setValue("expenseNote", "");
-
-  render();
 });
-
-/* =========================
-   13. 表單：新增任務
-========================= */
 
 on("openTaskFormBtn", "click", () => {
   const form = $("taskForm");
-
-  if (form) {
-    form.classList.toggle("hidden");
-  }
+  if (form) form.classList.toggle("hidden");
 });
 
 on("taskForm", "submit", (event) => {
@@ -1002,18 +886,11 @@ on("taskForm", "submit", (event) => {
   setValue("taskNote", "");
 
   const form = $("taskForm");
-
-  if (form) {
-    form.classList.add("hidden");
-  }
+  if (form) form.classList.add("hidden");
 
   saveState();
   render();
 });
-
-/* =========================
-   14. 表單：新增長期項目
-========================= */
 
 on("planForm", "submit", (event) => {
   event.preventDefault();
@@ -1054,20 +931,15 @@ on("planForm", "submit", (event) => {
     createdAt: todayISO()
   });
 
-  repairSystemData();
+  saveState();
+  render();
 
   setValue("planName", "");
   setValue("planTotal", "");
   setValue("planCurrent", "");
   setValue("planMonthly", "");
   setValue("planDeadline", "");
-
-  render();
 });
-
-/* =========================
-   15. 表單：個人資料
-========================= */
 
 on("profileForm", "submit", (event) => {
   event.preventDefault();
@@ -1075,21 +947,14 @@ on("profileForm", "submit", (event) => {
   state.profile.name = getValue("profileName").trim();
   state.profile.monthlyIncome = Number(getValue("monthlyIncome") || 0);
   state.profile.entertainmentBudget = Number(getValue("entertainmentBudget") || 0);
-  state.profile.reportMonth = getValue("reportMonth") || state.profile.reportMonth || thisMonthISO();
-  state.profile.forecastMonth = getValue("forecastMonth") || state.profile.forecastMonth || nextMonthISO(state.profile.reportMonth);
+  state.profile.reportMonth = getValue("reportMonth") || selectedReportMonth();
+  state.profile.forecastMonth = getValue("forecastMonth") || selectedForecastMonth();
 
   saveState();
   render();
 
   alert("已保存資料。");
 });
-
-/* =========================
-   16. 動態月份監聽
-========================= */
-/* =========================
-   16. 動態月份監聽
-========================= */
 
 document.addEventListener("change", (event) => {
   const target = event.target;
@@ -1124,26 +989,15 @@ document.addEventListener("change", (event) => {
     saveState();
     render();
   }
-
-  if (target.id === "forecastDate") {
-    const month = monthValue(target.value);
-
-    if (month) {
-      state.profile.forecastMonth = month;
-      saveState();
-      render();
-    }
-  }
 });
 
 /* =========================
-   17. 操作功能
+   App Actions
 ========================= */
 
 window.App = {
   deleteExpense(id) {
-    const target = state.expenses.find(expense => expense.id === id);
-
+    const target = state.expenses.find((expense) => expense.id === id);
     if (!target) return;
 
     if (isSystemFixedExpense(target)) {
@@ -1155,17 +1009,15 @@ window.App = {
 
     if (!confirm("確定刪除這筆開銷嗎？")) return;
 
-    state.expenses = state.expenses.filter(expense => expense.id !== id);
+    state.expenses = state.expenses.filter((expense) => expense.id !== id);
 
     saveState();
     render();
   },
 
   stepExpense(id) {
-    const target = state.expenses.find(expense => expense.id === id);
-
-    if (!target) return;
-    if (target.type === "fixed") return;
+    const target = state.expenses.find((expense) => expense.id === id);
+    if (!target || target.type === "fixed") return;
 
     if (target.flowStatus === "open") {
       target.flowStatus = "checked";
@@ -1180,10 +1032,8 @@ window.App = {
   },
 
   undoExpense(id) {
-    const target = state.expenses.find(expense => expense.id === id);
-
-    if (!target) return;
-    if (target.type === "fixed") return;
+    const target = state.expenses.find((expense) => expense.id === id);
+    if (!target || target.type === "fixed") return;
 
     if (target.flowStatus === "checked") {
       target.flowStatus = "open";
@@ -1198,8 +1048,7 @@ window.App = {
   },
 
   restoreHistoryExpense(id) {
-    const target = state.expenses.find(expense => expense.id === id);
-
+    const target = state.expenses.find((expense) => expense.id === id);
     if (!target) return;
 
     target.flowStatus = "open";
@@ -1247,8 +1096,7 @@ window.App = {
   },
 
   completeTask(id) {
-    const task = state.tasks.find(item => item.id === id);
-
+    const task = state.tasks.find((item) => item.id === id);
     if (!task || task.done) return;
 
     task.done = true;
@@ -1262,18 +1110,17 @@ window.App = {
   deleteTask(id) {
     if (!confirm("確定刪除這個任務嗎？")) return;
 
-    state.tasks = state.tasks.filter(task => task.id !== id);
+    state.tasks = state.tasks.filter((task) => task.id !== id);
 
     saveState();
     render();
   },
 
   updatePlanCurrent(id, value) {
-    const plan = state.plans.find(item => item.id === id);
-
+    const plan = state.plans.find((item) => item.id === id);
     if (!plan) return;
 
-    if (plan.carLoan || plan.locked || String(plan.name || "").includes("車貸")) {
+    if (plan.carLoan || String(plan.name || "").includes("車貸")) {
       alert("車貸資料已固定，不能手動修改。");
       repairSystemData();
       render();
@@ -1287,11 +1134,10 @@ window.App = {
   },
 
   deletePlan(id) {
-    const target = state.plans.find(item => item.id === id);
-
+    const target = state.plans.find((item) => item.id === id);
     if (!target) return;
 
-    if (target.carLoan || target.locked || String(target.name || "").includes("車貸")) {
+    if (target.carLoan || String(target.name || "").includes("車貸")) {
       alert("車貸資料已固定，不能刪除。");
       repairSystemData();
       render();
@@ -1300,7 +1146,7 @@ window.App = {
 
     if (!confirm("確定刪除這個長期項目嗎？")) return;
 
-    state.plans = state.plans.filter(plan => plan.id !== id);
+    state.plans = state.plans.filter((plan) => plan.id !== id);
 
     saveState();
     render();
@@ -1308,7 +1154,7 @@ window.App = {
 };
 
 /* =========================
-   18. 匯入 / 匯出 / 重置
+   Import / Export / Reset
 ========================= */
 
 on("exportBtn", "click", () => {
@@ -1317,7 +1163,6 @@ on("exportBtn", "click", () => {
   });
 
   const a = document.createElement("a");
-
   a.href = URL.createObjectURL(blob);
   a.download = `mytask-pro-backup-${todayISO()}.json`;
   a.click();
@@ -1327,7 +1172,6 @@ on("exportBtn", "click", () => {
 
 on("importFile", "change", async (event) => {
   const file = event.target.files[0];
-
   if (!file) return;
 
   try {
@@ -1357,12 +1201,13 @@ on("resetBtn", "click", () => {
   if (!confirm("確定重置全部資料嗎？")) return;
 
   state = defaultState();
+
   repairSystemData();
   render();
 });
 
 /* =========================
-   19. HTML 小工具
+   HTML Components
 ========================= */
 
 function empty(text) {
@@ -1379,11 +1224,7 @@ function groupBlock(title, html) {
 }
 
 function statusBadge(text, color = "") {
-  return `
-    <span class="status-badge ${color}">
-      ${text}
-    </span>
-  `;
+  return `<span class="status-badge ${color}">${text}</span>`;
 }
 
 function progressBar(percent) {
@@ -1407,10 +1248,7 @@ function expenseCard(item) {
         ? "一次性"
         : "固定";
 
-  const dateLabel =
-    item.type === "annual" || item.type === "oneTime"
-      ? "截止日期"
-      : "開始日期";
+  const dateLabel = item.type === "annual" || item.type === "oneTime" ? "截止日期" : "開始日期";
 
   let actions = "";
 
@@ -1521,20 +1359,13 @@ function fixedExpenseCard(item, month) {
 
 function fixedHistoryCard(month) {
   const due = fixedExpensesForMonth(month);
-
   if (!due.length) return "";
 
   const progress = fixedMonthProgress(month);
 
-  const detail = due.map(item => {
+  const detail = due.map((item) => {
     const status = getFixedStatus(item.id, month);
-
-    const badge =
-      status === "done"
-        ? "完成"
-        : status === "checked"
-          ? "已打勾"
-          : "未完成";
+    const badge = status === "done" ? "完成" : status === "checked" ? "已打勾" : "未完成";
 
     return `
       <div style="display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);">
@@ -1554,12 +1385,10 @@ function fixedHistoryCard(month) {
           <span>總額</span>
           <strong>${money(progress.totalAmount)}</strong>
         </div>
-
         <div>
           <span>已完成</span>
           <strong>${money(progress.doneAmount)}</strong>
         </div>
-
         <div>
           <span>進度</span>
           <strong>${pct(progress.percent)}</strong>
@@ -1569,8 +1398,7 @@ function fixedHistoryCard(month) {
       ${progressBar(progress.percent)}
 
       <div class="list-meta" style="margin-top:8px;">
-        已打勾：${money(progress.checkedAmount)}｜
-        狀態：${progress.status}
+        已打勾：${money(progress.checkedAmount)}｜狀態：${progress.status}
       </div>
 
       <div style="margin-top:12px;">
@@ -1581,23 +1409,10 @@ function fixedHistoryCard(month) {
 }
 
 function planCard(plan) {
-  const isCarLoan =
-    plan.carLoan ||
-    plan.locked ||
-    String(plan.name || "").includes("車貸");
-
+  const isCarLoan = plan.carLoan || String(plan.name || "").includes("車貸");
   const currency = plan.currency || "SGD";
-
-  const progress =
-    plan.total
-      ? (Number(plan.current || 0) / Number(plan.total || 1)) * 100
-      : 0;
-
-  const remain = Math.max(
-    0,
-    Number(plan.total || 0) - Number(plan.current || 0)
-  );
-
+  const progress = plan.total ? (Number(plan.current || 0) / Number(plan.total || 1)) * 100 : 0;
+  const remain = Math.max(0, Number(plan.total || 0) - Number(plan.current || 0));
   const months = plan.deadline ? monthsUntil(plan.deadline) : null;
   const needMonthly = months ? remain / months : 0;
 
@@ -1615,7 +1430,7 @@ function planCard(plan) {
     ? `
       <div class="list-meta" style="margin-top:8px;">
         🔒 已固定，不能手動修改｜
-        開始供：14/3/2025｜
+        開始供：14/4/2025｜
         已供到：2026 年 4 月｜
         下一期：2026/5/14｜
         5月尚未付款
@@ -1631,15 +1446,8 @@ function planCard(plan) {
     `
     : `
       <div class="list-actions">
-        <input
-          type="number"
-          value="${Number(plan.current || 0)}"
-          onchange="App.updatePlanCurrent('${plan.id}', this.value)"
-        />
-
-        <button class="mini-btn red" onclick="App.deletePlan('${plan.id}')">
-          刪除
-        </button>
+        <input type="number" value="${Number(plan.current || 0)}" onchange="App.updatePlanCurrent('${plan.id}', this.value)" />
+        <button class="mini-btn red" onclick="App.deletePlan('${plan.id}')">刪除</button>
       </div>
     `;
 
@@ -1653,12 +1461,10 @@ function planCard(plan) {
           <span>總額</span>
           <strong>${money(plan.total, currency)}</strong>
         </div>
-
         <div>
           <span>已完成 / 已還</span>
           <strong>${money(plan.current, currency)}</strong>
         </div>
-
         <div>
           <span>${plan.type === "loan" ? "每月付款" : "每月建議"}</span>
           <strong>${monthlyText}</strong>
@@ -1683,10 +1489,7 @@ function taskCard(task) {
     <article class="list-card">
       <div class="list-top">
         <div>
-          <div class="list-title">
-            ${task.done ? "✅ " : ""}${esc(task.title)}
-          </div>
-
+          <div class="list-title">${task.done ? "✅ " : ""}${esc(task.title)}</div>
           <div class="list-meta">
             ${esc(task.category)}｜+${task.xp} XP
             ${task.createdAt ? `｜建立：${esc(task.createdAt)}` : ""}
@@ -1699,12 +1502,7 @@ function taskCard(task) {
       </div>
 
       <div class="list-actions">
-        ${
-          task.done
-            ? ""
-            : `<button class="mini-btn green" onclick="App.completeTask('${task.id}')">完成 +XP</button>`
-        }
-
+        ${task.done ? "" : `<button class="mini-btn green" onclick="App.completeTask('${task.id}')">完成 +XP</button>`}
         <button class="mini-btn red" onclick="App.deleteTask('${task.id}')">刪除</button>
       </div>
     </article>
@@ -1720,7 +1518,6 @@ function chartRow(label, value, max, colorClass = "") {
         <span>${label}</span>
         <strong>${money(value)}</strong>
       </div>
-
       <div class="chart-bar ${colorClass}">
         <span style="width:${pct(width)}"></span>
       </div>
@@ -1737,7 +1534,6 @@ function countChart(label, value, max, colorClass = "") {
         <span>${label}</span>
         <strong>${value}</strong>
       </div>
-
       <div class="chart-bar ${colorClass}">
         <span style="width:${pct(width)}"></span>
       </div>
@@ -1746,37 +1542,29 @@ function countChart(label, value, max, colorClass = "") {
 }
 
 /* =========================
-   20. Render：開銷首頁
+   Render Sections
 ========================= */
 
 function renderFixedSection() {
   const month = selectedReportMonth();
   const due = fixedExpensesForMonth(month);
 
-  const pending = due.filter(item => getFixedStatus(item.id, month) === "open");
-  const checked = due.filter(item => getFixedStatus(item.id, month) === "checked");
-  const done = due.filter(item => getFixedStatus(item.id, month) === "done");
+  const pending = due.filter((item) => getFixedStatus(item.id, month) === "open");
+  const checked = due.filter((item) => getFixedStatus(item.id, month) === "checked");
+  const done = due.filter((item) => getFixedStatus(item.id, month) === "done");
 
   const html = [
     groupBlock(
       "待完成固定開銷",
-      pending.length
-        ? pending.map(item => fixedExpenseCard(item, month)).join("")
-        : empty("本月沒有待完成固定開銷。")
+      pending.length ? pending.map((item) => fixedExpenseCard(item, month)).join("") : empty("本月沒有待完成固定開銷。")
     ),
-
     groupBlock(
       "已打勾，等待確認",
-      checked.length
-        ? checked.map(item => fixedExpenseCard(item, month)).join("")
-        : empty("沒有已打勾的固定開銷。")
+      checked.length ? checked.map((item) => fixedExpenseCard(item, month)).join("") : empty("沒有已打勾的固定開銷。")
     ),
-
     groupBlock(
       "本月已完成",
-      done.length
-        ? done.map(item => fixedExpenseCard(item, month)).join("")
-        : empty("本月還沒有完成的固定開銷。")
+      done.length ? done.map((item) => fixedExpenseCard(item, month)).join("") : empty("本月還沒有完成的固定開銷。")
     )
   ].join("");
 
@@ -1791,16 +1579,11 @@ function renderAnnualSection() {
   const html = [
     groupBlock(
       "待處理的一年一次費用",
-      open.length
-        ? open.map(expenseCard).join("")
-        : empty("還沒有年費。")
+      open.length ? open.map(expenseCard).join("") : empty("還沒有年費。")
     ),
-
     groupBlock(
       "已打勾，等待確認",
-      checked.length
-        ? checked.map(expenseCard).join("")
-        : empty("沒有已打勾的年費。")
+      checked.length ? checked.map(expenseCard).join("") : empty("沒有已打勾的年費。")
     )
   ].join("");
 
@@ -1809,22 +1592,17 @@ function renderAnnualSection() {
 }
 
 function renderOneTimeSection() {
-  const open = oneTimeOpenByMonth();
-  const checked = oneTimeCheckedByMonth();
+  const open = oneTimeOpenList();
+  const checked = oneTimeCheckedList();
 
   const html = [
     groupBlock(
       "待處理的一次性開銷",
-      open.length
-        ? open.map(expenseCard).join("")
-        : empty("目前沒有待處理的一次性開銷。")
+      open.length ? open.map(expenseCard).join("") : empty("目前沒有待處理的一次性開銷。")
     ),
-
     groupBlock(
       "已打勾，等待確認",
-      checked.length
-        ? checked.map(expenseCard).join("")
-        : empty("沒有已打勾的一次性開銷。")
+      checked.length ? checked.map(expenseCard).join("") : empty("沒有已打勾的一次性開銷。")
     )
   ].join("");
 
@@ -1835,19 +1613,14 @@ function renderOneTimeSection() {
 function renderExpenseHistoryAndForecast() {
   const reportMonth = selectedReportMonth();
   const forecastMonth = selectedForecastMonth();
-
   const wrap = ensureMount("expenseExtraArea", "page-expenses", "card");
 
   if (!wrap) return;
 
-  const earliestFixedMonth = monthValue(FIXED_START_DATE);
-
-  const monthList = getMonthList(earliestFixedMonth, reportMonth)
-    .reverse()
-    .slice(0, 12);
+  const monthList = getMonthList(monthValue(FIXED_START_DATE), reportMonth).reverse().slice(0, 12);
 
   const fixedHistoryHtml = monthList
-    .map(month => fixedHistoryCard(month))
+    .map((month) => fixedHistoryCard(month))
     .filter(Boolean)
     .join("") || empty("目前沒有固定開銷歷史。");
 
@@ -1878,7 +1651,6 @@ function renderExpenseHistoryAndForecast() {
           <label>統計月份</label>
           <input type="month" id="autoReportMonth" value="${esc(reportMonth)}">
         </div>
-
         <div>
           <label>預測月份</label>
           <input type="month" id="autoForecastMonth" value="${esc(forecastMonth)}">
@@ -1921,19 +1693,13 @@ function renderExpenseHistoryAndForecast() {
     <section class="card forecast-section" style="margin-top:20px;">
       <h3>預測提醒：一年一次費用</h3>
       <p class="section-desc">這裡不會因為月份不同而隱藏，日期會當作截止日期提醒你。</p>
-
-      <div class="history-list">
-        ${annualForecastList}
-      </div>
+      <div class="history-list">${annualForecastList}</div>
     </section>
 
     <section class="card forecast-section" style="margin-top:20px;">
       <h3>預測提醒：一次性開銷</h3>
       <p class="section-desc">這裡不會因為月份不同而隱藏，日期會當作截止日期提醒你。</p>
-
-      <div class="history-list">
-        ${oneTimeForecastList}
-      </div>
+      <div class="history-list">${oneTimeForecastList}</div>
     </section>
 
     <section class="card" style="margin-top:20px;">
@@ -1965,7 +1731,7 @@ function renderExpenses() {
   setText("heroMonthlyPressure", money(monthlyPressure(month)));
   setText("fixedTotal", money(totalFixedForMonth(month)));
   setText("annualMonthly", money(totalAnnualMonthly()));
-  setText("oneTimePending", money(totalOneTimePendingForMonth(month)));
+  setText("oneTimePending", money(totalOneTimePending()));
   setText("oneTimeSpent", money(spentOneTimeThisMonth(month)));
 
   renderFixedSection();
@@ -1974,63 +1740,31 @@ function renderExpenses() {
   renderExpenseHistoryAndForecast();
 }
 
-/* =========================
-   21. Render：任務 RPG
-========================= */
-
 function renderTasks() {
   const stats = taskStats();
 
   setText("playerLevel", playerLevel());
   setText("playerTitle", playerTitle());
-
   setWidth("xpBar", pct(currentLevelXp()));
   setText("xpText", `${currentLevelXp()} / 100 XP`);
-
   setText("taskOpenCount", stats.open);
   setText("taskDoneCount", stats.done);
   setText("totalXp", state.xp);
 
-  const sorted = [...state.tasks].sort((a, b) => {
-    return Number(a.done) - Number(b.done);
-  });
+  const sorted = [...state.tasks].sort((a, b) => Number(a.done) - Number(b.done));
 
-  setHTML(
-    "taskList",
-    sorted.length
-      ? sorted.map(taskCard).join("")
-      : empty("還沒有任務，右上角新增一個。")
-  );
+  setHTML("taskList", sorted.length ? sorted.map(taskCard).join("") : empty("還沒有任務，右上角新增一個。"));
 }
-
-/* =========================
-   22. Render：長期付款 / 存款
-========================= */
 
 function renderPlans() {
   setText("suggestedSaving", money(suggestedSaving()));
 
-  const goals = state.plans.filter(plan => plan.type === "savingGoal");
-  const loans = state.plans.filter(plan => plan.type === "loan");
+  const goals = state.plans.filter((plan) => plan.type === "savingGoal");
+  const loans = state.plans.filter((plan) => plan.type === "loan");
 
-  setHTML(
-    "savingGoalsList",
-    goals.length
-      ? goals.map(planCard).join("")
-      : empty("還沒有存款目標。")
-  );
-
-  setHTML(
-    "loanList",
-    loans.length
-      ? loans.map(planCard).join("")
-      : empty("還沒有貸款或長期付款。")
-  );
+  setHTML("savingGoalsList", goals.length ? goals.map(planCard).join("") : empty("還沒有存款目標。"));
+  setHTML("loanList", loans.length ? loans.map(planCard).join("") : empty("還沒有貸款或長期付款。"));
 }
-
-/* =========================
-   23. Render：資料 / 統計
-========================= */
 
 function renderProfile() {
   setValue("profileName", state.profile.name || "");
@@ -2040,12 +1774,11 @@ function renderProfile() {
   setValue("forecastMonth", selectedForecastMonth());
 
   const reportMonth = selectedReportMonth();
-
   const income = Number(state.profile.monthlyIncome || 0);
   const planSpend = monthlyPressure(reportMonth);
   const entertainment = Number(state.profile.entertainmentBudget || 0);
   const entertainmentSpent = spentOneTimeThisMonth(reportMonth);
-  const entertainmentPending = totalOneTimePendingForMonth(reportMonth);
+  const entertainmentPending = totalOneTimePending();
   const annualPaid = spentAnnualThisMonth(reportMonth);
   const fixedProgress = fixedMonthProgress(reportMonth);
   const stats = taskStats();
@@ -2053,95 +1786,86 @@ function renderProfile() {
   const maxSpending = Math.max(income, planSpend + entertainmentSpent + annualPaid, 1);
   const maxEntertainment = Math.max(entertainment, entertainmentSpent, entertainmentPending, 1);
 
-  setHTML(
-    "spendingChart",
-    [
-      chartRow("收入", income, maxSpending, "green"),
-      chartRow(`${reportMonth} 固定壓力`, planSpend, maxSpending, "orange"),
-      chartRow(`${reportMonth} 娛樂已花`, entertainmentSpent, maxEntertainment, "purple"),
-      chartRow(`${reportMonth} 娛樂待花`, entertainmentPending, maxEntertainment, "orange"),
-      chartRow(`${reportMonth} 年費已完成`, annualPaid, maxSpending, "green"),
-      chartRow("娛樂預算", entertainment, maxEntertainment, "green")
-    ].join("")
-  );
+  setHTML("spendingChart", [
+    chartRow("收入", income, maxSpending, "green"),
+    chartRow(`${reportMonth} 固定壓力`, planSpend, maxSpending, "orange"),
+    chartRow(`${reportMonth} 娛樂已花`, entertainmentSpent, maxEntertainment, "purple"),
+    chartRow("娛樂待花", entertainmentPending, maxEntertainment, "orange"),
+    chartRow(`${reportMonth} 年費已完成`, annualPaid, maxSpending, "green"),
+    chartRow("娛樂預算", entertainment, maxEntertainment, "green")
+  ].join(""));
 
-  setHTML(
-    "taskChart",
-    [
-      countChart("全部任務", stats.total, Math.max(1, stats.total), "purple"),
-      countChart("已完成", stats.done, Math.max(1, stats.total), "green"),
-      countChart("未完成", stats.open, Math.max(1, stats.total), "orange")
-    ].join("")
-  );
+  setHTML("taskChart", [
+    countChart("全部任務", stats.total, Math.max(1, stats.total), "purple"),
+    countChart("已完成", stats.done, Math.max(1, stats.total), "green"),
+    countChart("未完成", stats.open, Math.max(1, stats.total), "orange")
+  ].join(""));
 
-  setHTML(
-    "profileStats",
-    `
-      <article class="stat">
-        <span>統計月份</span>
-        <strong>${esc(reportMonth)}</strong>
-        <p>根據你選擇的月份統計</p>
-      </article>
+  setHTML("profileStats", `
+    <article class="stat">
+      <span>統計月份</span>
+      <strong>${esc(reportMonth)}</strong>
+      <p>根據你選擇的月份統計</p>
+    </article>
 
-      <article class="stat">
-        <span>每月收入</span>
-        <strong>${money(income)}</strong>
-        <p>你自己填寫</p>
-      </article>
+    <article class="stat">
+      <span>每月收入</span>
+      <strong>${money(income)}</strong>
+      <p>你自己填寫</p>
+    </article>
 
-      <article class="stat">
-        <span>每月固定壓力</span>
-        <strong>${money(planSpend)}</strong>
-        <p>4月不含固定開銷，5月開始計算</p>
-      </article>
+    <article class="stat">
+      <span>每月固定壓力</span>
+      <strong>${money(planSpend)}</strong>
+      <p>4月不含固定開銷，5月開始計算</p>
+    </article>
 
-      <article class="stat">
-        <span>建議可存</span>
-        <strong>${money(suggestedSaving())}</strong>
-        <p>收入扣除固定壓力後</p>
-      </article>
+    <article class="stat">
+      <span>建議可存</span>
+      <strong>${money(suggestedSaving())}</strong>
+      <p>收入扣除固定壓力後</p>
+    </article>
 
-      <article class="stat">
-        <span>娛樂已花</span>
-        <strong>${money(entertainmentSpent)}</strong>
-        <p>${esc(reportMonth)} 已確認完成</p>
-      </article>
+    <article class="stat">
+      <span>娛樂已花</span>
+      <strong>${money(entertainmentSpent)}</strong>
+      <p>${esc(reportMonth)} 已確認完成</p>
+    </article>
 
-      <article class="stat">
-        <span>娛樂待花</span>
-        <strong>${money(entertainmentPending)}</strong>
-        <p>${esc(reportMonth)} 尚未完成</p>
-      </article>
+    <article class="stat">
+      <span>娛樂待花</span>
+      <strong>${money(entertainmentPending)}</strong>
+      <p>所有尚未完成的一次性開銷</p>
+    </article>
 
-      <article class="stat">
-        <span>年費已完成</span>
-        <strong>${money(annualPaid)}</strong>
-        <p>${esc(reportMonth)} 進入歷史的一年一次費用</p>
-      </article>
+    <article class="stat">
+      <span>年費已完成</span>
+      <strong>${money(annualPaid)}</strong>
+      <p>${esc(reportMonth)} 進入歷史的一年一次費用</p>
+    </article>
 
-      <article class="stat">
-        <span>固定開銷完成率</span>
-        <strong>${pct(fixedProgress.percent)}</strong>
-        <p>${fixedProgress.status}｜${money(fixedProgress.doneAmount)} / ${money(fixedProgress.totalAmount)}</p>
-      </article>
+    <article class="stat">
+      <span>固定開銷完成率</span>
+      <strong>${pct(fixedProgress.percent)}</strong>
+      <p>${fixedProgress.status}｜${money(fixedProgress.doneAmount)} / ${money(fixedProgress.totalAmount)}</p>
+    </article>
 
-      <article class="stat">
-        <span>任務完成率</span>
-        <strong>${pct(stats.rate)}</strong>
-        <p>${stats.done} 完成 / ${stats.open} 剩餘</p>
-      </article>
+    <article class="stat">
+      <span>任務完成率</span>
+      <strong>${pct(stats.rate)}</strong>
+      <p>${stats.done} 完成 / ${stats.open} 剩餘</p>
+    </article>
 
-      <article class="stat">
-        <span>總 XP</span>
-        <strong>${state.xp}</strong>
-        <p>目前等級 LV ${playerLevel()}</p>
-      </article>
-    `
-  );
+    <article class="stat">
+      <span>總 XP</span>
+      <strong>${state.xp}</strong>
+      <p>目前等級 LV ${playerLevel()}</p>
+    </article>
+  `);
 }
 
 /* =========================
-   24. 主 Render
+   Main Render / Init
 ========================= */
 
 let isRendering = false;
@@ -2163,44 +1887,8 @@ function render() {
   isRendering = false;
 }
 
-/* =========================
-   25. 初始化
-========================= */
-
 repairSystemData();
 saveState();
 render();
 
-
-/* =========================
-   Main Render
-========================= */
-
-let isRendering = false;
-
-function render() {
-  if (isRendering) return;
-
-  isRendering = true;
-
-  setText("todayText", displayToday());
-
-  renderExpenses();
-  renderTasks();
-  renderPlans();
-  renderProfile();
-
-  saveState();
-
-  isRendering = false;
-}
-
-/* =========================
-   Init
-========================= */
-
-repairSystemData();
-saveState();
-render();
-
-console.log("MyTask JS loaded v1001");
+console.log("MyTask JS loaded v1004");
