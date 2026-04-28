@@ -4,11 +4,13 @@
 
    功能：
    1. 開銷首頁：固定開銷 / 每年一次 / 一次性娛樂開銷
-   2. 任務 RPG：完成任務加 XP、升級
-   3. 長期付款 / 存款：貸款、分期、存款目標
-   4. 我的資料 / 統計：收入、娛樂預算、花費與任務統計
-   5. 黑暗模式
-   6. 車貸修正：
+   2. 新增開銷日期
+   3. 任務 RPG：完成任務加 XP、升級
+   4. 長期付款 / 存款：貸款、分期、存款目標
+   5. 我的資料 / 統計：收入、娛樂預算、花費與任務統計
+   6. 統計月份 reportMonth
+   7. 黑暗模式
+   8. 車貸修正：
       - 開始供：14/3/2025
       - 已供到：2026 年 4 月
       - 2026 年 5 月尚未付款
@@ -102,6 +104,10 @@ function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
+function thisMonthISO() {
+  return todayISO().slice(0, 7);
+}
+
 function displayToday() {
   return new Date().toLocaleDateString("zh-Hant", {
     year: "numeric",
@@ -170,18 +176,24 @@ function countPaidMonthsInclusive(startDate, paidThrough) {
   );
 }
 
+function selectedMonth() {
+  return state.profile.reportMonth || thisMonthISO();
+}
+
 /* =========================
    3. 預設資料
 ========================= */
 
 function defaultState() {
   const paidMonths = countPaidMonthsInclusive("2025-03-14", "2026-04");
+  const today = todayISO();
 
   return {
     profile: {
       name: "",
       monthlyIncome: 0,
-      entertainmentBudget: 200
+      entertainmentBudget: 200,
+      reportMonth: thisMonthISO()
     },
 
     xp: 0,
@@ -193,7 +205,8 @@ function defaultState() {
         name: "房租",
         amount: 500,
         note: "每月一定要付",
-        createdAt: todayISO()
+        date: today,
+        createdAt: today
       },
       {
         id: uid(),
@@ -201,7 +214,8 @@ function defaultState() {
         name: "孝敬費（老爸）",
         amount: 250,
         note: "每月一定要付",
-        createdAt: todayISO()
+        date: today,
+        createdAt: today
       },
       {
         id: uid(),
@@ -209,7 +223,8 @@ function defaultState() {
         name: "Wifi",
         amount: 50,
         note: "每月一定要付",
-        createdAt: todayISO()
+        date: today,
+        createdAt: today
       },
       {
         id: uid(),
@@ -217,7 +232,8 @@ function defaultState() {
         name: "地鐵",
         amount: 150,
         note: "每月一定要付",
-        createdAt: todayISO()
+        date: today,
+        createdAt: today
       },
       {
         id: uid(),
@@ -225,7 +241,8 @@ function defaultState() {
         name: "吃飯",
         amount: 100,
         note: "每月一定要付",
-        createdAt: todayISO()
+        date: today,
+        createdAt: today
       }
     ],
 
@@ -237,7 +254,7 @@ function defaultState() {
         note: "每月底更新一次",
         xp: 25,
         done: false,
-        createdAt: todayISO()
+        createdAt: today
       },
       {
         id: uid(),
@@ -246,7 +263,7 @@ function defaultState() {
         note: "刪掉不重要的東西",
         xp: 10,
         done: false,
-        createdAt: todayISO()
+        createdAt: today
       }
     ],
 
@@ -260,7 +277,7 @@ function defaultState() {
         monthly: 0,
         currency: "SGD",
         deadline: "",
-        createdAt: todayISO()
+        createdAt: today
       },
       {
         id: uid(),
@@ -276,7 +293,7 @@ function defaultState() {
         nextDue: "2026-05-14",
         note: "5月尚未付款",
         carLoan: true,
-        createdAt: todayISO()
+        createdAt: today
       }
     ]
   };
@@ -321,6 +338,36 @@ function saveState() {
 /* =========================
    5. 資料修正
 ========================= */
+
+function normalizeData() {
+  if (!state.profile.reportMonth) {
+    state.profile.reportMonth = thisMonthISO();
+  }
+
+  state.expenses = state.expenses.map(expense => {
+    return {
+      ...expense,
+      date: expense.date || expense.createdAt || todayISO(),
+      createdAt: expense.createdAt || expense.date || todayISO()
+    };
+  });
+
+  state.tasks = state.tasks.map(task => {
+    return {
+      ...task,
+      createdAt: task.createdAt || todayISO()
+    };
+  });
+
+  state.plans = state.plans.map(plan => {
+    return {
+      ...plan,
+      createdAt: plan.createdAt || todayISO()
+    };
+  });
+
+  saveState();
+}
 
 function migrateCarLoanData() {
   const paidMonths = countPaidMonthsInclusive("2025-03-14", "2026-04");
@@ -377,6 +424,7 @@ function migrateCarLoanData() {
   saveState();
 }
 
+normalizeData();
 migrateCarLoanData();
 
 /* =========================
@@ -398,14 +446,31 @@ function activeOneTimeExpenses() {
 }
 
 function spentOneTimeThisMonth() {
-  const thisMonth = todayISO().slice(0, 7);
+  const month = selectedMonth();
 
   return state.expenses
     .filter(expense => {
       return (
         expense.type === "oneTime" &&
         expense.spent &&
-        String(expense.spentAt || "").slice(0, 7) === thisMonth
+        String(expense.spentAt || "").slice(0, 7) === month
+      );
+    })
+    .reduce((sum, expense) => {
+      return sum + Number(expense.amount || 0);
+    }, 0);
+}
+
+function oneTimePendingBySelectedMonth() {
+  const month = selectedMonth();
+
+  return state.expenses
+    .filter(expense => {
+      const date = expense.date || expense.createdAt || "";
+      return (
+        expense.type === "oneTime" &&
+        !expense.spent &&
+        String(date).slice(0, 7) === month
       );
     })
     .reduce((sum, expense) => {
@@ -583,6 +648,7 @@ on("expenseForm", "submit", event => {
   const type = getValue("expenseType");
   const name = getValue("expenseName").trim();
   const amount = Number(getValue("expenseAmount") || 0);
+  const date = getValue("expenseDate") || todayISO();
   const note = getValue("expenseNote").trim();
 
   if (!name) {
@@ -600,6 +666,7 @@ on("expenseForm", "submit", event => {
     type,
     name,
     amount,
+    date,
     note,
     spent: false,
     createdAt: todayISO()
@@ -607,6 +674,7 @@ on("expenseForm", "submit", event => {
 
   setValue("expenseName", "");
   setValue("expenseAmount", "");
+  setValue("expenseDate", todayISO());
   setValue("expenseNote", "");
 
   saveState();
@@ -718,11 +786,19 @@ on("profileForm", "submit", event => {
   state.profile.name = getValue("profileName").trim();
   state.profile.monthlyIncome = Number(getValue("monthlyIncome") || 0);
   state.profile.entertainmentBudget = Number(getValue("entertainmentBudget") || 0);
+  state.profile.reportMonth = getValue("reportMonth") || thisMonthISO();
 
   saveState();
   render();
 
   alert("已保存資料。");
+});
+
+on("reportMonth", "change", () => {
+  state.profile.reportMonth = getValue("reportMonth") || thisMonthISO();
+
+  saveState();
+  render();
 });
 
 /* =========================
@@ -826,6 +902,7 @@ on("importFile", "change", async event => {
     }
 
     state = imported;
+    normalizeData();
     migrateCarLoanData();
 
     saveState();
@@ -841,6 +918,8 @@ on("resetBtn", "click", () => {
   if (!confirm("確定重置全部資料嗎？")) return;
 
   state = defaultState();
+  normalizeData();
+  migrateCarLoanData();
 
   saveState();
   render();
@@ -870,6 +949,9 @@ function expenseCard(item, mode) {
       ? `年費：${money(item.amount)}｜月均：${money(monthly)}`
       : money(item.amount);
 
+  const dateText = item.date || item.createdAt || "";
+  const spentText = item.spentAt ? `｜實際花費：${esc(item.spentAt)}` : "";
+
   return `
     <article class="list-card">
       <div class="list-top">
@@ -877,6 +959,8 @@ function expenseCard(item, mode) {
           <div class="list-title">${esc(item.name)}</div>
           <div class="list-meta">
             ${amountText}
+            ${dateText ? "｜日期：" + esc(dateText) : ""}
+            ${spentText}
             ${item.note ? "｜" + esc(item.note) : ""}
           </div>
         </div>
@@ -905,6 +989,7 @@ function taskCard(task) {
 
           <div class="list-meta">
             ${esc(task.category)}｜+${task.xp} XP
+            ${task.createdAt ? "｜建立：" + esc(task.createdAt) : ""}
             ${task.note ? "｜" + esc(task.note) : ""}
             ${task.done ? "｜完成：" + esc(task.completedAt || "") : ""}
           </div>
@@ -1054,6 +1139,10 @@ function countChart(label, value, max, colorClass = "") {
 ========================= */
 
 function renderExpenses() {
+  if ($("expenseDate") && !getValue("expenseDate")) {
+    setValue("expenseDate", todayISO());
+  }
+
   const fixed = fixedExpenses();
   const annual = annualExpenses();
   const oneTime = activeOneTimeExpenses();
@@ -1153,22 +1242,26 @@ function renderProfile() {
   setValue("profileName", state.profile.name || "");
   setValue("monthlyIncome", state.profile.monthlyIncome || "");
   setValue("entertainmentBudget", state.profile.entertainmentBudget || "");
+  setValue("reportMonth", state.profile.reportMonth || thisMonthISO());
 
   const income = Number(state.profile.monthlyIncome || 0);
   const planSpend = monthlyPressure();
   const entertainment = Number(state.profile.entertainmentBudget || 0);
   const entertainmentSpent = spentOneTimeThisMonth();
+  const entertainmentPending = oneTimePendingBySelectedMonth();
   const stats = taskStats();
+  const month = selectedMonth();
 
   const maxSpending = Math.max(income, planSpend + entertainmentSpent, 1);
-  const maxEntertainment = Math.max(entertainment, entertainmentSpent, 1);
+  const maxEntertainment = Math.max(entertainment, entertainmentSpent, entertainmentPending, 1);
 
   setHTML(
     "spendingChart",
     [
       chartRow("收入", income, maxSpending, "green"),
       chartRow("固定壓力", planSpend, maxSpending, "orange"),
-      chartRow("本月娛樂已花", entertainmentSpent, maxEntertainment, "purple"),
+      chartRow(`${month} 娛樂已花`, entertainmentSpent, maxEntertainment, "purple"),
+      chartRow(`${month} 娛樂待花`, entertainmentPending, maxEntertainment, "orange"),
       chartRow("娛樂預算", entertainment, maxEntertainment, "green")
     ].join("")
   );
@@ -1185,6 +1278,12 @@ function renderProfile() {
   setHTML(
     "profileStats",
     `
+      <article class="stat">
+        <span>統計月份</span>
+        <strong>${esc(month)}</strong>
+        <p>根據你選擇的月份統計</p>
+      </article>
+
       <article class="stat">
         <span>每月收入</span>
         <strong>${money(income)}</strong>
@@ -1204,9 +1303,27 @@ function renderProfile() {
       </article>
 
       <article class="stat">
+        <span>娛樂已花</span>
+        <strong>${money(entertainmentSpent)}</strong>
+        <p>${esc(month)} 已勾選花費</p>
+      </article>
+
+      <article class="stat">
+        <span>娛樂待花</span>
+        <strong>${money(entertainmentPending)}</strong>
+        <p>${esc(month)} 尚未勾選</p>
+      </article>
+
+      <article class="stat">
         <span>任務完成率</span>
         <strong>${pct(stats.rate)}</strong>
         <p>${stats.done} 完成 / ${stats.open} 剩餘</p>
+      </article>
+
+      <article class="stat">
+        <span>總 XP</span>
+        <strong>${state.xp}</strong>
+        <p>目前等級 LV ${playerLevel()}</p>
       </article>
     `
   );
