@@ -1,15 +1,12 @@
 /* ==========================================================
-   MyTask Pro JS
+   MyTask Pro JS - Locked System Data Version
    文件位置：js/myTask.js
 
-   已包含：
-   1. 4月暫時不算固定開銷，5月開始算固定開銷
-   2. 車貸固定，不能修改、不能刪除
-   3. 車貸自動恢復：RM 14,000 已還
-   4. 黑暗模式
-   5. 開銷日期 / 統計月份
-   6. 任務 RPG
-   7. 存款目標 / 長期付款
+   修復：
+   1. 車貸固定，不能修改 / 不能刪除
+   2. 固定開銷固定，不能刪除
+   3. 被刪掉的固定開銷會自動恢復
+   4. 4月不算固定開銷，5月開始算
    ========================================================== */
 
 const STORAGE_KEY = "mytask_pro_clean_v2";
@@ -194,7 +191,83 @@ function isExpenseActiveInMonth(expense, month) {
 }
 
 /* =========================
-   3. 預設資料
+   3. 系統固定資料
+========================= */
+
+function systemFixedExpenses() {
+  const today = todayISO();
+
+  return [
+    {
+      systemId: "rent",
+      type: "fixed",
+      name: "房租",
+      amount: 500,
+      note: "5月開始，每月一定要付",
+      date: FIXED_START_DATE,
+      createdAt: today,
+      locked: true,
+      systemLocked: true
+    },
+    {
+      systemId: "father",
+      type: "fixed",
+      name: "孝敬費（老爸）",
+      amount: 250,
+      note: "5月開始，每月一定要付",
+      date: FIXED_START_DATE,
+      createdAt: today,
+      locked: true,
+      systemLocked: true
+    },
+    {
+      systemId: "wifi",
+      type: "fixed",
+      name: "Wifi",
+      amount: 50,
+      note: "5月開始，每月一定要付",
+      date: FIXED_START_DATE,
+      createdAt: today,
+      locked: true,
+      systemLocked: true
+    },
+    {
+      systemId: "metro",
+      type: "fixed",
+      name: "地鐵",
+      amount: 150,
+      note: "5月開始，每月一定要付",
+      date: FIXED_START_DATE,
+      createdAt: today,
+      locked: true,
+      systemLocked: true
+    },
+    {
+      systemId: "food",
+      type: "fixed",
+      name: "吃飯",
+      amount: 100,
+      note: "5月開始，每月一定要付",
+      date: FIXED_START_DATE,
+      createdAt: today,
+      locked: true,
+      systemLocked: true
+    }
+  ];
+}
+
+function isSystemFixedExpense(expense) {
+  const names = ["房租", "孝敬費（老爸）", "Wifi", "地鐵", "吃飯"];
+
+  return (
+    expense.systemLocked ||
+    expense.locked ||
+    names.includes(String(expense.name || ""))
+  );
+}
+
+/* =========================
+   4. 預設資料
 ========================= */
 
 function defaultState() {
@@ -211,53 +284,10 @@ function defaultState() {
 
     xp: 0,
 
-    expenses: [
-      {
-        id: uid(),
-        type: "fixed",
-        name: "房租",
-        amount: 500,
-        note: "5月開始，每月一定要付",
-        date: FIXED_START_DATE,
-        createdAt: today
-      },
-      {
-        id: uid(),
-        type: "fixed",
-        name: "孝敬費（老爸）",
-        amount: 250,
-        note: "5月開始，每月一定要付",
-        date: FIXED_START_DATE,
-        createdAt: today
-      },
-      {
-        id: uid(),
-        type: "fixed",
-        name: "Wifi",
-        amount: 50,
-        note: "5月開始，每月一定要付",
-        date: FIXED_START_DATE,
-        createdAt: today
-      },
-      {
-        id: uid(),
-        type: "fixed",
-        name: "地鐵",
-        amount: 150,
-        note: "5月開始，每月一定要付",
-        date: FIXED_START_DATE,
-        createdAt: today
-      },
-      {
-        id: uid(),
-        type: "fixed",
-        name: "吃飯",
-        amount: 100,
-        note: "5月開始，每月一定要付",
-        date: FIXED_START_DATE,
-        createdAt: today
-      }
-    ],
+    expenses: systemFixedExpenses().map(item => ({
+      id: uid(),
+      ...item
+    })),
 
     tasks: [
       {
@@ -314,7 +344,7 @@ function defaultState() {
 }
 
 /* =========================
-   4. 讀取 / 保存資料
+   5. 讀取 / 保存資料
 ========================= */
 
 let state = loadState();
@@ -350,8 +380,35 @@ function saveState() {
 }
 
 /* =========================
-   5. 資料修正
+   6. 資料修復
 ========================= */
+
+function restoreSystemFixedExpenses() {
+  const defaults = systemFixedExpenses();
+
+  const nonSystemExpenses = state.expenses.filter(expense => {
+    return !isSystemFixedExpense(expense);
+  });
+
+  const restored = defaults.map(item => {
+    const existing = state.expenses.find(expense => {
+      return (
+        expense.systemId === item.systemId ||
+        String(expense.name || "") === item.name
+      );
+    });
+
+    return {
+      id: existing?.id || uid(),
+      ...item,
+      createdAt: existing?.createdAt || todayISO()
+    };
+  });
+
+  state.expenses = [...restored, ...nonSystemExpenses];
+
+  saveState();
+}
 
 function normalizeData() {
   if (!state.profile.reportMonth) {
@@ -365,16 +422,11 @@ function normalizeData() {
       createdAt: expense.createdAt || expense.date || todayISO()
     };
 
-    if (normalized.type === "fixed") {
-      const currentMonth = monthValue(normalized.date);
-
-      if (!currentMonth || currentMonth < "2026-05") {
-        normalized.date = FIXED_START_DATE;
-      }
-
-      if (!normalized.note || normalized.note.includes("每月一定要付")) {
-        normalized.note = "5月開始，每月一定要付";
-      }
+    if (normalized.type === "fixed" && isSystemFixedExpense(normalized)) {
+      normalized.date = FIXED_START_DATE;
+      normalized.note = "5月開始，每月一定要付";
+      normalized.locked = true;
+      normalized.systemLocked = true;
     }
 
     return normalized;
@@ -397,7 +449,11 @@ function migrateCarLoanData() {
   const paidMonths = countPaidMonthsInclusive("2025-03-14", "2026-04");
 
   const existingCar = state.plans.find(plan => {
-    return plan.name && String(plan.name).includes("車貸");
+    return (
+      plan.carLoan ||
+      plan.locked ||
+      String(plan.name || "").includes("車貸")
+    );
   });
 
   const carData = {
@@ -420,7 +476,7 @@ function migrateCarLoanData() {
 
   state.plans = state.plans.filter(plan => {
     const name = String(plan.name || "");
-    return !name.includes("車貸");
+    return !(plan.carLoan || plan.locked || name.includes("車貸"));
   });
 
   state.plans.unshift(carData);
@@ -433,11 +489,16 @@ function migrateCarLoanData() {
   saveState();
 }
 
-normalizeData();
-migrateCarLoanData();
+function repairSystemData() {
+  restoreSystemFixedExpenses();
+  normalizeData();
+  migrateCarLoanData();
+}
+
+repairSystemData();
 
 /* =========================
-   6. 計算
+   7. 計算
 ========================= */
 
 function fixedExpenses() {
@@ -564,7 +625,7 @@ function playerTitle() {
 }
 
 /* =========================
-   7. 頁面切換
+   8. 頁面切換
 ========================= */
 
 const pageInfo = {
@@ -627,7 +688,7 @@ on("mobileMenuBtn", "click", () => {
 });
 
 /* =========================
-   8. 黑暗模式
+   9. 黑暗模式
 ========================= */
 
 function applyTheme(theme) {
@@ -656,7 +717,7 @@ on("themeToggle", "click", () => {
 initTheme();
 
 /* =========================
-   9. 表單：新增開銷
+   10. 表單：新增開銷
 ========================= */
 
 on("expenseType", "change", () => {
@@ -697,6 +758,8 @@ on("expenseForm", "submit", event => {
     createdAt: todayISO()
   });
 
+  repairSystemData();
+
   setValue("expenseName", "");
   setValue("expenseAmount", "");
   setValue("expenseDate", defaultExpenseDateForType(type));
@@ -707,7 +770,7 @@ on("expenseForm", "submit", event => {
 });
 
 /* =========================
-   10. 表單：新增任務
+   11. 表單：新增任務
 ========================= */
 
 on("openTaskFormBtn", "click", () => {
@@ -756,7 +819,7 @@ on("taskForm", "submit", event => {
 });
 
 /* =========================
-   11. 表單：新增長期項目
+   12. 表單：新增長期項目
 ========================= */
 
 on("planForm", "submit", event => {
@@ -779,6 +842,13 @@ on("planForm", "submit", event => {
     return;
   }
 
+  if (name.includes("車貸")) {
+    alert("車貸是系統固定資料，不能新增或覆蓋。");
+    repairSystemData();
+    render();
+    return;
+  }
+
   state.plans.unshift({
     id: uid(),
     type,
@@ -791,7 +861,7 @@ on("planForm", "submit", event => {
     createdAt: todayISO()
   });
 
-  migrateCarLoanData();
+  repairSystemData();
 
   setValue("planName", "");
   setValue("planTotal", "");
@@ -804,7 +874,7 @@ on("planForm", "submit", event => {
 });
 
 /* =========================
-   12. 表單：個人資料
+   13. 表單：個人資料
 ========================= */
 
 on("profileForm", "submit", event => {
@@ -829,15 +899,27 @@ on("reportMonth", "change", () => {
 });
 
 /* =========================
-   13. 操作功能
+   14. 操作功能
 ========================= */
 
 window.App = {
   deleteExpense(id) {
+    const target = state.expenses.find(expense => expense.id === id);
+
+    if (!target) return;
+
+    if (isSystemFixedExpense(target)) {
+      alert("這是系統固定開銷，不能刪除。");
+      repairSystemData();
+      render();
+      return;
+    }
+
     if (!confirm("確定刪除這筆開銷嗎？")) return;
 
     state.expenses = state.expenses.filter(expense => expense.id !== id);
 
+    repairSystemData();
     saveState();
     render();
   },
@@ -883,7 +965,7 @@ window.App = {
 
     if (plan.carLoan || plan.locked || String(plan.name || "").includes("車貸")) {
       alert("車貸資料已固定，不能手動修改。");
-      migrateCarLoanData();
+      repairSystemData();
       render();
       return;
     }
@@ -901,7 +983,7 @@ window.App = {
 
     if (target.carLoan || target.locked || String(target.name || "").includes("車貸")) {
       alert("車貸資料已固定，不能刪除。");
-      migrateCarLoanData();
+      repairSystemData();
       render();
       return;
     }
@@ -910,13 +992,14 @@ window.App = {
 
     state.plans = state.plans.filter(plan => plan.id !== id);
 
+    repairSystemData();
     saveState();
     render();
   }
 };
 
 /* =========================
-   14. 匯入 / 匯出 / 重置
+   15. 匯入 / 匯出 / 重置
 ========================= */
 
 on("exportBtn", "click", () => {
@@ -947,8 +1030,7 @@ on("importFile", "change", async event => {
     }
 
     state = imported;
-    normalizeData();
-    migrateCarLoanData();
+    repairSystemData();
 
     saveState();
     render();
@@ -963,15 +1045,14 @@ on("resetBtn", "click", () => {
   if (!confirm("確定重置全部資料嗎？")) return;
 
   state = defaultState();
-  normalizeData();
-  migrateCarLoanData();
+  repairSystemData();
 
   saveState();
   render();
 });
 
 /* =========================
-   15. HTML 模板
+   16. HTML 模板
 ========================= */
 
 function empty(text) {
@@ -979,6 +1060,8 @@ function empty(text) {
 }
 
 function expenseCard(item, mode) {
+  const locked = isSystemFixedExpense(item);
+
   const monthly =
     mode === "annual"
       ? Number(item.amount || 0) / 12
@@ -988,6 +1071,10 @@ function expenseCard(item, mode) {
     mode === "oneTime"
       ? `<button class="mini-btn green" onclick="App.spendOneTime('${item.id}')">勾選已花</button>`
       : "";
+
+  const deleteButton = locked
+    ? `<button class="mini-btn" type="button" disabled>🔒 固定</button>`
+    : `<button class="mini-btn red" onclick="App.deleteExpense('${item.id}')">刪除</button>`;
 
   const amountText =
     mode === "annual"
@@ -1001,7 +1088,10 @@ function expenseCard(item, mode) {
     <article class="list-card">
       <div class="list-top">
         <div>
-          <div class="list-title">${esc(item.name)}</div>
+          <div class="list-title">
+            ${esc(item.name)} ${locked ? "🔒" : ""}
+          </div>
+
           <div class="list-meta">
             ${amountText}
             ${dateText ? "｜開始 / 日期：" + esc(dateText) : ""}
@@ -1017,7 +1107,7 @@ function expenseCard(item, mode) {
 
       <div class="list-actions">
         ${action}
-        <button class="mini-btn red" onclick="App.deleteExpense('${item.id}')">刪除</button>
+        ${deleteButton}
       </div>
     </article>
   `;
@@ -1195,7 +1285,7 @@ function countChart(label, value, max, colorClass = "") {
 }
 
 /* =========================
-   16. Render：開銷首頁
+   17. Render：開銷首頁
 ========================= */
 
 function renderExpenses() {
@@ -1244,7 +1334,7 @@ function renderExpenses() {
 }
 
 /* =========================
-   17. Render：任務 RPG
+   18. Render：任務 RPG
 ========================= */
 
 function renderTasks() {
@@ -1273,7 +1363,7 @@ function renderTasks() {
 }
 
 /* =========================
-   18. Render：長期付款 / 存款
+   19. Render：長期付款 / 存款
 ========================= */
 
 function renderPlans() {
@@ -1298,7 +1388,7 @@ function renderPlans() {
 }
 
 /* =========================
-   19. Render：資料 / 統計
+   20. Render：資料 / 統計
 ========================= */
 
 function renderProfile() {
@@ -1393,11 +1483,17 @@ function renderProfile() {
 }
 
 /* =========================
-   20. 主 Render
+   21. 主 Render
 ========================= */
 
+let isRendering = false;
+
 function render() {
-  migrateCarLoanData();
+  if (isRendering) return;
+
+  isRendering = true;
+
+  repairSystemData();
 
   setText("todayText", displayToday());
 
@@ -1407,10 +1503,12 @@ function render() {
   renderProfile();
 
   saveState();
+
+  isRendering = false;
 }
 
 /* =========================
-   21. 初始化
+   22. 初始化
 ========================= */
 
 saveState();
