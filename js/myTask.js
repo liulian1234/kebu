@@ -2,22 +2,14 @@
    MyTask Pro JS
    文件位置：js/myTask.js
 
-   功能：
-   1. 開銷首頁：固定開銷 / 每年一次 / 一次性娛樂開銷
-   2. 4月暫時不算固定開銷，5月開始才算固定開銷
-   3. 新增開銷日期 / 統計月份
-   4. 任務 RPG：完成任務加 XP、升級
-   5. 長期付款 / 存款：貸款、分期、存款目標
-   6. 我的資料 / 統計
-   7. 黑暗模式
-   8. 車貸固定：
-      - 開始供：14/3/2025
-      - 已供到：2026 年 4 月
-      - 2026 年 5 月尚未付款
-      - 每月 RM1,000，約 SGD334
-      - 已還 RM14,000
-      - 不能手動修改
-      - 不能刪除
+   已包含：
+   1. 4月暫時不算固定開銷，5月開始算固定開銷
+   2. 車貸固定，不能修改、不能刪除
+   3. 車貸自動恢復：RM 14,000 已還
+   4. 黑暗模式
+   5. 開銷日期 / 統計月份
+   6. 任務 RPG
+   7. 存款目標 / 長期付款
    ========================================================== */
 
 const STORAGE_KEY = "mytask_pro_clean_v2";
@@ -388,19 +380,15 @@ function normalizeData() {
     return normalized;
   });
 
-  state.tasks = state.tasks.map(task => {
-    return {
-      ...task,
-      createdAt: task.createdAt || todayISO()
-    };
-  });
+  state.tasks = state.tasks.map(task => ({
+    ...task,
+    createdAt: task.createdAt || todayISO()
+  }));
 
-  state.plans = state.plans.map(plan => {
-    return {
-      ...plan,
-      createdAt: plan.createdAt || todayISO()
-    };
-  });
+  state.plans = state.plans.map(plan => ({
+    ...plan,
+    createdAt: plan.createdAt || todayISO()
+  }));
 
   saveState();
 }
@@ -408,7 +396,12 @@ function normalizeData() {
 function migrateCarLoanData() {
   const paidMonths = countPaidMonthsInclusive("2025-03-14", "2026-04");
 
+  const existingCar = state.plans.find(plan => {
+    return plan.name && String(plan.name).includes("車貸");
+  });
+
   const carData = {
+    id: existingCar?.id || uid(),
     type: "loan",
     name: "車貸",
     total: 101094,
@@ -421,22 +414,16 @@ function migrateCarLoanData() {
     nextDue: "2026-05-14",
     note: "5月尚未付款",
     carLoan: true,
-    locked: true
+    locked: true,
+    createdAt: existingCar?.createdAt || todayISO()
   };
 
-  let car = state.plans.find(plan => {
-    return plan.name && plan.name.includes("車貸");
+  state.plans = state.plans.filter(plan => {
+    const name = String(plan.name || "");
+    return !name.includes("車貸");
   });
 
-  if (!car) {
-    state.plans.push({
-      id: uid(),
-      ...carData,
-      createdAt: todayISO()
-    });
-  } else {
-    Object.assign(car, carData);
-  }
+  state.plans.unshift(carData);
 
   state.expenses = state.expenses.filter(expense => {
     const name = String(expense.name || "");
@@ -1212,8 +1199,6 @@ function countChart(label, value, max, colorClass = "") {
 ========================= */
 
 function renderExpenses() {
-  migrateCarLoanData();
-
   const currentType = getValue("expenseType") || "fixed";
 
   if ($("expenseDate") && !getValue("expenseDate")) {
@@ -1292,8 +1277,6 @@ function renderTasks() {
 ========================= */
 
 function renderPlans() {
-  migrateCarLoanData();
-
   setText("suggestedSaving", money(suggestedSaving()));
 
   const goals = state.plans.filter(plan => plan.type === "savingGoal");
@@ -1413,13 +1396,7 @@ function renderProfile() {
    20. 主 Render
 ========================= */
 
-let isRendering = false;
-
 function render() {
-  if (isRendering) return;
-
-  isRendering = true;
-
   migrateCarLoanData();
 
   setText("todayText", displayToday());
@@ -1430,8 +1407,6 @@ function render() {
   renderProfile();
 
   saveState();
-
-  isRendering = false;
 }
 
 /* =========================
