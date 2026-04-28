@@ -818,7 +818,21 @@ textarea:focus {
 .chart-bar.purple span {
   background: var(--purple);
 }
+.expense-form {
+  grid-template-columns: 1fr 1.2fr 0.8fr 0.9fr 1fr auto;
+}
 
+@media (max-width: 1180px) {
+  .expense-form {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .expense-form {
+    grid-template-columns: 1fr;
+  }
+}
 /* ========== 16. Dark Mode ========== */
 
 html[data-theme="dark"] {
