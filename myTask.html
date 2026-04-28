@@ -4,373 +4,406 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>MyTask Pro | 個人任務與理財儀表板</title>
-  <meta name="description" content="個人任務、想買清單、存款目標、每月開銷與車貸進度管理。" />
+  <title>MyTask Pro | 開銷・任務・存款管理</title>
+  <meta name="description" content="一個乾淨、專業、適合每天使用的個人開銷、任務、長期付款與統計儀表板。" />
 
   <link rel="stylesheet" href="css/myTask.css" />
 </head>
 
 <body>
-  <div class="app-shell">
+  <div class="app">
     <aside class="sidebar" id="sidebar">
       <div class="brand">
-        <div class="brand-logo">M</div>
+        <div class="brand-mark">M</div>
         <div>
           <strong>MyTask Pro</strong>
-          <span>Personal Dashboard</span>
+          <span>Life Control Panel</span>
         </div>
       </div>
 
-      <nav class="side-nav">
-        <button class="nav-item active" data-page="overview">
-          <span>🏠</span> Overview
+      <nav class="menu">
+        <button class="menu-btn active" data-page="expenses">
+          <span>💳</span>
+          <b>開銷首頁</b>
         </button>
 
-        <button class="nav-item" data-page="add">
-          <span>＋</span> New Record
+        <button class="menu-btn" data-page="tasks">
+          <span>🎮</span>
+          <b>任務 RPG</b>
         </button>
 
-        <button class="nav-item" data-page="tasks">
-          <span>✅</span> Tasks
+        <button class="menu-btn" data-page="plans">
+          <span>🏦</span>
+          <b>長期付款 / 存款</b>
         </button>
 
-        <button class="nav-item" data-page="money">
-          <span>💰</span> Money
-        </button>
-
-        <button class="nav-item" data-page="expenses">
-          <span>💳</span> Expenses
-        </button>
-
-        <button class="nav-item" data-page="car">
-          <span>🚗</span> Car Loan
-        </button>
-
-        <button class="nav-item" data-page="settings">
-          <span>⚙️</span> Settings
+        <button class="menu-btn" data-page="profile">
+          <span>📊</span>
+          <b>我的資料 / 統計</b>
         </button>
       </nav>
 
-      <div class="sidebar-card">
-        <span>Today</span>
+      <div class="side-card">
+        <span>今天</span>
         <strong id="todayText">-</strong>
-        <p>每天只需要記下一點點，就會慢慢變清楚。</p>
+        <p>重點：不要把生活塞滿，只記真正需要管理的東西。</p>
       </div>
     </aside>
 
     <main class="main">
       <header class="topbar">
-        <div class="topbar-left">
-          <button class="icon-btn mobile-only" id="menuBtn">☰</button>
+        <div class="title-row">
+          <button class="icon-btn mobile-only" id="mobileMenuBtn">☰</button>
           <div>
-            <h1 id="pageTitle">Overview</h1>
-            <p id="pageDesc">今天先看最重要的任務、存款和開銷。</p>
+            <h1 id="pageTitle">開銷首頁</h1>
+            <p id="pageDesc">主頁只負責顯示與添加開銷，乾淨、直接、好記錄。</p>
           </div>
         </div>
 
-        <div class="topbar-actions">
-          <button class="btn btn-light" id="exportBtn">Export</button>
-          <label class="btn btn-light" for="importFile">Import</label>
-          <input type="file" id="importFile" accept="application/json" hidden />
-          <button class="btn btn-primary" data-go="add">＋ Add</button>
+        <div class="top-actions">
+          <button class="btn ghost" id="exportBtn">匯出</button>
+          <label class="btn ghost" for="importFile">匯入</label>
+          <input id="importFile" type="file" accept="application/json" hidden />
         </div>
       </header>
 
-      <section class="page active" id="page-overview">
-        <div class="hero-panel">
-          <div class="hero-copy">
-            <span class="eyebrow">Personal Mission Control</span>
-            <h2>把你的任務、錢和想買的東西整理好。</h2>
-            <p>
-              不需要一次做完。每天打開這裡，記錄一件事、更新一次存款、完成一個小任務就夠了。
-            </p>
+      <!-- PAGE 1: EXPENSES -->
+      <section class="page active" id="page-expenses">
+        <section class="hero expense-hero">
+          <div>
+            <span class="eyebrow">Monthly Expense Desk</span>
+            <h2>先把錢流去哪裡看清楚。</h2>
+            <p>固定開銷、每年一次費用、一次性娛樂開銷分開顯示。主頁只做一件事：讓你願意記錄開銷。</p>
           </div>
 
-          <div class="quick-add">
-            <label>快速記錄</label>
-            <div class="quick-row">
-              <input id="quickTitle" type="text" placeholder="例如：買貓糧、存 50、繳車貸..." />
-              <select id="quickType">
-                <option value="task">任務</option>
-                <option value="wish">想買</option>
-                <option value="expense">開銷</option>
-                <option value="saving">存錢</option>
+          <div class="hero-total">
+            <span>每月固定壓力</span>
+            <strong id="heroMonthlyPressure">SGD 0</strong>
+            <small>固定開銷 + 年費月均 + 長期付款</small>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h3>新增開銷</h3>
+              <p>選擇開銷類型，填名稱和金額即可。</p>
+            </div>
+          </div>
+
+          <form class="smart-form" id="expenseForm">
+            <div class="field">
+              <label>開銷類型</label>
+              <select id="expenseType">
+                <option value="fixed">固定開銷：每個月一定要付</option>
+                <option value="annual">每年一次：一年只付一次</option>
+                <option value="oneTime">一次性開銷：娛樂 / 臨時消費</option>
               </select>
-              <button id="quickAddBtn">加入</button>
             </div>
-          </div>
-        </div>
 
-        <div class="stats-grid">
-          <article class="stat-card">
-            <span>未完成任務</span>
-            <strong id="statOpenTasks">0</strong>
-            <p>還需要處理</p>
+            <div class="field">
+              <label>名稱</label>
+              <input id="expenseName" type="text" placeholder="例如：房租 / 保險 / 看電影" />
+            </div>
+
+            <div class="field">
+              <label>金額（SGD）</label>
+              <input id="expenseAmount" type="number" min="0" step="0.01" placeholder="例如：500" />
+            </div>
+
+            <div class="field">
+              <label>備註</label>
+              <input id="expenseNote" type="text" placeholder="可以不填" />
+            </div>
+
+            <button class="btn primary" type="submit">加入開銷</button>
+          </form>
+        </section>
+
+        <section class="summary-grid">
+          <article class="stat">
+            <span>Total 固定開銷</span>
+            <strong id="fixedTotal">SGD 0</strong>
+            <p>每月一定要付</p>
           </article>
 
-          <article class="stat-card">
-            <span>本月固定開銷</span>
-            <strong id="statExpense">SGD 0</strong>
-            <p>已換算成每月壓力</p>
+          <article class="stat">
+            <span>一年一次月均</span>
+            <strong id="annualMonthly">SGD 0</strong>
+            <p>年費 ÷ 12</p>
           </article>
 
-          <article class="stat-card">
-            <span>存款進度</span>
-            <strong id="statSaving">0%</strong>
-            <p id="statSavingText">SGD 0 / SGD 100,000</p>
+          <article class="stat">
+            <span>一次性待花</span>
+            <strong id="oneTimePending">SGD 0</strong>
+            <p>勾選花了就移除</p>
           </article>
 
-          <article class="stat-card">
-            <span>剩餘可用</span>
-            <strong id="statFree">-</strong>
-            <p>收入 - 開銷 - 目標存款</p>
+          <article class="stat">
+            <span>本月已花娛樂</span>
+            <strong id="oneTimeSpent">SGD 0</strong>
+            <p>已勾選的一次性開銷</p>
           </article>
-        </div>
+        </section>
 
-        <div class="content-grid">
-          <section class="panel large">
-            <div class="panel-head">
-              <div>
-                <h3>Priority Tasks</h3>
-                <p>先處理這幾件，不要讓清單變壓力。</p>
-              </div>
-              <button class="text-btn" data-go="tasks">View all</button>
+        <section class="expense-board">
+          <div class="expense-column">
+            <div class="column-head">
+              <h3>固定開銷</h3>
+              <span id="fixedCount">0 項</span>
             </div>
-
-            <div class="item-list" id="priorityTasks"></div>
-          </section>
-
-          <section class="panel">
-            <div class="panel-head">
-              <div>
-                <h3>Savings Goal</h3>
-                <p>100,000 SGD 目標進度。</p>
-              </div>
-              <button class="text-btn" data-go="money">Details</button>
-            </div>
-
-            <div class="goal-preview">
-              <div class="goal-number" id="overviewSavingAmount">SGD 0</div>
-
-              <div class="progress">
-                <span id="overviewSavingBar"></span>
-              </div>
-
-              <div class="progress-meta">
-                <span id="overviewSavingPercent">0%</span>
-                <span>Target SGD 100,000</span>
-              </div>
-            </div>
-          </section>
-
-          <section class="panel">
-            <div class="panel-head">
-              <div>
-                <h3>Smart Advice</h3>
-                <p>根據你的數據自動提醒。</p>
-              </div>
-            </div>
-
-            <div class="advice-box" id="adviceBox"></div>
-          </section>
-        </div>
-      </section>
-
-      <section class="page" id="page-add">
-        <section class="panel form-panel">
-          <div class="panel-head">
-            <div>
-              <h3>新增一筆記錄</h3>
-              <p>分類填清楚，之後回來看才舒服。</p>
-            </div>
+            <div class="list" id="fixedList"></div>
           </div>
 
-          <div class="record-tabs">
-            <button class="record-tab active" data-form="task">任務</button>
-            <button class="record-tab" data-form="wish">想買</button>
-            <button class="record-tab" data-form="expense">開銷</button>
-            <button class="record-tab" data-form="saving">存錢</button>
+          <div class="expense-column">
+            <div class="column-head">
+              <h3>每年一次費用</h3>
+              <span id="annualCount">0 項</span>
+            </div>
+            <div class="list" id="annualList"></div>
           </div>
 
-          <div id="formArea"></div>
+          <div class="expense-column">
+            <div class="column-head">
+              <h3>一次性開銷（娛樂）</h3>
+              <span id="oneTimeCount">0 項</span>
+            </div>
+            <div class="list" id="oneTimeList"></div>
+          </div>
         </section>
       </section>
 
+      <!-- PAGE 2: TASKS RPG -->
       <section class="page" id="page-tasks">
-        <section class="panel">
-          <div class="panel-head">
-            <div>
-              <h3>任務與想買清單</h3>
-              <p>可以勾選完成，也可以刪除不重要的。</p>
-            </div>
-            <button class="btn btn-primary" data-go="add">＋ Add</button>
+        <section class="hero task-hero">
+          <div>
+            <span class="eyebrow">Task RPG System</span>
+            <h2>把任務做成升級遊戲。</h2>
+            <p>完成任務會獲得 XP。不是為了壓力，而是讓大腦有獎勵感。</p>
           </div>
 
-          <div class="filter-row">
-            <button class="filter-btn active" data-filter="all">全部</button>
-            <button class="filter-btn" data-filter="task">任務</button>
-            <button class="filter-btn" data-filter="wish">想買</button>
-            <button class="filter-btn" data-filter="open">未完成</button>
-            <button class="filter-btn" data-filter="done">已完成</button>
-          </div>
-
-          <div class="item-list" id="taskList"></div>
-        </section>
-      </section>
-
-      <section class="page" id="page-money">
-        <div class="content-grid">
-          <section class="panel large">
-            <div class="panel-head">
-              <div>
-                <h3>100,000 SGD 存款目標</h3>
-                <p>更新目前存款後，系統會自動重新計算。</p>
-              </div>
+          <div class="player-card">
+            <div class="player-level">
+              <span>LV</span>
+              <strong id="playerLevel">1</strong>
             </div>
-
-            <div class="money-main">
-              <div>
-                <span>目前存款</span>
-                <strong id="moneyCurrent">SGD 0</strong>
-              </div>
-
+            <div class="player-info">
+              <strong id="playerTitle">Beginner</strong>
               <div class="progress">
-                <span id="moneyBar"></span>
+                <span id="xpBar"></span>
               </div>
+              <small id="xpText">0 / 100 XP</small>
+            </div>
+          </div>
+        </section>
 
-              <div class="progress-meta">
-                <span id="moneyPercent">0%</span>
-                <span id="moneyRemain">還差 SGD 100,000</span>
-              </div>
+        <section class="panel">
+          <div class="panel-head with-action">
+            <div>
+              <h3>任務列表</h3>
+              <p>完成任務後按「完成 +XP」，會自動增加分數。</p>
+            </div>
+            <button class="btn primary" id="openTaskFormBtn">＋ 增加任務</button>
+          </div>
+
+          <form class="smart-form task-form hidden" id="taskForm">
+            <div class="field">
+              <label>任務名稱</label>
+              <input id="taskTitle" type="text" placeholder="例如：剪一支影片 / 更新存款 / 學一小時 Kali" />
             </div>
 
-            <div class="inline-form">
-              <input id="savingInput" type="number" placeholder="輸入目前存款，例如 1200" />
-              <button class="btn btn-primary" id="updateSavingBtn">Update</button>
+            <div class="field">
+              <label>難度</label>
+              <select id="taskDifficulty">
+                <option value="10">簡單 +10 XP</option>
+                <option value="25">普通 +25 XP</option>
+                <option value="50">困難 +50 XP</option>
+                <option value="80">Boss 任務 +80 XP</option>
+              </select>
             </div>
-          </section>
 
-          <section class="panel">
+            <div class="field">
+              <label>分類</label>
+              <input id="taskCategory" type="text" placeholder="生活 / 工作 / 學習 / 賺錢" />
+            </div>
+
+            <div class="field">
+              <label>備註</label>
+              <input id="taskNote" type="text" placeholder="可以不填" />
+            </div>
+
+            <button class="btn primary" type="submit">新增任務</button>
+          </form>
+
+          <div class="task-stats">
+            <article>
+              <span>待完成</span>
+              <strong id="taskOpenCount">0</strong>
+            </article>
+
+            <article>
+              <span>已完成</span>
+              <strong id="taskDoneCount">0</strong>
+            </article>
+
+            <article>
+              <span>總 XP</span>
+              <strong id="totalXp">0</strong>
+            </article>
+          </div>
+
+          <div class="list task-list" id="taskList"></div>
+        </section>
+      </section>
+
+      <!-- PAGE 3: LONG PLANS -->
+      <section class="page" id="page-plans">
+        <section class="hero plan-hero">
+          <div>
+            <span class="eyebrow">Long-Term Planner</span>
+            <h2>長期需要付款的東西，全部放這裡。</h2>
+            <p>貸款、分期、存款目標都可以記錄。系統會依照工資扣除固定開銷後，建議每月可存多少。</p>
+          </div>
+
+          <div class="hero-total">
+            <span>建議每月可存</span>
+            <strong id="suggestedSaving">SGD 0</strong>
+            <small>收入 - 固定開銷 - 年費月均 - 長期付款</small>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h3>新增長期項目</h3>
+              <p>可以新增存款目標，也可以新增貸款或長期付款。</p>
+            </div>
+          </div>
+
+          <form class="smart-form" id="planForm">
+            <div class="field">
+              <label>類型</label>
+              <select id="planType">
+                <option value="savingGoal">存款目標</option>
+                <option value="loan">貸款 / 分期</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>名稱</label>
+              <input id="planName" type="text" placeholder="例如：10萬存款 / 車貸 / 電腦分期" />
+            </div>
+
+            <div class="field">
+              <label>目標 / 總額（SGD）</label>
+              <input id="planTotal" type="number" min="0" step="0.01" placeholder="例如：100000" />
+            </div>
+
+            <div class="field">
+              <label>目前已完成 / 已還（SGD）</label>
+              <input id="planCurrent" type="number" min="0" step="0.01" placeholder="例如：1200" />
+            </div>
+
+            <div class="field">
+              <label>每月付款（貸款才填）</label>
+              <input id="planMonthly" type="number" min="0" step="0.01" placeholder="例如：334" />
+            </div>
+
+            <div class="field">
+              <label>目標日期（存款可填）</label>
+              <input id="planDeadline" type="date" />
+            </div>
+
+            <button class="btn primary" type="submit">新增長期項目</button>
+          </form>
+        </section>
+
+        <section class="plan-grid">
+          <div class="panel">
             <div class="panel-head">
               <div>
-                <h3>Monthly Plan</h3>
-                <p>要在目標日期前達成。</p>
+                <h3>存款目標</h3>
+                <p>根據你的收入和開銷計算每月應存。</p>
               </div>
             </div>
+            <div class="list" id="savingGoalsList"></div>
+          </div>
 
-            <div class="mini-stack">
-              <div class="mini-card">
-                <span>剩餘月份</span>
-                <strong id="moneyMonths">0</strong>
-              </div>
-
-              <div class="mini-card">
-                <span>每月需存</span>
-                <strong id="moneyNeedMonthly">SGD 0</strong>
-              </div>
-
-              <div class="mini-card">
-                <span>每月開銷</span>
-                <strong id="moneyMonthlyExpense">SGD 0</strong>
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <h3>貸款 / 長期付款</h3>
+                <p>例如車貸、分期、長期固定付款。</p>
               </div>
             </div>
-          </section>
-        </div>
-      </section>
-
-      <section class="page" id="page-expenses">
-        <section class="panel">
-          <div class="panel-head">
-            <div>
-              <h3>開銷清單</h3>
-              <p>固定開銷越清楚，存錢計劃越準。</p>
-            </div>
-            <button class="btn btn-primary" data-go="add">＋ Add</button>
-          </div>
-
-          <div class="item-list" id="expenseList"></div>
-        </section>
-      </section>
-
-      <section class="page" id="page-car">
-        <section class="panel">
-          <div class="panel-head">
-            <div>
-              <h3>車貸進度</h3>
-              <p>以車價 RM101,094，每月 RM1,000，14/04/2025 開始粗估。</p>
-            </div>
-          </div>
-
-          <div class="stats-grid three">
-            <article class="stat-card">
-              <span>已還期數</span>
-              <strong id="carPaidMonths">0</strong>
-              <p>以月份估算</p>
-            </article>
-
-            <article class="stat-card">
-              <span>剩餘期數</span>
-              <strong id="carRemainMonths">0</strong>
-              <p id="carRemainYears">-</p>
-            </article>
-
-            <article class="stat-card">
-              <span>剩餘金額</span>
-              <strong id="carRemainAmount">RM 0</strong>
-              <p>未含利息變動</p>
-            </article>
-          </div>
-
-          <div class="progress big">
-            <span id="carProgressBar"></span>
-          </div>
-
-          <div class="progress-meta">
-            <span id="carProgressText">0%</span>
-            <span>車貸完成度</span>
+            <div class="list" id="loanList"></div>
           </div>
         </section>
       </section>
 
-      <section class="page" id="page-settings">
-        <section class="panel form-panel">
+      <!-- PAGE 4: PROFILE / STATS -->
+      <section class="page" id="page-profile">
+        <section class="panel">
           <div class="panel-head">
             <div>
-              <h3>設定</h3>
-              <p>這些數字會影響首頁和存錢計算。</p>
+              <h3>我的資料</h3>
+              <p>填寫收入和基本資料後，統計才會更準。</p>
             </div>
-            <button class="btn btn-danger" id="resetBtn">Reset</button>
+            <button class="btn danger" id="resetBtn">重置全部資料</button>
           </div>
 
-          <div class="form-grid">
+          <form class="profile-form" id="profileForm">
             <div class="field">
-              <label>每月收入 SGD</label>
-              <input id="settingIncome" type="number" min="0" />
+              <label>名字 / 暱稱</label>
+              <input id="profileName" type="text" placeholder="例如：Liew" />
             </div>
 
             <div class="field">
-              <label>目前存款 SGD</label>
-              <input id="settingCurrentSaving" type="number" min="0" />
+              <label>每月工資 / 收入（SGD）</label>
+              <input id="monthlyIncome" type="number" min="0" step="0.01" placeholder="例如：2500" />
             </div>
 
             <div class="field">
-              <label>存款目標 SGD</label>
-              <input id="settingTargetSaving" type="number" min="0" />
+              <label>每月娛樂預算（SGD）</label>
+              <input id="entertainmentBudget" type="number" min="0" step="0.01" placeholder="例如：200" />
             </div>
 
-            <div class="field">
-              <label>目標日期</label>
-              <input id="settingDeadline" type="date" />
+            <button class="btn primary" type="submit">保存資料</button>
+          </form>
+        </section>
+
+        <section class="stats-layout">
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <h3>每月花費計劃</h3>
+                <p>看你有沒有照計劃花費。</p>
+              </div>
             </div>
 
-            <div class="field">
-              <label>匯率：1 SGD = RM</label>
-              <input id="settingFx" type="number" min="0" step="0.0001" />
-            </div>
+            <div id="spendingChart" class="chart-list"></div>
           </div>
 
-          <div class="notice">
-            資料會保存在你的瀏覽器 localStorage。換電腦或清理瀏覽器之前，記得 Export 備份。
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <h3>任務完成度</h3>
+                <p>完成越多，XP 越高。</p>
+              </div>
+            </div>
+
+            <div id="taskChart" class="chart-list"></div>
+          </div>
+
+          <div class="panel full-width">
+            <div class="panel-head">
+              <div>
+                <h3>整體統計</h3>
+                <p>一眼看清楚你的財務和任務狀況。</p>
+              </div>
+            </div>
+
+            <div class="stats-grid" id="profileStats"></div>
           </div>
         </section>
       </section>
