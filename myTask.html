@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>我的任務・存款・開銷儀表板</title>
+  <style>
+    :root{
+      --bg:#071018;
+      --panel:#0d1823;
+      --panel-2:#101f2d;
+      --text:#e7f7ff;
+      --muted:#87a3b5;
+      --line:rgba(114,223,255,.18);
+      --accent:#49e6b1;
+      --accent2:#3fc6ff;
+      --danger:#ff6b7a;
+      --warning:#ffd166;
+      --ok:#49e6b1;
+      --shadow:0 24px 80px rgba(0,0,0,.35);
+      --radius:18px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(63,198,255,.16), transparent 32%),
+        radial-gradient(circle at 85% 12%, rgba(73,230,177,.12), transparent 28%),
+        linear-gradient(140deg,#04070d 0%,#071018 45%,#0b1722 100%);
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+
+    body:before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      opacity:.18;
+      background-image:
+        linear-gradient(rgba(63,198,255,.18) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(63,198,255,.14) 1px, transparent 1px);
+      background-size:54px 54px;
+      mask-image:linear-gradient(to bottom, rgba(0,0,0,.9), transparent 78%);
+    }
+
+    .wrap{width:min(1180px,92vw); margin:0 auto; padding:32px 0 70px; position:relative; z-index:1}
+    .hero{
+      display:grid;
+      grid-template-columns:1.15fr .85fr;
+      gap:22px;
+      align-items:stretch;
+      margin-bottom:22px;
+    }
+    .hero-card,.panel{
+      background:linear-gradient(180deg, rgba(16,31,45,.92), rgba(9,20,31,.92));
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+    .hero-card{padding:28px; position:relative; overflow:hidden; min-height:252px}
+    .hero-card:after{
+      content:"";
+      position:absolute;
+      right:-80px; top:-90px;
+      width:280px; height:280px;
+      background:radial-gradient(circle, rgba(73,230,177,.22), transparent 68%);
+      border-radius:50%;
+    }
+    .eyebrow{font-size:12px; letter-spacing:.22em; text-transform:uppercase; color:var(--accent2); font-weight:800}
+    h1{font-size:clamp(30px,4vw,52px); line-height:1.05; margin:12px 0 12px; letter-spacing:-.04em}
+    .subtitle{color:var(--muted); font-size:16px; line-height:1.8; max-width:720px; margin:0}
+    .hero-actions{display:flex; gap:12px; flex-wrap:wrap; margin-top:24px}
+
+    button,.btn{
+      border:0;
+      border-radius:14px;
+      padding:11px 15px;
+      font-weight:800;
+      cursor:pointer;
+      color:#031017;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      box-shadow:0 12px 26px rgba(63,198,255,.14);
+      transition:.18s transform,.18s filter,.18s opacity;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+    }
+    button:hover,.btn:hover{transform:translateY(-1px); filter:saturate(1.2)}
+    button.secondary{background:rgba(255,255,255,.06); color:var(--text); border:1px solid var(--line); box-shadow:none}
+    button.danger{background:rgba(255,107,122,.14); color:#ffd7dc; border:1px solid rgba(255,107,122,.35); box-shadow:none}
+    button.ghost{background:transparent; color:var(--muted); border:1px solid var(--line); box-shadow:none}
+    button.small{padding:8px 10px; font-size:12px; border-radius:10px}
+
+    .side-card{padding:20px; display:flex; flex-direction:column; gap:14px}
+    .date-pill{align-self:flex-start; color:#d7faff; background:rgba(63,198,255,.08); border:1px solid var(--line); border-radius:999px; padding:8px 12px; font-size:13px; font-weight:800}
+    .mini-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+    .mini{background:rgba(255,255,255,.045); border:1px solid var(--line); border-radius:16px; padding:14px}
+    .mini .label{color:var(--muted); font-size:12px; margin-bottom:8px}
+    .mini .value{font-size:24px; font-weight:900; letter-spacing:-.02em}
+    .mini .value.small{font-size:18px}
+
+    .grid{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:18px}
+    .stat{padding:18px; border-radius:var(--radius); background:rgba(255,255,255,.045); border:1px solid var(--line)}
+    .stat .label{font-size:13px; color:var(--muted)}
+    .stat .num{font-size:clamp(24px,2.4vw,34px); font-weight:950; margin-top:8px; letter-spacing:-.04em}
+    .stat .hint{color:var(--muted); font-size:12px; line-height:1.5; margin-top:8px}
+    .good{color:var(--ok)} .bad{color:var(--danger)} .warn{color:var(--warning)}
+
+    .layout{display:grid; grid-template-columns:1.25fr .75fr; gap:18px; align-items:start}
+    .panel{padding:20px; margin-bottom:18px}
+    .panel-head{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:16px}
+    h2{font-size:20px; margin:0; letter-spacing:-.02em}
+    .note{color:var(--muted); font-size:13px; line-height:1.7; margin:6px 0 0}
+
+    .progress{height:12px; border-radius:999px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.06); overflow:hidden; position:relative}
+    .progress span{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:999px; transition:width .55s ease}
+    .progress.danger span{background:linear-gradient(90deg,#ff6b7a,#ffd166)}
+    .progress-row{display:grid; gap:9px; margin:14px 0}
+    .progress-line{display:flex; justify-content:space-between; gap:12px; font-size:13px; color:var(--muted)}
+
+    .recommend{
+      border:1px solid rgba(73,230,177,.22);
+      background:linear-gradient(135deg,rgba(73,230,177,.09),rgba(63,198,255,.07));
+      border-radius:16px;
+      padding:15px;
+      line-height:1.7;
+      color:#dffaff;
+    }
+    .recommend strong{color:#fff}
+
+    .form-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:12px}
+    .form-grid.three{grid-template-columns:repeat(3,1fr)}
+    .form-grid.one{grid-template-columns:1fr}
+    label{font-size:12px; color:var(--muted); display:block; margin-bottom:7px; font-weight:800}
+    input, select, textarea{
+      width:100%;
+      background:rgba(4,12,20,.76);
+      color:var(--text);
+      border:1px solid var(--line);
+      border-radius:13px;
+      padding:11px 12px;
+      outline:none;
+      font:inherit;
+    }
+    textarea{min-height:84px; resize:vertical}
+    input:focus,select:focus,textarea:focus{border-color:rgba(73,230,177,.7); box-shadow:0 0 0 3px rgba(73,230,177,.08)}
+
+    .item-list{display:grid; gap:10px}
+    .item{
+      display:grid;
+      grid-template-columns:auto 1fr auto;
+      gap:12px;
+      align-items:start;
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:13px;
+    }
+    .item .title{font-weight:900; line-height:1.45}
+    .item .meta{font-size:12px; color:var(--muted); margin-top:4px; line-height:1.55}
+    .item input[type="checkbox"]{width:22px; height:22px; accent-color:#49e6b1; margin-top:2px}
+    .done .title{text-decoration:line-through; color:#8fa8b7}
+
+    .goal-card,.expense-card{
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+      display:grid;
+      gap:10px;
+    }
+    .goal-top,.expense-top{display:flex; align-items:flex-start; justify-content:space-between; gap:12px}
+    .tag{font-size:12px; color:#aeeeff; background:rgba(63,198,255,.08); border:1px solid rgba(63,198,255,.18); padding:5px 8px; border-radius:999px; white-space:nowrap}
+    .expense-amount{font-size:20px; font-weight:950; letter-spacing:-.02em}
+
+    .tabs{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px}
+    .tab{background:rgba(255,255,255,.05); color:var(--text); border:1px solid var(--line); box-shadow:none; padding:9px 11px}
+    .tab.active{background:linear-gradient(135deg,rgba(73,230,177,.92),rgba(63,198,255,.92)); color:#031017}
+    .hidden{display:none!important}
+
+    .table{width:100%; border-collapse:collapse; font-size:13px}
+    .table th,.table td{padding:10px 8px; border-bottom:1px solid rgba(255,255,255,.08); text-align:left; vertical-align:top}
+    .table th{color:var(--muted); font-size:12px}
+
+    .footer{color:var(--muted); text-align:center; font-size:12px; line-height:1.8; margin-top:18px}
+
+    @media(max-width:920px){
+      .hero,.layout{grid-template-columns:1fr}
+      .grid{grid-template-columns:repeat(2,1fr)}
+      .form-grid,.form-grid.three{grid-template-columns:1fr}
+    }
+    @media(max-width:560px){
+      .wrap{width:min(94vw,1180px); padding-top:18px}
+      .grid,.mini-grid{grid-template-columns:1fr}
+      .hero-card{padding:20px}
+      .panel{padding:16px}
+      .item{grid-template-columns:auto 1fr}
+      .item .actions{grid-column:2}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="hero-card">
+        <div class="eyebrow">Personal Mission Control</div>
+        <h1>我的任務、想買清單、存款目標</h1>
+        <p class="subtitle">把想做、想買、每月開銷和 5 年 100,000 SGD 存款目標放在同一個網站。資料會自動存在你的瀏覽器，不需要登入。</p>
+        <div class="hero-actions">
+          <a class="btn" href="#addBox">＋新增任務 / 目標 / 開銷</a>
+          <button class="secondary" id="exportBtn">匯出備份</button>
+          <label class="btn secondary" for="importFile">匯入備份</label>
+          <input id="importFile" type="file" accept="application/json" class="hidden" />
+        </div>
+      </div>
+      <div class="hero-card side-card">
+        <div class="date-pill" id="todayText">今天</div>
+        <div class="mini-grid">
+          <div class="mini"><div class="label">任務完成率</div><div class="value" id="taskRate">0%</div></div>
+          <div class="mini"><div class="label">目標進度</div><div class="value" id="savingRate">0%</div></div>
+          <div class="mini"><div class="label">車貸進度</div><div class="value" id="carRate">0%</div></div>
+          <div class="mini"><div class="label">MYR 匯率</div><div class="value small" id="fxMini">1 SGD = RM 0</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>核心設定</h2>
+          <p class="note">先填你的月收入和目前存款，網站會自動計算你每月是否夠達成目標。</p>
+        </div>
+        <button class="ghost small" id="resetBtn">重置示範資料</button>
+      </div>
+      <div class="form-grid three">
+        <div><label>每月收入（SGD）</label><input id="monthlyIncome" type="number" min="0" step="1" /></div>
+        <div><label>目前存款（SGD）</label><input id="currentSavings" type="number" min="0" step="1" /></div>
+        <div><label>存款目標（SGD）</label><input id="savingsTarget" type="number" min="0" step="100" /></div>
+        <div><label>目標日期</label><input id="targetDeadline" type="date" /></div>
+        <div><label>匯率：1 SGD = RM</label><input id="fxRate" type="number" min="0" step="0.0001" /></div>
+        <div><label>目前緊急基金（SGD）</label><input id="emergencyCurrent" type="number" min="0" step="1" /></div>
+      </div>
+    </section>
+
+    <section class="grid" id="statsGrid"></section>
+
+    <section class="layout">
+      <main>
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>5 年 100,000 SGD 存款進度</h2>
+              <p class="note">系統會用「目標金額、目前存款、目標日期」計算每月需要存多少。</p>
+            </div>
+          </div>
+          <div id="savingsPanel"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>車貸進度條</h2>
+              <p class="note">以你提供的 RM101,094 車價、RM1,000/月、2025-04-14 開始計算。這是不含利息的粗估；如果銀行合約期數不同，請按合約修改。</p>
+            </div>
+          </div>
+          <div class="form-grid three">
+            <div><label>開始日期</label><input id="carStart" type="date" /></div>
+            <div><label>車價 / 貸款本金（MYR）</label><input id="carPrincipal" type="number" min="0" /></div>
+            <div><label>每月還款（MYR）</label><input id="carMonthlyMYR" type="number" min="0" /></div>
+            <div><label>每月車貸預算（SGD）</label><input id="carMonthlySGD" type="number" min="0" /></div>
+          </div>
+          <div id="carPanel" style="margin-top:14px"></div>
+        </section>
+
+        <section class="panel" id="addBox">
+          <div class="panel-head">
+            <div>
+              <h2>新增資料</h2>
+              <p class="note">選擇「新任務 / 新目標 / 新開銷」，下面會自動換成相對應要填的資料。</p>
+            </div>
+          </div>
+          <div class="form-grid one">
+            <div>
+              <label>我要新增</label>
+              <select id="itemType">
+                <option value="task">新任務 / 想買清單</option>
+                <option value="goal">新目標</option>
+                <option value="expense">新開銷</option>
+              </select>
+            </div>
+          </div>
+          <div id="dynamicForm" style="margin-top:14px"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div><h2>任務和想買清單</h2><p class="note">勾選完成後，完成率會上升。</p></div>
+          </div>
+          <div id="taskList" class="item-list"></div>
+        </section>
+      </main>
+
+      <aside>
+        <section class="panel">
+          <div class="panel-head">
+            <div><h2>每月建議</h2><p class="note">這裡會根據你的開銷和目標自動更新。</p></div>
+          </div>
+          <div id="recommendBox" class="recommend"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div><h2>目標清單</h2><p class="note">適合記錄想買的東西、旅行基金、學習目標。</p></div>
+          </div>
+          <div id="goalList" class="item-list"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div><h2>開銷清單</h2><p class="note">月費、年費、短期債務都可以放這裡。</p></div>
+          </div>
+          <div id="expenseList" class="item-list"></div>
+        </section>
+      </aside>
+    </section>
+
+    <div class="footer">資料只保存在你的瀏覽器 localStorage。換電腦或清除瀏覽器資料前，記得先匯出備份。</div>
+  </div>
+
+<script>
+(() => {
+  const STORAGE_KEY = "life_task_savings_dashboard_v1";
+  const today = new Date();
+
+  const $ = (id) => document.getElementById(id);
+  const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+  const pad = (n) => String(n).padStart(2,"0");
+  const fmtDate = (d) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const addMonths = (date, months) => {
+    const d = new Date(date);
+    const day = d.getDate();
+    d.setMonth(d.getMonth() + months);
+    if (d.getDate() !== day) d.setDate(0);
+    return d;
+  };
+  const money = (n, currency="SGD") => `${currency} ${Number(n || 0).toLocaleString("en-SG", {maximumFractionDigits:2, minimumFractionDigits:2})}`;
+  const pct = (n) => `${Math.max(0, Math.min(100, n || 0)).toFixed(1)}%`;
+  const esc = (s="") => String(s).replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#039;","\"":"&quot;"}[c]));
+  const clamp = (n,min=0,max=100) => Math.max(min,Math.min(max,n));
+
+  function defaultState(){
+    return {
+      settings:{
+        fxSgdToMyr:3.09742,
+        monthlyIncome:0,
+        savingsTarget:100000,
+        currentSavings:0,
+        targetDeadline:fmtDate(addMonths(new Date(),60)),
+        emergencyCurrent:0,
+        emergencyMonths:6,
+        emergencyBuildMonths:24
+      },
+      carLoan:{
+        startDate:"2025-04-14",
+        principalMYR:101094,
+        monthlyPaymentMYR:1000,
+        monthlyBudgetSGD:334
+      },
+      tasks:[
+        {id:uid(), title:"每月底更新目前存款金額", category:"理財", priority:"高", due:"", done:false, note:"更新後會重新計算 100,000 SGD 目標進度。"},
+        {id:uid(), title:"確認 Vephos / 寵物吸毛機是否支援 230V", category:"想買", priority:"高", due:"", done:false, note:"馬來西亞是 230V，買台灣電器前一定要確認。"},
+        {id:uid(), title:"詢問台灣代運到馬來西亞的運費", category:"想買", priority:"中", due:"", done:false, note:"先問空運 / 海運、包稅、清關、體積重。"},
+        {id:uid(), title:"每週整理一次任務和購物清單", category:"生活", priority:"中", due:"", done:false, note:"避免忘記要做的事情。"}
+      ],
+      goals:[
+        {id:uid(), title:"旅行基金", target:5000, current:0, currency:"SGD", deadline:"", note:"如果一年旅行 1 次，先用 5,000 SGD 做預算。"},
+        {id:uid(), title:"寵物吸毛 / 空氣清淨機基金", target:0, current:0, currency:"SGD", deadline:"", note:"確認價格、運費、電壓後再填目標金額。"}
+      ],
+      expenses:[
+        {id:uid(), title:"房租", amount:500, currency:"SGD", frequency:"monthly", essential:true, note:""},
+        {id:uid(), title:"孝敬費（老爸）", amount:250, currency:"SGD", frequency:"monthly", essential:true, note:""},
+        {id:uid(), title:"Wifi 錢", amount:50, currency:"SGD", frequency:"monthly", essential:true, note:""},
+        {id:uid(), title:"地鐵錢", amount:150, currency:"SGD", frequency:"monthly", essential:true, note:""},
+        {id:uid(), title:"吃飯錢", amount:100, currency:"SGD", frequency:"monthly", essential:true, note:""},
+        {id:uid(), title:"車貸款預算", amount:334, currency:"SGD", frequency:"monthly", essential:true, note:"對應 RM1,000/月，這裡用你給的 334 SGD 做保守預算。"},
+        {id:uid(), title:"債務", amount:445, currency:"SGD", frequency:"monthly", remainingMonths:3, essential:true, note:"只需 3 個月。"},
+        {id:uid(), title:"家人孝敬費（阿爺 / 老媽 / 姑姑，共 RM1500）", amount:1500, currency:"MYR", frequency:"monthly", essential:true, note:"RM500 × 3 人。"},
+        {id:uid(), title:"ChatGPT Plus", amount:101, currency:"MYR", frequency:"monthly", essential:false, note:"以 MYR 記錄，會自動換算成 SGD。"},
+        {id:uid(), title:"車保險", amount:4494, currency:"MYR", frequency:"yearly", essential:true, note:"一年一次，系統會平均成每月預留。"},
+        {id:uid(), title:"旅行費", amount:5000, currency:"SGD", frequency:"yearly", essential:false, note:"一年一次；如果一年要 2 次，把金額改成 10,000 SGD。"}
+      ]
+    };
+  }
+
+  let state = load();
+
+  function load(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return defaultState();
+      const parsed = JSON.parse(raw);
+      return {...defaultState(), ...parsed, settings:{...defaultState().settings,...parsed.settings}, carLoan:{...defaultState().carLoan,...parsed.carLoan}};
+    }catch(e){ return defaultState(); }
+  }
+  function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+  function myrToSgd(myr){ return Number(myr || 0) / Number(state.settings.fxSgdToMyr || 1); }
+  function toSgd(amount,currency){ return currency === "MYR" ? myrToSgd(amount) : Number(amount || 0); }
+
+  function expenseMonthlyValue(exp, includeLimited=true){
+    const amountSGD = toSgd(exp.amount, exp.currency);
+    if(exp.frequency === "yearly") return amountSGD / 12;
+    if(exp.frequency === "once") return amountSGD / Math.max(1, Number(exp.remainingMonths || 1));
+    if(typeof exp.remainingMonths === "number" && exp.remainingMonths <= 0) return 0;
+    if(typeof exp.remainingMonths === "number" && !includeLimited) return 0;
+    return amountSGD;
+  }
+
+  function monthsUntil(dateStr){
+    if(!dateStr) return 0;
+    const now = new Date(); now.setHours(0,0,0,0);
+    const d = new Date(dateStr + "T00:00:00");
+    if(isNaN(d) || d <= now) return 0;
+    let months = (d.getFullYear()-now.getFullYear())*12 + (d.getMonth()-now.getMonth());
+    if(d.getDate() > now.getDate()) months += 1;
+    return Math.max(1, months);
+  }
+
+  function fullMonthsBetween(startStr, end=new Date()){
+    const s = new Date(startStr + "T00:00:00");
+    if(isNaN(s) || end < s) return 0;
+    let m = (end.getFullYear()-s.getFullYear())*12 + (end.getMonth()-s.getMonth());
+    if(end.getDate() < s.getDate()) m -= 1;
+    return Math.max(0,m);
+  }
+
+  function recalc(){
+    const expensesNow = state.expenses.reduce((sum,e)=>sum+expenseMonthlyValue(e,true),0);
+    const expensesAfterLimited = state.expenses.reduce((sum,e)=>sum+expenseMonthlyValue(e,false),0);
+    const shortTerm = expensesNow - expensesAfterLimited;
+    const essentialMonthly = state.expenses
+      .filter(e => e.essential)
+      .reduce((sum,e)=>sum+expenseMonthlyValue(e,false),0);
+    const monthsLeft = monthsUntil(state.settings.targetDeadline) || 1;
+    const targetRemain = Math.max(0, Number(state.settings.savingsTarget || 0) - Number(state.settings.currentSavings || 0));
+    const monthlySavingsNeed = targetRemain / monthsLeft;
+    const savingsProgress = Number(state.settings.savingsTarget || 0) ? Number(state.settings.currentSavings || 0) / Number(state.settings.savingsTarget || 1) * 100 : 0;
+    const emergencyTarget = essentialMonthly * Number(state.settings.emergencyMonths || 6);
+    const emergencyRemain = Math.max(0, emergencyTarget - Number(state.settings.emergencyCurrent || 0));
+    const emergencyMonthly = emergencyRemain / Math.max(1, Number(state.settings.emergencyBuildMonths || 24));
+    const income = Number(state.settings.monthlyIncome || 0);
+    const requiredNow = expensesNow + monthlySavingsNeed;
+    const requiredAfter = expensesAfterLimited + monthlySavingsNeed;
+    const freeNow = income - requiredNow;
+    const freeAfter = income - requiredAfter;
+    const completed = state.tasks.filter(t=>t.done).length;
+    const taskRate = state.tasks.length ? completed/state.tasks.length*100 : 0;
+    return {expensesNow,expensesAfterLimited,shortTerm,essentialMonthly,monthsLeft,targetRemain,monthlySavingsNeed,savingsProgress,emergencyTarget,emergencyRemain,emergencyMonthly,income,requiredNow,requiredAfter,freeNow,freeAfter,taskRate};
+  }
+
+  function carCalc(){
+    const loan = state.carLoan;
+    const totalMonths = Math.max(1, Math.ceil(Number(loan.principalMYR || 0) / Math.max(1, Number(loan.monthlyPaymentMYR || 1))));
+    const paidMonths = clamp(fullMonthsBetween(loan.startDate),0,totalMonths);
+    const remainMonths = Math.max(0,totalMonths-paidMonths);
+    const progress = paidMonths/totalMonths*100;
+    const paidMYR = Math.min(Number(loan.principalMYR || 0), paidMonths * Number(loan.monthlyPaymentMYR || 0));
+    const remainMYR = Math.max(0, Number(loan.principalMYR || 0) - paidMYR);
+    const endDate = fmtDate(addMonths(new Date(loan.startDate + "T00:00:00"), totalMonths));
+    return {totalMonths,paidMonths,remainMonths,progress,paidMYR,remainMYR,endDate};
+  }
+
+  function bindSettings(){
+    const pairs = [
+      ["monthlyIncome","settings","monthlyIncome"],
+      ["currentSavings","settings","currentSavings"],
+      ["savingsTarget","settings","savingsTarget"],
+      ["targetDeadline","settings","targetDeadline"],
+      ["fxRate","settings","fxSgdToMyr"],
+      ["emergencyCurrent","settings","emergencyCurrent"],
+      ["carStart","carLoan","startDate"],
+      ["carPrincipal","carLoan","principalMYR"],
+      ["carMonthlyMYR","carLoan","monthlyPaymentMYR"],
+      ["carMonthlySGD","carLoan","monthlyBudgetSGD"]
+    ];
+    pairs.forEach(([id,group,key])=>{
+      const el = $(id);
+      if(!el) return;
+      el.value = state[group][key] ?? "";
+      el.oninput = () => {
+        state[group][key] = el.type === "number" ? Number(el.value || 0) : el.value;
+        save(); render();
+      };
+    });
+  }
+
+  function renderStats(){
+    const c = recalc();
+    const stats = [
+      {label:"本月固定開銷", num:money(c.expensesNow), hint:`3個月後約 ${money(c.expensesAfterLimited)}`},
+      {label:"每月需存款", num:money(c.monthlySavingsNeed), hint:`剩下 ${c.monthsLeft} 個月達成 100,000 SGD`},
+      {label:"本月總壓力", num:money(c.requiredNow), hint:"固定開銷 + 每月存款需求"},
+      {label:"收入扣除後", num: c.income ? money(c.freeNow) : "請填收入", hint: c.income ? (c.freeNow >= 0 ? "目前計劃可執行" : "需要增加收入或降低開銷") : "填收入後自動判斷", cls: c.income ? (c.freeNow>=0?"good":"bad") : "warn"}
+    ];
+    $("statsGrid").innerHTML = stats.map(s=>`
+      <div class="stat">
+        <div class="label">${s.label}</div>
+        <div class="num ${s.cls||""}">${s.num}</div>
+        <div class="hint">${s.hint}</div>
+      </div>`).join("");
+  }
+
+  function renderSavings(){
+    const c = recalc();
+    $("savingsPanel").innerHTML = `
+      <div class="progress-row">
+        <div class="progress-line"><strong>100,000 SGD 目標</strong><span>${money(state.settings.currentSavings)} / ${money(state.settings.savingsTarget)}｜${pct(c.savingsProgress)}</span></div>
+        <div class="progress"><span style="width:${pct(c.savingsProgress)}"></span></div>
+      </div>
+      <div class="form-grid three" style="margin-top:14px">
+        <div class="mini"><div class="label">剩餘要存</div><div class="value small">${money(c.targetRemain)}</div></div>
+        <div class="mini"><div class="label">每月最低存款</div><div class="value small">${money(c.monthlySavingsNeed)}</div></div>
+        <div class="mini"><div class="label">目標剩餘時間</div><div class="value small">${c.monthsLeft} 個月</div></div>
+      </div>
+      <div class="progress-row">
+        <div class="progress-line"><strong>緊急基金</strong><span>${money(state.settings.emergencyCurrent)} / ${money(c.emergencyTarget)}｜${pct(state.settings.emergencyCurrent / Math.max(1,c.emergencyTarget) * 100)}</span></div>
+        <div class="progress"><span style="width:${pct(state.settings.emergencyCurrent / Math.max(1,c.emergencyTarget) * 100)}"></span></div>
+      </div>
+      <div class="recommend" style="margin-top:14px">
+        建議：你的緊急基金目標先抓 <strong>${money(c.emergencyTarget)}</strong>（約 ${state.settings.emergencyMonths} 個月必要開銷）。如果想在 ${state.settings.emergencyBuildMonths} 個月內建立，每月可以從存款裡先分配 <strong>${money(c.emergencyMonthly)}</strong> 到緊急基金，其餘放長期存款。
+      </div>
+    `;
+  }
+
+  function renderCar(){
+    const c = carCalc();
+    const years = Math.floor(c.remainMonths/12);
+    const months = c.remainMonths % 12;
+    $("carPanel").innerHTML = `
+      <div class="progress-row">
+        <div class="progress-line"><strong>車貸還款進度</strong><span>${c.paidMonths} / ${c.totalMonths} 期｜${pct(c.progress)}</span></div>
+        <div class="progress"><span style="width:${pct(c.progress)}"></span></div>
+      </div>
+      <div class="form-grid three" style="margin-top:14px">
+        <div class="mini"><div class="label">已還粗估</div><div class="value small">RM ${c.paidMYR.toLocaleString("en-SG",{maximumFractionDigits:0})}</div></div>
+        <div class="mini"><div class="label">剩餘粗估</div><div class="value small">RM ${c.remainMYR.toLocaleString("en-SG",{maximumFractionDigits:0})}</div></div>
+        <div class="mini"><div class="label">還需要</div><div class="value small">${years} 年 ${months} 個月</div></div>
+      </div>
+      <p class="note">粗估結束日期：${c.endDate}。車貸若有利息、頭期款或銀行合約期數，請以合約為準。</p>
+    `;
+  }
+
+  function renderRecommend(){
+    const c = recalc();
+    const debtText = c.shortTerm > 0 ? `前 3 個月因為短期債務，本月開銷會多 <strong>${money(c.shortTerm)}</strong>。` : "目前沒有短期債務壓力。";
+    const incomeText = c.income ? (c.freeNow >= 0 ? `你的收入扣除本月開銷和存款後，還剩 <strong>${money(c.freeNow)}</strong>。` : `以目前收入來看，每月還差 <strong>${money(Math.abs(c.freeNow))}</strong>，建議先降低旅行預算、延後非必要購買，或增加收入。`) : "先填入每月收入，我會幫你判斷計劃是否可行。";
+    $("recommendBox").innerHTML = `
+      <div>${debtText}</div>
+      <div style="margin-top:10px">5 年達成 100,000 SGD，平均每月至少要存 <strong>${money(c.monthlySavingsNeed)}</strong>。</div>
+      <div style="margin-top:10px">${incomeText}</div>
+      <div style="margin-top:10px">如果一年旅行 1 次，旅行費已平均成每月 <strong>${money(5000/12)}</strong>；如果一年 2 次，請把旅行費改成 10,000 SGD。</div>
+    `;
+  }
+
+  function renderTasks(){
+    const list = $("taskList");
+    if(!state.tasks.length){ list.innerHTML = `<p class="note">還沒有任務。先新增一個吧。</p>`; return; }
+    list.innerHTML = state.tasks.map(t=>`
+      <div class="item ${t.done?"done":""}">
+        <input type="checkbox" ${t.done?"checked":""} onchange="App.toggleTask('${t.id}')" />
+        <div>
+          <div class="title">${esc(t.title)}</div>
+          <div class="meta">${esc(t.category||"任務")}｜優先：${esc(t.priority||"中")} ${t.due?`｜期限：${esc(t.due)}`:""}</div>
+          ${t.note?`<div class="meta">${esc(t.note)}</div>`:""}
+        </div>
+        <div class="actions"><button class="danger small" onclick="App.deleteItem('tasks','${t.id}')">刪除</button></div>
+      </div>`).join("");
+  }
+
+  function renderGoals(){
+    const list = $("goalList");
+    if(!state.goals.length){ list.innerHTML = `<p class="note">還沒有其他目標。</p>`; return; }
+    list.innerHTML = state.goals.map(g=>{
+      const p = Number(g.target || 0) ? Number(g.current || 0)/Number(g.target || 1)*100 : 0;
+      return `<div class="goal-card">
+        <div class="goal-top">
+          <div>
+            <div class="title">${esc(g.title)}</div>
+            <div class="meta">${g.deadline?`期限：${esc(g.deadline)}｜`:""}${esc(g.note||"")}</div>
+          </div>
+          <span class="tag">${esc(g.currency||"SGD")}</span>
+        </div>
+        <div class="progress-row">
+          <div class="progress-line"><span>${money(g.current,g.currency)} / ${money(g.target,g.currency)}</span><span>${pct(p)}</span></div>
+          <div class="progress"><span style="width:${pct(p)}"></span></div>
+        </div>
+        <div class="form-grid">
+          <div><label>目前金額</label><input type="number" value="${Number(g.current||0)}" onchange="App.updateGoalCurrent('${g.id}', this.value)"></div>
+          <div style="display:flex;align-items:end;gap:8px"><button class="small" onclick="App.addGoalMoney('${g.id}',100)">+100</button><button class="small" onclick="App.addGoalMoney('${g.id}',500)">+500</button><button class="danger small" onclick="App.deleteItem('goals','${g.id}')">刪除</button></div>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  function renderExpenses(){
+    const list = $("expenseList");
+    if(!state.expenses.length){ list.innerHTML = `<p class="note">還沒有開銷。</p>`; return; }
+    list.innerHTML = state.expenses.map(e=>{
+      const monthly = expenseMonthlyValue(e,true);
+      const freqLabel = e.frequency === "monthly" ? "每月" : e.frequency === "yearly" ? "每年 / 12" : "一次性分攤";
+      const limited = typeof e.remainingMonths === "number" ? `｜剩 ${e.remainingMonths} 個月` : "";
+      return `<div class="expense-card">
+        <div class="expense-top">
+          <div>
+            <div class="title">${esc(e.title)}</div>
+            <div class="meta">${freqLabel}${limited}｜${e.essential?"必要":"可調整"}</div>
+            ${e.note?`<div class="meta">${esc(e.note)}</div>`:""}
+          </div>
+          <div style="text-align:right">
+            <div class="expense-amount">${money(monthly)}</div>
+            <div class="meta">原始：${money(e.amount,e.currency)}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+          ${typeof e.remainingMonths === "number" && e.remainingMonths > 0 ? `<button class="small secondary" onclick="App.decreaseMonth('${e.id}')">已付 1 個月</button>`:""}
+          <button class="danger small" onclick="App.deleteItem('expenses','${e.id}')">刪除</button>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  function renderDynamicForm(){
+    const type = $("itemType").value;
+    if(type === "task"){
+      $("dynamicForm").innerHTML = `
+        <div class="form-grid">
+          <div><label>任務 / 想買名稱</label><input id="newTaskTitle" placeholder="例如：買貓咪吸毛機 / 繳車保險"></div>
+          <div><label>分類</label><input id="newTaskCategory" placeholder="生活 / 理財 / 想買 / 工作"></div>
+          <div><label>優先度</label><select id="newTaskPriority"><option>中</option><option>高</option><option>低</option></select></div>
+          <div><label>期限</label><input id="newTaskDue" type="date"></div>
+        </div>
+        <div style="margin-top:12px"><label>備註</label><textarea id="newTaskNote" placeholder="需要記得的細節"></textarea></div>
+        <div style="margin-top:12px"><button onclick="App.addTask()">新增任務</button></div>`;
+    } else if(type === "goal"){
+      $("dynamicForm").innerHTML = `
+        <div class="form-grid three">
+          <div><label>目標名稱</label><input id="newGoalTitle" placeholder="例如：新手機 / 旅行基金"></div>
+          <div><label>目標金額</label><input id="newGoalTarget" type="number" min="0" step="1"></div>
+          <div><label>目前金額</label><input id="newGoalCurrent" type="number" min="0" step="1" value="0"></div>
+          <div><label>貨幣</label><select id="newGoalCurrency"><option>SGD</option><option>MYR</option></select></div>
+          <div><label>目標日期</label><input id="newGoalDeadline" type="date"></div>
+        </div>
+        <div style="margin-top:12px"><label>備註</label><textarea id="newGoalNote" placeholder="為什麼要達成這個目標"></textarea></div>
+        <div style="margin-top:12px"><button onclick="App.addGoal()">新增目標</button></div>`;
+    } else {
+      $("dynamicForm").innerHTML = `
+        <div class="form-grid three">
+          <div><label>開銷名稱</label><input id="newExpenseTitle" placeholder="例如：電話費 / 貓砂 / 保險"></div>
+          <div><label>金額</label><input id="newExpenseAmount" type="number" min="0" step="0.01"></div>
+          <div><label>貨幣</label><select id="newExpenseCurrency"><option>SGD</option><option>MYR</option></select></div>
+          <div><label>類型</label><select id="newExpenseFrequency"><option value="monthly">每月</option><option value="yearly">每年一次</option><option value="once">一次性</option></select></div>
+          <div><label>剩餘月數（沒有就留空）</label><input id="newExpenseMonths" type="number" min="0" step="1" placeholder="例如：3"></div>
+          <div><label>是否必要開銷</label><select id="newExpenseEssential"><option value="true">必要</option><option value="false">可調整</option></select></div>
+        </div>
+        <div style="margin-top:12px"><label>備註</label><textarea id="newExpenseNote" placeholder="例如：只需還 3 個月 / 一年一次"></textarea></div>
+        <div style="margin-top:12px"><button onclick="App.addExpense()">新增開銷</button></div>`;
+    }
+  }
+
+  function render(){
+    bindSettings();
+    const c = recalc();
+    const car = carCalc();
+    $("todayText").textContent = `今天：${fmtDate(new Date())}`;
+    $("taskRate").textContent = pct(c.taskRate);
+    $("savingRate").textContent = pct(c.savingsProgress);
+    $("carRate").textContent = pct(car.progress);
+    $("fxMini").textContent = `1 SGD = RM ${Number(state.settings.fxSgdToMyr || 0).toFixed(4)}`;
+    renderStats(); renderSavings(); renderCar(); renderRecommend(); renderTasks(); renderGoals(); renderExpenses(); renderDynamicForm();
+  }
+
+  window.App = {
+    toggleTask(id){ const t = state.tasks.find(x=>x.id===id); if(t){t.done=!t.done; save(); render();} },
+    deleteItem(group,id){ if(!confirm("確定要刪除嗎？")) return; state[group] = state[group].filter(x=>x.id!==id); save(); render(); },
+    addTask(){
+      const title = $("newTaskTitle").value.trim(); if(!title) return alert("請填任務名稱");
+      state.tasks.unshift({id:uid(), title, category:$("newTaskCategory").value.trim()||"任務", priority:$("newTaskPriority").value, due:$("newTaskDue").value, done:false, note:$("newTaskNote").value.trim()});
+      save(); render(); location.hash = "taskList";
+    },
+    addGoal(){
+      const title = $("newGoalTitle").value.trim(); if(!title) return alert("請填目標名稱");
+      state.goals.unshift({id:uid(), title, target:Number($("newGoalTarget").value||0), current:Number($("newGoalCurrent").value||0), currency:$("newGoalCurrency").value, deadline:$("newGoalDeadline").value, note:$("newGoalNote").value.trim()});
+      save(); render();
+    },
+    addExpense(){
+      const title = $("newExpenseTitle").value.trim(); if(!title) return alert("請填開銷名稱");
+      const monthsVal = $("newExpenseMonths").value;
+      const exp = {id:uid(), title, amount:Number($("newExpenseAmount").value||0), currency:$("newExpenseCurrency").value, frequency:$("newExpenseFrequency").value, essential:$("newExpenseEssential").value === "true", note:$("newExpenseNote").value.trim()};
+      if(monthsVal !== "") exp.remainingMonths = Number(monthsVal);
+      state.expenses.unshift(exp); save(); render();
+    },
+    updateGoalCurrent(id,val){ const g = state.goals.find(x=>x.id===id); if(g){g.current=Number(val||0); save(); render();} },
+    addGoalMoney(id,amount){ const g = state.goals.find(x=>x.id===id); if(g){g.current=Number(g.current||0)+amount; save(); render();} },
+    decreaseMonth(id){ const e = state.expenses.find(x=>x.id===id); if(e && typeof e.remainingMonths === "number"){e.remainingMonths=Math.max(0,e.remainingMonths-1); save(); render();} }
+  };
+
+  $("itemType").addEventListener("change", renderDynamicForm);
+  $("exportBtn").addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify(state,null,2)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `life-dashboard-backup-${fmtDate(new Date())}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+  $("importFile").addEventListener("change", async (e) => {
+    const file = e.target.files[0]; if(!file) return;
+    try{
+      state = JSON.parse(await file.text());
+      save(); render(); alert("已匯入備份");
+    }catch(err){ alert("匯入失敗，請確認 JSON 檔案正確。"); }
+  });
+  $("resetBtn").addEventListener("click", () => {
+    if(confirm("會清除目前資料並回到預設版本，確定嗎？")) { state = defaultState(); save(); render(); }
+  });
+
+  save();
+  render();
+})();
+</script>
+</body>
+</html>
