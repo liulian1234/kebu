@@ -1,17 +1,27 @@
 /* ==========================================================
-   MyTask Pro V2 - Fixed Version
-   修復：
-   1. 防止找不到元素時整個 JS 停止
-   2. 修復 addEventListener null error
-   3. 保留開銷首頁、任務 RPG、長期付款 / 存款、資料統計
+   MyTask Pro JS
+   文件位置：js/myTask.js
+
+   功能：
+   1. 開銷首頁：固定開銷 / 每年一次 / 一次性娛樂開銷
+   2. 任務 RPG：完成任務加 XP、升級
+   3. 長期付款 / 存款：貸款、分期、存款目標
+   4. 我的資料 / 統計：收入、娛樂預算、花費與任務統計
+   5. 黑暗模式
+   6. 車貸修正：
+      - 開始供：14/3/2025
+      - 已供到：2026 年 4 月
+      - 2026 年 5 月尚未付款
+      - 每月 RM1,000，約 SGD334
    ========================================================== */
 
 const STORAGE_KEY = "mytask_pro_clean_v2";
+const THEME_KEY = "mytask_theme";
 
 const $ = (id) => document.getElementById(id);
 
 /* =========================
-   1. 安全工具函數
+   1. 安全工具
 ========================= */
 
 function on(id, event, handler) {
@@ -80,6 +90,10 @@ function setWidth(id, value) {
   el.style.width = value;
 }
 
+/* =========================
+   2. 基本工具
+========================= */
+
 function uid() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
@@ -97,8 +111,10 @@ function displayToday() {
   });
 }
 
-function money(amount) {
-  return "SGD " + Number(amount || 0).toLocaleString("en-SG", {
+function money(amount, currency = "SGD") {
+  const label = currency === "MYR" ? "RM" : currency;
+
+  return label + " " + Number(amount || 0).toLocaleString("en-SG", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   });
@@ -136,11 +152,31 @@ function monthsUntil(dateString) {
   return Math.max(1, months);
 }
 
+function countPaidMonthsInclusive(startDate, paidThrough) {
+  const start = new Date(startDate + "T00:00:00");
+
+  if (Number.isNaN(start.getTime()) || !paidThrough) return 0;
+
+  const [paidYear, paidMonth] = paidThrough.split("-").map(Number);
+
+  if (!paidYear || !paidMonth) return 0;
+
+  const startYear = start.getFullYear();
+  const startMonth = start.getMonth() + 1;
+
+  return Math.max(
+    0,
+    (paidYear - startYear) * 12 + (paidMonth - startMonth) + 1
+  );
+}
+
 /* =========================
-   2. 預設資料
+   3. 預設資料
 ========================= */
 
 function defaultState() {
+  const paidMonths = countPaidMonthsInclusive("2025-03-14", "2026-04");
+
   return {
     profile: {
       name: "",
@@ -190,14 +226,6 @@ function defaultState() {
         amount: 100,
         note: "每月一定要付",
         createdAt: todayISO()
-      },
-      {
-        id: uid(),
-        type: "fixed",
-        name: "車貸款",
-        amount: 334,
-        note: "RM1000/月粗估",
-        createdAt: todayISO()
       }
     ],
 
@@ -230,6 +258,7 @@ function defaultState() {
         total: 100000,
         current: 0,
         monthly: 0,
+        currency: "SGD",
         deadline: "",
         createdAt: todayISO()
       },
@@ -237,10 +266,16 @@ function defaultState() {
         id: uid(),
         type: "loan",
         name: "車貸",
-        total: 31319,
-        current: 0,
+        total: 101094,
+        current: paidMonths * 1000,
         monthly: 334,
-        deadline: "",
+        monthlyMYR: 1000,
+        currency: "MYR",
+        startDate: "2025-03-14",
+        paidThrough: "2026-04",
+        nextDue: "2026-05-14",
+        note: "5月尚未付款",
+        carLoan: true,
         createdAt: todayISO()
       }
     ]
@@ -248,7 +283,7 @@ function defaultState() {
 }
 
 /* =========================
-   3. 讀取 / 保存資料
+   4. 讀取 / 保存資料
 ========================= */
 
 let state = loadState();
@@ -284,58 +319,123 @@ function saveState() {
 }
 
 /* =========================
-   4. 計算功能
+   5. 資料修正
+========================= */
+
+function migrateCarLoanData() {
+  const paidMonths = countPaidMonthsInclusive("2025-03-14", "2026-04");
+
+  const carData = {
+    type: "loan",
+    name: "車貸",
+    total: 101094,
+    current: paidMonths * 1000,
+    monthly: 334,
+    monthlyMYR: 1000,
+    currency: "MYR",
+    startDate: "2025-03-14",
+    paidThrough: "2026-04",
+    nextDue: "2026-05-14",
+    note: "5月尚未付款",
+    carLoan: true
+  };
+
+  let car = state.plans.find(plan => {
+    return plan.name && plan.name.includes("車貸");
+  });
+
+  if (!car) {
+    state.plans.push({
+      id: uid(),
+      ...carData,
+      createdAt: todayISO()
+    });
+  } else {
+    const isOldData =
+      !car.carLoan ||
+      car.total === 31319 ||
+      !car.startDate ||
+      !car.monthlyMYR ||
+      car.startDate !== "2025-03-14";
+
+    if (isOldData) {
+      Object.assign(car, carData);
+    }
+  }
+
+  /*
+    避免車貸重複計算：
+    - 車貸屬於「長期付款 / 存款」
+    - 不再放進主頁固定開銷列表
+    - monthlyPressure 會自動加入貸款月供
+  */
+  state.expenses = state.expenses.filter(expense => {
+    const name = String(expense.name || "");
+    return name !== "車貸款" && name !== "車貸款預算";
+  });
+
+  saveState();
+}
+
+migrateCarLoanData();
+
+/* =========================
+   6. 計算
 ========================= */
 
 function fixedExpenses() {
-  return state.expenses.filter(e => e.type === "fixed");
+  return state.expenses.filter(expense => expense.type === "fixed");
 }
 
 function annualExpenses() {
-  return state.expenses.filter(e => e.type === "annual");
+  return state.expenses.filter(expense => expense.type === "annual");
 }
 
 function activeOneTimeExpenses() {
-  return state.expenses.filter(e => e.type === "oneTime" && !e.spent);
+  return state.expenses.filter(expense => {
+    return expense.type === "oneTime" && !expense.spent;
+  });
 }
 
 function spentOneTimeThisMonth() {
-  const now = todayISO().slice(0, 7);
+  const thisMonth = todayISO().slice(0, 7);
 
   return state.expenses
-    .filter(e => {
+    .filter(expense => {
       return (
-        e.type === "oneTime" &&
-        e.spent &&
-        String(e.spentAt || "").slice(0, 7) === now
+        expense.type === "oneTime" &&
+        expense.spent &&
+        String(expense.spentAt || "").slice(0, 7) === thisMonth
       );
     })
-    .reduce((sum, e) => sum + Number(e.amount || 0), 0);
+    .reduce((sum, expense) => {
+      return sum + Number(expense.amount || 0);
+    }, 0);
 }
 
 function totalFixed() {
-  return fixedExpenses().reduce((sum, e) => {
-    return sum + Number(e.amount || 0);
+  return fixedExpenses().reduce((sum, expense) => {
+    return sum + Number(expense.amount || 0);
   }, 0);
 }
 
 function totalAnnualMonthly() {
-  return annualExpenses().reduce((sum, e) => {
-    return sum + Number(e.amount || 0) / 12;
+  return annualExpenses().reduce((sum, expense) => {
+    return sum + Number(expense.amount || 0) / 12;
   }, 0);
 }
 
 function totalOneTimePending() {
-  return activeOneTimeExpenses().reduce((sum, e) => {
-    return sum + Number(e.amount || 0);
+  return activeOneTimeExpenses().reduce((sum, expense) => {
+    return sum + Number(expense.amount || 0);
   }, 0);
 }
 
 function totalLoanMonthly() {
   return state.plans
-    .filter(p => p.type === "loan")
-    .reduce((sum, p) => {
-      return sum + Number(p.monthly || 0);
+    .filter(plan => plan.type === "loan")
+    .reduce((sum, plan) => {
+      return sum + Number(plan.monthly || 0);
     }, 0);
 }
 
@@ -351,8 +451,8 @@ function suggestedSaving() {
 }
 
 function taskStats() {
-  const done = state.tasks.filter(t => t.done).length;
-  const open = state.tasks.filter(t => !t.done).length;
+  const done = state.tasks.filter(task => task.done).length;
+  const open = state.tasks.filter(task => !task.done).length;
   const total = state.tasks.length;
 
   return {
@@ -382,7 +482,7 @@ function playerTitle() {
 }
 
 /* =========================
-   5. 頁面切換
+   7. 頁面切換
 ========================= */
 
 const pageInfo = {
@@ -438,11 +538,43 @@ document.querySelectorAll(".menu-btn").forEach(btn => {
 
 on("mobileMenuBtn", "click", () => {
   const sidebar = $("sidebar");
-  if (sidebar) sidebar.classList.toggle("show");
+
+  if (sidebar) {
+    sidebar.classList.toggle("show");
+  }
 });
 
 /* =========================
-   6. 新增開銷
+   8. 黑暗模式
+========================= */
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem(THEME_KEY, theme);
+
+  const btn = $("themeToggle");
+
+  if (btn) {
+    btn.textContent = theme === "dark" ? "☀️ 亮色" : "🌙 黑暗";
+  }
+}
+
+function initTheme() {
+  const savedTheme = localStorage.getItem(THEME_KEY) || "light";
+  applyTheme(savedTheme);
+}
+
+on("themeToggle", "click", () => {
+  const current = document.documentElement.getAttribute("data-theme") || "light";
+  const next = current === "dark" ? "light" : "dark";
+
+  applyTheme(next);
+});
+
+initTheme();
+
+/* =========================
+   9. 表單：新增開銷
 ========================= */
 
 on("expenseForm", "submit", event => {
@@ -482,12 +614,15 @@ on("expenseForm", "submit", event => {
 });
 
 /* =========================
-   7. 新增任務
+   10. 表單：新增任務
 ========================= */
 
 on("openTaskFormBtn", "click", () => {
   const form = $("taskForm");
-  if (form) form.classList.toggle("hidden");
+
+  if (form) {
+    form.classList.toggle("hidden");
+  }
 });
 
 on("taskForm", "submit", event => {
@@ -518,14 +653,17 @@ on("taskForm", "submit", event => {
   setValue("taskNote", "");
 
   const form = $("taskForm");
-  if (form) form.classList.add("hidden");
+
+  if (form) {
+    form.classList.add("hidden");
+  }
 
   saveState();
   render();
 });
 
 /* =========================
-   8. 新增長期項目
+   11. 表單：新增長期項目
 ========================= */
 
 on("planForm", "submit", event => {
@@ -555,6 +693,7 @@ on("planForm", "submit", event => {
     total,
     current,
     monthly,
+    currency: "SGD",
     deadline,
     createdAt: todayISO()
   });
@@ -570,7 +709,7 @@ on("planForm", "submit", event => {
 });
 
 /* =========================
-   9. 個人資料
+   12. 表單：個人資料
 ========================= */
 
 on("profileForm", "submit", event => {
@@ -587,21 +726,21 @@ on("profileForm", "submit", event => {
 });
 
 /* =========================
-   10. 操作功能
+   13. 操作功能
 ========================= */
 
 window.App = {
   deleteExpense(id) {
     if (!confirm("確定刪除這筆開銷嗎？")) return;
 
-    state.expenses = state.expenses.filter(e => e.id !== id);
+    state.expenses = state.expenses.filter(expense => expense.id !== id);
 
     saveState();
     render();
   },
 
   spendOneTime(id) {
-    const item = state.expenses.find(e => e.id === id);
+    const item = state.expenses.find(expense => expense.id === id);
 
     if (!item) return;
 
@@ -613,7 +752,7 @@ window.App = {
   },
 
   completeTask(id) {
-    const task = state.tasks.find(t => t.id === id);
+    const task = state.tasks.find(item => item.id === id);
 
     if (!task || task.done) return;
 
@@ -628,14 +767,14 @@ window.App = {
   deleteTask(id) {
     if (!confirm("確定刪除這個任務嗎？")) return;
 
-    state.tasks = state.tasks.filter(t => t.id !== id);
+    state.tasks = state.tasks.filter(task => task.id !== id);
 
     saveState();
     render();
   },
 
   updatePlanCurrent(id, value) {
-    const plan = state.plans.find(p => p.id === id);
+    const plan = state.plans.find(item => item.id === id);
 
     if (!plan) return;
 
@@ -648,7 +787,7 @@ window.App = {
   deletePlan(id) {
     if (!confirm("確定刪除這個長期項目嗎？")) return;
 
-    state.plans = state.plans.filter(p => p.id !== id);
+    state.plans = state.plans.filter(plan => plan.id !== id);
 
     saveState();
     render();
@@ -656,7 +795,7 @@ window.App = {
 };
 
 /* =========================
-   11. 匯入 / 匯出 / 重置
+   14. 匯入 / 匯出 / 重置
 ========================= */
 
 on("exportBtn", "click", () => {
@@ -687,6 +826,7 @@ on("importFile", "change", async event => {
     }
 
     state = imported;
+    migrateCarLoanData();
 
     saveState();
     render();
@@ -707,7 +847,7 @@ on("resetBtn", "click", () => {
 });
 
 /* =========================
-   12. HTML 模板
+   15. HTML 模板
 ========================= */
 
 function empty(text) {
@@ -715,17 +855,20 @@ function empty(text) {
 }
 
 function expenseCard(item, mode) {
-  const monthly = mode === "annual"
-    ? Number(item.amount || 0) / 12
-    : Number(item.amount || 0);
+  const monthly =
+    mode === "annual"
+      ? Number(item.amount || 0) / 12
+      : Number(item.amount || 0);
 
-  const action = mode === "oneTime"
-    ? `<button class="mini-btn green" onclick="App.spendOneTime('${item.id}')">勾選已花</button>`
-    : "";
+  const action =
+    mode === "oneTime"
+      ? `<button class="mini-btn green" onclick="App.spendOneTime('${item.id}')">勾選已花</button>`
+      : "";
 
-  const amountText = mode === "annual"
-    ? `年費：${money(item.amount)}｜月均：${money(monthly)}`
-    : money(item.amount);
+  const amountText =
+    mode === "annual"
+      ? `年費：${money(item.amount)}｜月均：${money(monthly)}`
+      : money(item.amount);
 
   return `
     <article class="list-card">
@@ -786,9 +929,13 @@ function taskCard(task) {
 }
 
 function planCard(plan) {
-  const progress = plan.total
-    ? (Number(plan.current || 0) / Number(plan.total || 1)) * 100
-    : 0;
+  const isCarLoan = plan.carLoan || (plan.name && plan.name.includes("車貸"));
+  const currency = plan.currency || "SGD";
+
+  const progress =
+    plan.total
+      ? (Number(plan.current || 0) / Number(plan.total || 1)) * 100
+      : 0;
 
   const remain = Math.max(
     0,
@@ -798,11 +945,26 @@ function planCard(plan) {
   const months = plan.deadline ? monthsUntil(plan.deadline) : null;
   const needMonthly = months ? remain / months : 0;
 
-  const monthlyText = plan.type === "loan"
-    ? money(plan.monthly || 0)
-    : months
-      ? money(needMonthly)
-      : money(suggestedSaving());
+  let monthlyText = "";
+
+  if (isCarLoan) {
+    monthlyText = `${money(plan.monthly || 0)} / ${money(plan.monthlyMYR || 1000, "MYR")}`;
+  } else if (plan.type === "loan") {
+    monthlyText = money(plan.monthly || 0);
+  } else {
+    monthlyText = months ? money(needMonthly) : money(suggestedSaving());
+  }
+
+  const detailText = isCarLoan
+    ? `
+      <div class="list-meta" style="margin-top:8px;">
+        開始供：14/3/2025｜
+        已供到：2026 年 4 月｜
+        下一期：2026/5/14｜
+        5月尚未付款
+      </div>
+    `
+    : "";
 
   return `
     <article class="plan-card">
@@ -813,12 +975,12 @@ function planCard(plan) {
       <div class="plan-numbers">
         <div>
           <span>總額</span>
-          <strong>${money(plan.total)}</strong>
+          <strong>${money(plan.total, currency)}</strong>
         </div>
 
         <div>
-          <span>已完成</span>
-          <strong>${money(plan.current)}</strong>
+          <span>已完成 / 已還</span>
+          <strong>${money(plan.current, currency)}</strong>
         </div>
 
         <div>
@@ -832,9 +994,11 @@ function planCard(plan) {
       </div>
 
       <div class="list-meta" style="margin-top:8px;">
-        進度 ${pct(progress)}｜剩餘 ${money(remain)}
+        進度 ${pct(progress)}｜剩餘 ${money(remain, currency)}
         ${months ? "｜剩餘 " + months + " 個月" : ""}
       </div>
+
+      ${detailText}
 
       <div class="list-actions">
         <input
@@ -886,7 +1050,7 @@ function countChart(label, value, max, colorClass = "") {
 }
 
 /* =========================
-   13. Render：開銷首頁
+   16. Render：開銷首頁
 ========================= */
 
 function renderExpenses() {
@@ -928,7 +1092,7 @@ function renderExpenses() {
 }
 
 /* =========================
-   14. Render：任務 RPG
+   17. Render：任務 RPG
 ========================= */
 
 function renderTasks() {
@@ -957,14 +1121,14 @@ function renderTasks() {
 }
 
 /* =========================
-   15. Render：長期付款 / 存款
+   18. Render：長期付款 / 存款
 ========================= */
 
 function renderPlans() {
   setText("suggestedSaving", money(suggestedSaving()));
 
-  const goals = state.plans.filter(p => p.type === "savingGoal");
-  const loans = state.plans.filter(p => p.type === "loan");
+  const goals = state.plans.filter(plan => plan.type === "savingGoal");
+  const loans = state.plans.filter(plan => plan.type === "loan");
 
   setHTML(
     "savingGoalsList",
@@ -982,7 +1146,7 @@ function renderPlans() {
 }
 
 /* =========================
-   16. Render：資料 / 統計
+   19. Render：資料 / 統計
 ========================= */
 
 function renderProfile() {
@@ -1049,7 +1213,7 @@ function renderProfile() {
 }
 
 /* =========================
-   17. 主 Render
+   20. 主 Render
 ========================= */
 
 function render() {
@@ -1064,7 +1228,7 @@ function render() {
 }
 
 /* =========================
-   18. 初始化
+   21. 初始化
 ========================= */
 
 saveState();
