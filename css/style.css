@@ -443,9 +443,16 @@ label.btn {
 .smart-form,
 .profile-form {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
   gap: 12px;
   align-items: end;
+}
+
+.smart-form {
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.expense-form {
+  grid-template-columns: 1fr 1.2fr 0.8fr 0.9fr 1fr auto;
 }
 
 .smart-form.task-form {
@@ -458,7 +465,7 @@ label.btn {
 }
 
 .profile-form {
-  grid-template-columns: 1fr 1fr 1fr auto;
+  grid-template-columns: 1fr 1fr 1fr 1fr auto;
 }
 
 .field label {
@@ -818,21 +825,7 @@ textarea:focus {
 .chart-bar.purple span {
   background: var(--purple);
 }
-.expense-form {
-  grid-template-columns: 1fr 1.2fr 0.8fr 0.9fr 1fr auto;
-}
 
-@media (max-width: 1180px) {
-  .expense-form {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media (max-width: 620px) {
-  .expense-form {
-    grid-template-columns: 1fr;
-  }
-}
 /* ========== 16. Dark Mode ========== */
 
 html[data-theme="dark"] {
@@ -935,6 +928,7 @@ html[data-theme="dark"] .progress {
   }
 
   .smart-form,
+  .expense-form,
   .profile-form,
   .smart-form.task-form {
     grid-template-columns: 1fr 1fr;
@@ -1002,6 +996,7 @@ html[data-theme="dark"] .progress {
   }
 
   .smart-form,
+  .expense-form,
   .profile-form,
   .smart-form.task-form,
   .summary-grid,
