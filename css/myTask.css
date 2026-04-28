@@ -1,34 +1,48 @@
 /* ==========================================================
-   MyTask Pro - Clean Professional Dashboard
-   目標：像真正網頁 App，不亂、不單調、每天想打開記錄。
+   MyTask Pro CSS
+   Clean Dashboard + Dark Mode
+   文件位置：css/myTask.css
    ========================================================== */
 
-/* 1. Theme */
+/* ========== 1. Theme ========== */
+
 :root {
   --bg: #f3f6fb;
   --surface: #ffffff;
   --surface-soft: #f8fafc;
-  --sidebar: #111827;
-  --sidebar-soft: #1f2937;
-  --text: #111827;
+  --surface-hover: #f1f5f9;
+
+  --sidebar: #101827;
+  --sidebar-2: #0f172a;
+
+  --text: #0f172a;
   --muted: #64748b;
-  --line: #e5e7eb;
+  --line: #e2e8f0;
+
   --primary: #2563eb;
   --primary-dark: #1d4ed8;
+
   --green: #16a34a;
   --green-soft: #dcfce7;
+
   --orange: #f59e0b;
   --orange-soft: #fef3c7;
+
   --red: #ef4444;
   --red-soft: #fee2e2;
+
   --purple: #7c3aed;
   --purple-soft: #ede9fe;
+
   --radius: 18px;
+  --radius-sm: 12px;
+
   --shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
   --shadow-soft: 0 8px 24px rgba(15, 23, 42, 0.06);
 }
 
-/* 2. Base */
+/* ========== 2. Base ========== */
+
 * {
   box-sizing: border-box;
 }
@@ -44,7 +58,7 @@ body {
   color: var(--text);
   background:
     radial-gradient(circle at 12% 8%, rgba(37, 99, 235, 0.10), transparent 24%),
-    radial-gradient(circle at 90% 12%, rgba(22, 163, 74, 0.10), transparent 22%),
+    radial-gradient(circle at 90% 10%, rgba(22, 163, 74, 0.10), transparent 22%),
     linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
   line-height: 1.55;
 }
@@ -65,7 +79,8 @@ label.btn {
   display: none !important;
 }
 
-/* 3. App Layout */
+/* ========== 3. App Layout ========== */
+
 .app {
   min-height: 100vh;
   display: grid;
@@ -77,9 +92,9 @@ label.btn {
   top: 0;
   height: 100vh;
   padding: 22px 18px;
-  background: linear-gradient(180deg, var(--sidebar), #0f172a);
-  color: white;
-  border-right: 1px solid #243041;
+  background: linear-gradient(180deg, var(--sidebar), var(--sidebar-2));
+  color: #ffffff;
+  border-right: 1px solid rgba(148, 163, 184, 0.18);
   display: flex;
   flex-direction: column;
   z-index: 30;
@@ -90,7 +105,8 @@ label.btn {
   padding: 24px;
 }
 
-/* 4. Sidebar */
+/* ========== 4. Sidebar ========== */
+
 .brand {
   display: flex;
   align-items: center;
@@ -110,7 +126,8 @@ label.btn {
   place-items: center;
   font-weight: 950;
   font-size: 22px;
-  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.25);
+  color: white;
+  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.28);
 }
 
 .brand strong {
@@ -153,12 +170,12 @@ label.btn {
 }
 
 .menu-btn:hover {
-  background: rgba(255, 255, 255, 0.07);
-  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
 }
 
 .menu-btn.active {
-  background: #fff;
+  background: white;
   color: var(--sidebar);
   box-shadow: var(--shadow-soft);
 }
@@ -190,7 +207,8 @@ label.btn {
   font-size: 13px;
 }
 
-/* 5. Topbar */
+/* ========== 5. Topbar ========== */
+
 .topbar {
   display: flex;
   align-items: center;
@@ -226,17 +244,19 @@ label.btn {
   display: none;
 }
 
-/* 6. Buttons */
+/* ========== 6. Buttons ========== */
+
 .btn,
-.icon-btn {
+.icon-btn,
+.mini-btn {
   border: 0;
-  border-radius: 12px;
   font-weight: 900;
   transition: 0.16s ease;
 }
 
 .btn {
   padding: 11px 15px;
+  border-radius: 12px;
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -244,7 +264,8 @@ label.btn {
 }
 
 .btn:hover,
-.icon-btn:hover {
+.icon-btn:hover,
+.mini-btn:hover {
   transform: translateY(-1px);
 }
 
@@ -272,11 +293,14 @@ label.btn {
 .icon-btn {
   width: 42px;
   height: 42px;
+  border-radius: 12px;
   background: var(--surface);
   border: 1px solid var(--line);
+  color: var(--text);
 }
 
-/* 7. Pages */
+/* ========== 7. Pages ========== */
+
 .page {
   display: none;
 }
@@ -298,7 +322,8 @@ label.btn {
   }
 }
 
-/* 8. Cards / Panels */
+/* ========== 8. Hero / Panel ========== */
+
 .hero,
 .panel,
 .stat,
@@ -328,7 +353,7 @@ label.btn {
   top: -80px;
   width: 260px;
   height: 260px;
-  background: radial-gradient(circle, rgba(37, 99, 235, 0.12), transparent 68%);
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.14), transparent 68%);
   pointer-events: none;
 }
 
@@ -413,13 +438,21 @@ label.btn {
   align-items: center;
 }
 
-/* 9. Forms */
+/* ========== 9. Forms ========== */
+
 .smart-form,
 .profile-form {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
   gap: 12px;
   align-items: end;
+}
+
+.smart-form {
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.expense-form {
+  grid-template-columns: 1fr 1.2fr 0.8fr 0.9fr 1fr auto;
 }
 
 .smart-form.task-form {
@@ -432,7 +465,7 @@ label.btn {
 }
 
 .profile-form {
-  grid-template-columns: 1fr 1fr 1fr auto;
+  grid-template-columns: 1fr 1fr 1fr 1fr auto;
 }
 
 .field label {
@@ -467,7 +500,8 @@ textarea:focus {
   box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.09);
 }
 
-/* 10. Summary / Stats */
+/* ========== 10. Stats ========== */
+
 .summary-grid,
 .stats-grid,
 .task-stats {
@@ -514,7 +548,8 @@ textarea:focus {
   font-size: 13px;
 }
 
-/* 11. Expenses */
+/* ========== 11. Expenses ========== */
+
 .expense-board {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -545,7 +580,8 @@ textarea:focus {
   font-weight: 900;
 }
 
-/* 12. Lists */
+/* ========== 12. Lists ========== */
+
 .list {
   display: grid;
   gap: 10px;
@@ -597,14 +633,17 @@ textarea:focus {
   flex-wrap: wrap;
 }
 
+.amount {
+  font-weight: 950;
+  white-space: nowrap;
+}
+
 .mini-btn {
-  border: 0;
   padding: 7px 10px;
   border-radius: 10px;
   background: #e0f2fe;
   color: #075985;
   font-size: 12px;
-  font-weight: 950;
 }
 
 .mini-btn.red {
@@ -617,21 +656,11 @@ textarea:focus {
   color: #166534;
 }
 
-.amount {
-  font-weight: 950;
-  white-space: nowrap;
-}
+/* ========== 13. Task RPG ========== */
 
-.check-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* 13. Task RPG */
 .task-hero {
   background:
-    radial-gradient(circle at right top, rgba(124, 58, 237, 0.10), transparent 28%),
+    radial-gradient(circle at right top, rgba(124, 58, 237, 0.12), transparent 28%),
     rgba(255, 255, 255, 0.94);
 }
 
@@ -676,7 +705,8 @@ textarea:focus {
   border-left: 5px solid var(--purple);
 }
 
-/* 14. Plans */
+/* ========== 14. Plans ========== */
+
 .plan-grid,
 .stats-layout {
   display: grid;
@@ -732,7 +762,8 @@ textarea:focus {
   font-size: 16px;
 }
 
-/* 15. Progress / Charts */
+/* ========== 15. Progress / Charts ========== */
+
 .progress {
   width: 100%;
   height: 12px;
@@ -795,7 +826,99 @@ textarea:focus {
   background: var(--purple);
 }
 
-/* 16. Responsive */
+/* ========== 16. Dark Mode ========== */
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #0f172a;
+  --surface: #111827;
+  --surface-soft: #1e293b;
+  --surface-hover: #273449;
+
+  --sidebar: #020617;
+  --sidebar-2: #0f172a;
+
+  --text: #f8fafc;
+  --muted: #94a3b8;
+  --line: #334155;
+
+  --primary: #3b82f6;
+  --primary-dark: #2563eb;
+
+  --green: #22c55e;
+  --green-soft: rgba(34, 197, 94, 0.14);
+
+  --orange: #f59e0b;
+  --orange-soft: rgba(245, 158, 11, 0.14);
+
+  --red: #ef4444;
+  --red-soft: rgba(239, 68, 68, 0.14);
+
+  --purple: #8b5cf6;
+  --purple-soft: rgba(139, 92, 246, 0.14);
+
+  --shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+  --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.20);
+}
+
+html[data-theme="dark"] body {
+  background:
+    radial-gradient(circle at 12% 8%, rgba(59, 130, 246, 0.18), transparent 24%),
+    radial-gradient(circle at 90% 12%, rgba(34, 197, 94, 0.12), transparent 22%),
+    linear-gradient(180deg, #020617 0%, #0f172a 100%);
+}
+
+html[data-theme="dark"] .hero,
+html[data-theme="dark"] .panel,
+html[data-theme="dark"] .stat,
+html[data-theme="dark"] .expense-column,
+html[data-theme="dark"] .player-card {
+  background: rgba(17, 24, 39, 0.94);
+  border-color: var(--line);
+}
+
+html[data-theme="dark"] .hero-total,
+html[data-theme="dark"] .list-card,
+html[data-theme="dark"] .task-stats article,
+html[data-theme="dark"] .plan-card,
+html[data-theme="dark"] .plan-numbers div,
+html[data-theme="dark"] .empty {
+  background: var(--surface-soft);
+  border-color: var(--line);
+}
+
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea {
+  background: #020617;
+  color: var(--text);
+  border-color: var(--line);
+}
+
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder {
+  color: #64748b;
+}
+
+html[data-theme="dark"] .btn.ghost {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--line);
+}
+
+html[data-theme="dark"] .menu-btn.active {
+  background: var(--primary);
+  color: white;
+}
+
+html[data-theme="dark"] .chart-bar,
+html[data-theme="dark"] .progress {
+  background: #334155;
+}
+
+/* ========== 17. Responsive ========== */
+
 @media (max-width: 1180px) {
   .hero,
   .expense-board,
@@ -805,6 +928,7 @@ textarea:focus {
   }
 
   .smart-form,
+  .expense-form,
   .profile-form,
   .smart-form.task-form {
     grid-template-columns: 1fr 1fr;
@@ -872,6 +996,7 @@ textarea:focus {
   }
 
   .smart-form,
+  .expense-form,
   .profile-form,
   .smart-form.task-form,
   .summary-grid,
