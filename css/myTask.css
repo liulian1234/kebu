@@ -1,11 +1,3 @@
-/* ==========================================================
-   MyTask Pro CSS
-   Clean Dashboard + Dark Mode
-   文件位置：css/myTask.css
-   ========================================================== */
-
-/* ========== 1. Theme ========== */
-
 :root {
   --bg: #f3f6fb;
   --surface: #ffffff;
@@ -35,13 +27,8 @@
   --purple-soft: #ede9fe;
 
   --radius: 18px;
-  --radius-sm: 12px;
-
   --shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
-  --shadow-soft: 0 8px 24px rgba(15, 23, 42, 0.06);
 }
-
-/* ========== 2. Base ========== */
 
 * {
   box-sizing: border-box;
@@ -75,11 +62,16 @@ label.btn {
   cursor: pointer;
 }
 
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
 .hidden {
   display: none !important;
 }
 
-/* ========== 3. App Layout ========== */
+/* Layout */
 
 .app {
   min-height: 100vh;
@@ -105,7 +97,7 @@ label.btn {
   padding: 24px;
 }
 
-/* ========== 4. Sidebar ========== */
+/* Sidebar */
 
 .brand {
   display: flex;
@@ -177,7 +169,7 @@ label.btn {
 .menu-btn.active {
   background: white;
   color: var(--sidebar);
-  box-shadow: var(--shadow-soft);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
 }
 
 .side-card {
@@ -207,7 +199,7 @@ label.btn {
   font-size: 13px;
 }
 
-/* ========== 5. Topbar ========== */
+/* Topbar */
 
 .topbar {
   display: flex;
@@ -244,7 +236,7 @@ label.btn {
   display: none;
 }
 
-/* ========== 6. Buttons ========== */
+/* Buttons */
 
 .btn,
 .icon-btn,
@@ -299,7 +291,25 @@ label.btn {
   color: var(--text);
 }
 
-/* ========== 7. Pages ========== */
+.mini-btn {
+  padding: 7px 10px;
+  border-radius: 10px;
+  background: #e0f2fe;
+  color: #075985;
+  font-size: 12px;
+}
+
+.mini-btn.red {
+  background: var(--red-soft);
+  color: #991b1b;
+}
+
+.mini-btn.green {
+  background: var(--green-soft);
+  color: #166534;
+}
+
+/* Pages */
 
 .page {
   display: none;
@@ -322,10 +332,11 @@ label.btn {
   }
 }
 
-/* ========== 8. Hero / Panel ========== */
+/* Cards */
 
 .hero,
 .panel,
+.card,
 .stat,
 .expense-column,
 .player-card {
@@ -410,7 +421,8 @@ label.btn {
   letter-spacing: -0.04em;
 }
 
-.panel {
+.panel,
+.card {
   padding: 22px;
   margin-bottom: 18px;
 }
@@ -438,7 +450,7 @@ label.btn {
   align-items: center;
 }
 
-/* ========== 9. Forms ========== */
+/* Forms */
 
 .smart-form,
 .profile-form {
@@ -465,10 +477,11 @@ label.btn {
 }
 
 .profile-form {
-  grid-template-columns: 1fr 1fr 1fr 1fr auto;
+  grid-template-columns: repeat(5, 1fr) auto;
 }
 
-.field label {
+.field label,
+label {
   display: block;
   margin-bottom: 7px;
   color: var(--muted);
@@ -500,7 +513,7 @@ textarea:focus {
   box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.09);
 }
 
-/* ========== 10. Stats ========== */
+/* Stats */
 
 .summary-grid,
 .stats-grid,
@@ -548,7 +561,7 @@ textarea:focus {
   font-size: 13px;
 }
 
-/* ========== 11. Expenses ========== */
+/* Expenses */
 
 .expense-board {
   display: grid;
@@ -580,7 +593,7 @@ textarea:focus {
   font-weight: 900;
 }
 
-/* ========== 12. Lists ========== */
+/* Lists */
 
 .list {
   display: grid;
@@ -607,6 +620,11 @@ textarea:focus {
 .list-card:hover {
   transform: translateY(-1px);
   border-color: #cbd5e1;
+}
+
+.list-card.checked {
+  border-color: rgba(245, 158, 11, 0.55);
+  background: rgba(245, 158, 11, 0.08);
 }
 
 .list-top {
@@ -638,25 +656,35 @@ textarea:focus {
   white-space: nowrap;
 }
 
-.mini-btn {
-  padding: 7px 10px;
-  border-radius: 10px;
-  background: #e0f2fe;
-  color: #075985;
+/* Status */
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
   font-size: 12px;
+  font-weight: 900;
+  margin-left: 8px;
+  background: #e2e8f0;
+  color: #334155;
 }
 
-.mini-btn.red {
-  background: var(--red-soft);
-  color: #991b1b;
-}
-
-.mini-btn.green {
+.status-badge.green {
   background: var(--green-soft);
   color: #166534;
 }
 
-/* ========== 13. Task RPG ========== */
+.status-badge.orange {
+  background: var(--orange-soft);
+  color: #92400e;
+}
+
+.status-badge.red {
+  background: var(--red-soft);
+  color: #991b1b;
+}
+
+/* Task RPG */
 
 .task-hero {
   background:
@@ -705,7 +733,7 @@ textarea:focus {
   border-left: 5px solid var(--purple);
 }
 
-/* ========== 14. Plans ========== */
+/* Plans */
 
 .plan-grid,
 .stats-layout {
@@ -762,7 +790,7 @@ textarea:focus {
   font-size: 16px;
 }
 
-/* ========== 15. Progress / Charts ========== */
+/* Progress / Charts */
 
 .progress {
   width: 100%;
@@ -826,7 +854,7 @@ textarea:focus {
   background: var(--purple);
 }
 
-/* ========== 16. Dark Mode ========== */
+/* Dark Mode */
 
 html[data-theme="dark"] {
   color-scheme: dark;
@@ -859,7 +887,6 @@ html[data-theme="dark"] {
   --purple-soft: rgba(139, 92, 246, 0.14);
 
   --shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
-  --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.20);
 }
 
 html[data-theme="dark"] body {
@@ -871,6 +898,7 @@ html[data-theme="dark"] body {
 
 html[data-theme="dark"] .hero,
 html[data-theme="dark"] .panel,
+html[data-theme="dark"] .card,
 html[data-theme="dark"] .stat,
 html[data-theme="dark"] .expense-column,
 html[data-theme="dark"] .player-card {
@@ -886,6 +914,11 @@ html[data-theme="dark"] .plan-numbers div,
 html[data-theme="dark"] .empty {
   background: var(--surface-soft);
   border-color: var(--line);
+}
+
+html[data-theme="dark"] .list-card.checked {
+  background: rgba(245, 158, 11, 0.10);
+  border-color: rgba(245, 158, 11, 0.45);
 }
 
 html[data-theme="dark"] input,
@@ -917,7 +950,7 @@ html[data-theme="dark"] .progress {
   background: #334155;
 }
 
-/* ========== 17. Responsive ========== */
+/* Responsive */
 
 @media (max-width: 1180px) {
   .hero,
@@ -935,7 +968,8 @@ html[data-theme="dark"] .progress {
   }
 
   .summary-grid,
-  .task-stats {
+  .task-stats,
+  .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
@@ -986,6 +1020,7 @@ html[data-theme="dark"] .progress {
 
   .hero,
   .panel,
+  .card,
   .expense-column {
     padding: 18px;
     border-radius: 16px;
@@ -1001,11 +1036,16 @@ html[data-theme="dark"] .progress {
   .smart-form.task-form,
   .summary-grid,
   .task-stats,
+  .stats-grid,
   .plan-numbers {
     grid-template-columns: 1fr;
   }
 
   .list-top {
     flex-direction: column;
+  }
+
+  .top-actions .btn {
+    width: 100%;
   }
 }
