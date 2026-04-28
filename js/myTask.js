@@ -1,18 +1,84 @@
 /* ==========================================================
-   MyTask Pro V2
-   功能：
-   1. 開銷首頁
-   2. 任務 RPG
-   3. 長期付款 / 存款
-   4. 我的資料 / 統計
+   MyTask Pro V2 - Fixed Version
+   修復：
+   1. 防止找不到元素時整個 JS 停止
+   2. 修復 addEventListener null error
+   3. 保留開銷首頁、任務 RPG、長期付款 / 存款、資料統計
    ========================================================== */
 
 const STORAGE_KEY = "mytask_pro_clean_v2";
+
 const $ = (id) => document.getElementById(id);
 
 /* =========================
-   1. 工具函數
+   1. 安全工具函數
 ========================= */
+
+function on(id, event, handler) {
+  const el = $(id);
+
+  if (!el) {
+    console.warn(`找不到元素：#${id}`);
+    return;
+  }
+
+  el.addEventListener(event, handler);
+}
+
+function setText(id, value) {
+  const el = $(id);
+
+  if (!el) {
+    console.warn(`找不到元素：#${id}`);
+    return;
+  }
+
+  el.textContent = value;
+}
+
+function setHTML(id, value) {
+  const el = $(id);
+
+  if (!el) {
+    console.warn(`找不到元素：#${id}`);
+    return;
+  }
+
+  el.innerHTML = value;
+}
+
+function setValue(id, value) {
+  const el = $(id);
+
+  if (!el) {
+    console.warn(`找不到元素：#${id}`);
+    return;
+  }
+
+  el.value = value;
+}
+
+function getValue(id) {
+  const el = $(id);
+
+  if (!el) {
+    console.warn(`找不到元素：#${id}`);
+    return "";
+  }
+
+  return el.value;
+}
+
+function setWidth(id, value) {
+  const el = $(id);
+
+  if (!el) {
+    console.warn(`找不到元素：#${id}`);
+    return;
+  }
+
+  el.style.width = value;
+}
 
 function uid() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -201,13 +267,14 @@ function loadState() {
       ...saved,
       profile: {
         ...base.profile,
-        ...saved.profile
+        ...(saved.profile || {})
       },
       expenses: Array.isArray(saved.expenses) ? saved.expenses : base.expenses,
       tasks: Array.isArray(saved.tasks) ? saved.tasks : base.tasks,
       plans: Array.isArray(saved.plans) ? saved.plans : base.plans
     };
-  } catch {
+  } catch (error) {
+    console.warn("讀取 localStorage 失敗，已使用預設資料：", error);
     return defaultState();
   }
 }
@@ -352,10 +419,13 @@ function showPage(page) {
   if (pageEl) pageEl.classList.add("active");
   if (btnEl) btnEl.classList.add("active");
 
-  $("pageTitle").textContent = pageInfo[page][0];
-  $("pageDesc").textContent = pageInfo[page][1];
+  if (pageInfo[page]) {
+    setText("pageTitle", pageInfo[page][0]);
+    setText("pageDesc", pageInfo[page][1]);
+  }
 
-  $("sidebar").classList.remove("show");
+  const sidebar = $("sidebar");
+  if (sidebar) sidebar.classList.remove("show");
 
   render();
 }
@@ -366,21 +436,22 @@ document.querySelectorAll(".menu-btn").forEach(btn => {
   });
 });
 
-$("mobileMenuBtn").addEventListener("click", () => {
-  $("sidebar").classList.toggle("show");
+on("mobileMenuBtn", "click", () => {
+  const sidebar = $("sidebar");
+  if (sidebar) sidebar.classList.toggle("show");
 });
 
 /* =========================
    6. 新增開銷
 ========================= */
 
-$("expenseForm").addEventListener("submit", event => {
+on("expenseForm", "submit", event => {
   event.preventDefault();
 
-  const type = $("expenseType").value;
-  const name = $("expenseName").value.trim();
-  const amount = Number($("expenseAmount").value || 0);
-  const note = $("expenseNote").value.trim();
+  const type = getValue("expenseType");
+  const name = getValue("expenseName").trim();
+  const amount = Number(getValue("expenseAmount") || 0);
+  const note = getValue("expenseNote").trim();
 
   if (!name) {
     alert("請填開銷名稱。");
@@ -402,9 +473,9 @@ $("expenseForm").addEventListener("submit", event => {
     createdAt: todayISO()
   });
 
-  $("expenseName").value = "";
-  $("expenseAmount").value = "";
-  $("expenseNote").value = "";
+  setValue("expenseName", "");
+  setValue("expenseAmount", "");
+  setValue("expenseNote", "");
 
   saveState();
   render();
@@ -414,17 +485,18 @@ $("expenseForm").addEventListener("submit", event => {
    7. 新增任務
 ========================= */
 
-$("openTaskFormBtn").addEventListener("click", () => {
-  $("taskForm").classList.toggle("hidden");
+on("openTaskFormBtn", "click", () => {
+  const form = $("taskForm");
+  if (form) form.classList.toggle("hidden");
 });
 
-$("taskForm").addEventListener("submit", event => {
+on("taskForm", "submit", event => {
   event.preventDefault();
 
-  const title = $("taskTitle").value.trim();
-  const xp = Number($("taskDifficulty").value || 10);
-  const category = $("taskCategory").value.trim() || "一般";
-  const note = $("taskNote").value.trim();
+  const title = getValue("taskTitle").trim();
+  const xp = Number(getValue("taskDifficulty") || 10);
+  const category = getValue("taskCategory").trim() || "一般";
+  const note = getValue("taskNote").trim();
 
   if (!title) {
     alert("請填任務名稱。");
@@ -441,10 +513,12 @@ $("taskForm").addEventListener("submit", event => {
     createdAt: todayISO()
   });
 
-  $("taskTitle").value = "";
-  $("taskCategory").value = "";
-  $("taskNote").value = "";
-  $("taskForm").classList.add("hidden");
+  setValue("taskTitle", "");
+  setValue("taskCategory", "");
+  setValue("taskNote", "");
+
+  const form = $("taskForm");
+  if (form) form.classList.add("hidden");
 
   saveState();
   render();
@@ -454,15 +528,15 @@ $("taskForm").addEventListener("submit", event => {
    8. 新增長期項目
 ========================= */
 
-$("planForm").addEventListener("submit", event => {
+on("planForm", "submit", event => {
   event.preventDefault();
 
-  const type = $("planType").value;
-  const name = $("planName").value.trim();
-  const total = Number($("planTotal").value || 0);
-  const current = Number($("planCurrent").value || 0);
-  const monthly = Number($("planMonthly").value || 0);
-  const deadline = $("planDeadline").value;
+  const type = getValue("planType");
+  const name = getValue("planName").trim();
+  const total = Number(getValue("planTotal") || 0);
+  const current = Number(getValue("planCurrent") || 0);
+  const monthly = Number(getValue("planMonthly") || 0);
+  const deadline = getValue("planDeadline");
 
   if (!name) {
     alert("請填長期項目名稱。");
@@ -485,11 +559,11 @@ $("planForm").addEventListener("submit", event => {
     createdAt: todayISO()
   });
 
-  $("planName").value = "";
-  $("planTotal").value = "";
-  $("planCurrent").value = "";
-  $("planMonthly").value = "";
-  $("planDeadline").value = "";
+  setValue("planName", "");
+  setValue("planTotal", "");
+  setValue("planCurrent", "");
+  setValue("planMonthly", "");
+  setValue("planDeadline", "");
 
   saveState();
   render();
@@ -499,12 +573,12 @@ $("planForm").addEventListener("submit", event => {
    9. 個人資料
 ========================= */
 
-$("profileForm").addEventListener("submit", event => {
+on("profileForm", "submit", event => {
   event.preventDefault();
 
-  state.profile.name = $("profileName").value.trim();
-  state.profile.monthlyIncome = Number($("monthlyIncome").value || 0);
-  state.profile.entertainmentBudget = Number($("entertainmentBudget").value || 0);
+  state.profile.name = getValue("profileName").trim();
+  state.profile.monthlyIncome = Number(getValue("monthlyIncome") || 0);
+  state.profile.entertainmentBudget = Number(getValue("entertainmentBudget") || 0);
 
   saveState();
   render();
@@ -585,7 +659,7 @@ window.App = {
    11. 匯入 / 匯出 / 重置
 ========================= */
 
-$("exportBtn").addEventListener("click", () => {
+on("exportBtn", "click", () => {
   const blob = new Blob([JSON.stringify(state, null, 2)], {
     type: "application/json"
   });
@@ -599,7 +673,7 @@ $("exportBtn").addEventListener("click", () => {
   URL.revokeObjectURL(a.href);
 });
 
-$("importFile").addEventListener("change", async event => {
+on("importFile", "change", async event => {
   const file = event.target.files[0];
 
   if (!file) return;
@@ -623,7 +697,7 @@ $("importFile").addEventListener("change", async event => {
   }
 });
 
-$("resetBtn").addEventListener("click", () => {
+on("resetBtn", "click", () => {
   if (!confirm("確定重置全部資料嗎？")) return;
 
   state = defaultState();
@@ -820,28 +894,37 @@ function renderExpenses() {
   const annual = annualExpenses();
   const oneTime = activeOneTimeExpenses();
 
-  $("heroMonthlyPressure").textContent = money(monthlyPressure());
+  setText("heroMonthlyPressure", money(monthlyPressure()));
 
-  $("fixedTotal").textContent = money(totalFixed());
-  $("annualMonthly").textContent = money(totalAnnualMonthly());
-  $("oneTimePending").textContent = money(totalOneTimePending());
-  $("oneTimeSpent").textContent = money(spentOneTimeThisMonth());
+  setText("fixedTotal", money(totalFixed()));
+  setText("annualMonthly", money(totalAnnualMonthly()));
+  setText("oneTimePending", money(totalOneTimePending()));
+  setText("oneTimeSpent", money(spentOneTimeThisMonth()));
 
-  $("fixedCount").textContent = `${fixed.length} 項`;
-  $("annualCount").textContent = `${annual.length} 項`;
-  $("oneTimeCount").textContent = `${oneTime.length} 項`;
+  setText("fixedCount", `${fixed.length} 項`);
+  setText("annualCount", `${annual.length} 項`);
+  setText("oneTimeCount", `${oneTime.length} 項`);
 
-  $("fixedList").innerHTML = fixed.length
-    ? fixed.map(item => expenseCard(item, "fixed")).join("")
-    : empty("還沒有固定開銷。");
+  setHTML(
+    "fixedList",
+    fixed.length
+      ? fixed.map(item => expenseCard(item, "fixed")).join("")
+      : empty("還沒有固定開銷。")
+  );
 
-  $("annualList").innerHTML = annual.length
-    ? annual.map(item => expenseCard(item, "annual")).join("")
-    : empty("還沒有年費。");
+  setHTML(
+    "annualList",
+    annual.length
+      ? annual.map(item => expenseCard(item, "annual")).join("")
+      : empty("還沒有年費。")
+  );
 
-  $("oneTimeList").innerHTML = oneTime.length
-    ? oneTime.map(item => expenseCard(item, "oneTime")).join("")
-    : empty("沒有待花的一次性娛樂開銷。");
+  setHTML(
+    "oneTimeList",
+    oneTime.length
+      ? oneTime.map(item => expenseCard(item, "oneTime")).join("")
+      : empty("沒有待花的一次性娛樂開銷。")
+  );
 }
 
 /* =========================
@@ -851,23 +934,26 @@ function renderExpenses() {
 function renderTasks() {
   const stats = taskStats();
 
-  $("playerLevel").textContent = playerLevel();
-  $("playerTitle").textContent = playerTitle();
+  setText("playerLevel", playerLevel());
+  setText("playerTitle", playerTitle());
 
-  $("xpBar").style.width = pct(currentLevelXp());
-  $("xpText").textContent = `${currentLevelXp()} / 100 XP`;
+  setWidth("xpBar", pct(currentLevelXp()));
+  setText("xpText", `${currentLevelXp()} / 100 XP`);
 
-  $("taskOpenCount").textContent = stats.open;
-  $("taskDoneCount").textContent = stats.done;
-  $("totalXp").textContent = state.xp;
+  setText("taskOpenCount", stats.open);
+  setText("taskDoneCount", stats.done);
+  setText("totalXp", state.xp);
 
   const sorted = [...state.tasks].sort((a, b) => {
     return Number(a.done) - Number(b.done);
   });
 
-  $("taskList").innerHTML = sorted.length
-    ? sorted.map(taskCard).join("")
-    : empty("還沒有任務，右上角新增一個。");
+  setHTML(
+    "taskList",
+    sorted.length
+      ? sorted.map(taskCard).join("")
+      : empty("還沒有任務，右上角新增一個。")
+  );
 }
 
 /* =========================
@@ -875,18 +961,24 @@ function renderTasks() {
 ========================= */
 
 function renderPlans() {
-  $("suggestedSaving").textContent = money(suggestedSaving());
+  setText("suggestedSaving", money(suggestedSaving()));
 
   const goals = state.plans.filter(p => p.type === "savingGoal");
   const loans = state.plans.filter(p => p.type === "loan");
 
-  $("savingGoalsList").innerHTML = goals.length
-    ? goals.map(planCard).join("")
-    : empty("還沒有存款目標。");
+  setHTML(
+    "savingGoalsList",
+    goals.length
+      ? goals.map(planCard).join("")
+      : empty("還沒有存款目標。")
+  );
 
-  $("loanList").innerHTML = loans.length
-    ? loans.map(planCard).join("")
-    : empty("還沒有貸款或長期付款。");
+  setHTML(
+    "loanList",
+    loans.length
+      ? loans.map(planCard).join("")
+      : empty("還沒有貸款或長期付款。")
+  );
 }
 
 /* =========================
@@ -894,9 +986,9 @@ function renderPlans() {
 ========================= */
 
 function renderProfile() {
-  $("profileName").value = state.profile.name || "";
-  $("monthlyIncome").value = state.profile.monthlyIncome || "";
-  $("entertainmentBudget").value = state.profile.entertainmentBudget || "";
+  setValue("profileName", state.profile.name || "");
+  setValue("monthlyIncome", state.profile.monthlyIncome || "");
+  setValue("entertainmentBudget", state.profile.entertainmentBudget || "");
 
   const income = Number(state.profile.monthlyIncome || 0);
   const planSpend = monthlyPressure();
@@ -907,44 +999,53 @@ function renderProfile() {
   const maxSpending = Math.max(income, planSpend + entertainmentSpent, 1);
   const maxEntertainment = Math.max(entertainment, entertainmentSpent, 1);
 
-  $("spendingChart").innerHTML = [
-    chartRow("收入", income, maxSpending, "green"),
-    chartRow("固定壓力", planSpend, maxSpending, "orange"),
-    chartRow("本月娛樂已花", entertainmentSpent, maxEntertainment, "purple"),
-    chartRow("娛樂預算", entertainment, maxEntertainment, "green")
-  ].join("");
+  setHTML(
+    "spendingChart",
+    [
+      chartRow("收入", income, maxSpending, "green"),
+      chartRow("固定壓力", planSpend, maxSpending, "orange"),
+      chartRow("本月娛樂已花", entertainmentSpent, maxEntertainment, "purple"),
+      chartRow("娛樂預算", entertainment, maxEntertainment, "green")
+    ].join("")
+  );
 
-  $("taskChart").innerHTML = [
-    countChart("全部任務", stats.total, Math.max(1, stats.total), "purple"),
-    countChart("已完成", stats.done, Math.max(1, stats.total), "green"),
-    countChart("未完成", stats.open, Math.max(1, stats.total), "orange")
-  ].join("");
+  setHTML(
+    "taskChart",
+    [
+      countChart("全部任務", stats.total, Math.max(1, stats.total), "purple"),
+      countChart("已完成", stats.done, Math.max(1, stats.total), "green"),
+      countChart("未完成", stats.open, Math.max(1, stats.total), "orange")
+    ].join("")
+  );
 
-  $("profileStats").innerHTML = `
-    <article class="stat">
-      <span>每月收入</span>
-      <strong>${money(income)}</strong>
-      <p>你自己填寫</p>
-    </article>
+  setHTML(
+    "profileStats",
+    `
+      <article class="stat">
+        <span>每月收入</span>
+        <strong>${money(income)}</strong>
+        <p>你自己填寫</p>
+      </article>
 
-    <article class="stat">
-      <span>每月固定壓力</span>
-      <strong>${money(planSpend)}</strong>
-      <p>固定 + 年費月均 + 長期付款</p>
-    </article>
+      <article class="stat">
+        <span>每月固定壓力</span>
+        <strong>${money(planSpend)}</strong>
+        <p>固定 + 年費月均 + 長期付款</p>
+      </article>
 
-    <article class="stat">
-      <span>建議可存</span>
-      <strong>${money(suggestedSaving())}</strong>
-      <p>收入扣除固定壓力後</p>
-    </article>
+      <article class="stat">
+        <span>建議可存</span>
+        <strong>${money(suggestedSaving())}</strong>
+        <p>收入扣除固定壓力後</p>
+      </article>
 
-    <article class="stat">
-      <span>任務完成率</span>
-      <strong>${pct(stats.rate)}</strong>
-      <p>${stats.done} 完成 / ${stats.open} 剩餘</p>
-    </article>
-  `;
+      <article class="stat">
+        <span>任務完成率</span>
+        <strong>${pct(stats.rate)}</strong>
+        <p>${stats.done} 完成 / ${stats.open} 剩餘</p>
+      </article>
+    `
+  );
 }
 
 /* =========================
@@ -952,7 +1053,7 @@ function renderProfile() {
 ========================= */
 
 function render() {
-  $("todayText").textContent = displayToday();
+  setText("todayText", displayToday());
 
   renderExpenses();
   renderTasks();
