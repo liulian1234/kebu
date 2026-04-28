@@ -4,13 +4,13 @@
 
    功能：
    1. 開銷首頁：固定開銷 / 每年一次 / 一次性娛樂開銷
-   2. 新增開銷日期
-   3. 任務 RPG：完成任務加 XP、升級
-   4. 長期付款 / 存款：貸款、分期、存款目標
-   5. 我的資料 / 統計：收入、娛樂預算、花費與任務統計
-   6. 統計月份 reportMonth
+   2. 4月暫時不算固定開銷，5月開始才算固定開銷
+   3. 新增開銷日期 / 統計月份
+   4. 任務 RPG：完成任務加 XP、升級
+   5. 長期付款 / 存款：貸款、分期、存款目標
+   6. 我的資料 / 統計
    7. 黑暗模式
-   8. 車貸修正：
+   8. 車貸：
       - 開始供：14/3/2025
       - 已供到：2026 年 4 月
       - 2026 年 5 月尚未付款
@@ -19,6 +19,7 @@
 
 const STORAGE_KEY = "mytask_pro_clean_v2";
 const THEME_KEY = "mytask_theme";
+const FIXED_START_DATE = "2026-05-01";
 
 const $ = (id) => document.getElementById(id);
 
@@ -108,6 +109,10 @@ function thisMonthISO() {
   return todayISO().slice(0, 7);
 }
 
+function monthValue(dateString) {
+  return String(dateString || "").slice(0, 7);
+}
+
 function displayToday() {
   return new Date().toLocaleDateString("zh-Hant", {
     year: "numeric",
@@ -180,6 +185,19 @@ function selectedMonth() {
   return state.profile.reportMonth || thisMonthISO();
 }
 
+function defaultExpenseDateForType(type) {
+  if (type === "fixed") return FIXED_START_DATE;
+  return todayISO();
+}
+
+function isExpenseActiveInMonth(expense, month) {
+  const startMonth = monthValue(expense.date || expense.createdAt || todayISO());
+
+  if (!startMonth) return true;
+
+  return startMonth <= month;
+}
+
 /* =========================
    3. 預設資料
 ========================= */
@@ -204,8 +222,8 @@ function defaultState() {
         type: "fixed",
         name: "房租",
         amount: 500,
-        note: "每月一定要付",
-        date: today,
+        note: "5月開始，每月一定要付",
+        date: FIXED_START_DATE,
         createdAt: today
       },
       {
@@ -213,8 +231,8 @@ function defaultState() {
         type: "fixed",
         name: "孝敬費（老爸）",
         amount: 250,
-        note: "每月一定要付",
-        date: today,
+        note: "5月開始，每月一定要付",
+        date: FIXED_START_DATE,
         createdAt: today
       },
       {
@@ -222,8 +240,8 @@ function defaultState() {
         type: "fixed",
         name: "Wifi",
         amount: 50,
-        note: "每月一定要付",
-        date: today,
+        note: "5月開始，每月一定要付",
+        date: FIXED_START_DATE,
         createdAt: today
       },
       {
@@ -231,8 +249,8 @@ function defaultState() {
         type: "fixed",
         name: "地鐵",
         amount: 150,
-        note: "每月一定要付",
-        date: today,
+        note: "5月開始，每月一定要付",
+        date: FIXED_START_DATE,
         createdAt: today
       },
       {
@@ -240,8 +258,8 @@ function defaultState() {
         type: "fixed",
         name: "吃飯",
         amount: 100,
-        note: "每月一定要付",
-        date: today,
+        note: "5月開始，每月一定要付",
+        date: FIXED_START_DATE,
         createdAt: today
       }
     ],
@@ -345,11 +363,25 @@ function normalizeData() {
   }
 
   state.expenses = state.expenses.map(expense => {
-    return {
+    const normalized = {
       ...expense,
       date: expense.date || expense.createdAt || todayISO(),
       createdAt: expense.createdAt || expense.date || todayISO()
     };
+
+    if (normalized.type === "fixed") {
+      const currentMonth = monthValue(normalized.date);
+
+      if (!currentMonth || currentMonth < "2026-05") {
+        normalized.date = FIXED_START_DATE;
+      }
+
+      if (!normalized.note || normalized.note.includes("每月一定要付")) {
+        normalized.note = "5月開始，每月一定要付";
+      }
+    }
+
+    return normalized;
   });
 
   state.tasks = state.tasks.map(task => {
@@ -410,12 +442,6 @@ function migrateCarLoanData() {
     }
   }
 
-  /*
-    避免車貸重複計算：
-    - 車貸屬於「長期付款 / 存款」
-    - 不再放進主頁固定開銷列表
-    - monthlyPressure 會自動加入貸款月供
-  */
   state.expenses = state.expenses.filter(expense => {
     const name = String(expense.name || "");
     return name !== "車貸款" && name !== "車貸款預算";
@@ -432,6 +458,17 @@ migrateCarLoanData();
 ========================= */
 
 function fixedExpenses() {
+  const month = selectedMonth();
+
+  return state.expenses.filter(expense => {
+    return (
+      expense.type === "fixed" &&
+      isExpenseActiveInMonth(expense, month)
+    );
+  });
+}
+
+function allFixedExpenses() {
   return state.expenses.filter(expense => expense.type === "fixed");
 }
 
@@ -467,6 +504,7 @@ function oneTimePendingBySelectedMonth() {
   return state.expenses
     .filter(expense => {
       const date = expense.date || expense.createdAt || "";
+
       return (
         expense.type === "oneTime" &&
         !expense.spent &&
@@ -642,13 +680,21 @@ initTheme();
    9. 表單：新增開銷
 ========================= */
 
+on("expenseType", "change", () => {
+  const type = getValue("expenseType");
+
+  if (!getValue("expenseDate") || type === "fixed") {
+    setValue("expenseDate", defaultExpenseDateForType(type));
+  }
+});
+
 on("expenseForm", "submit", event => {
   event.preventDefault();
 
   const type = getValue("expenseType");
   const name = getValue("expenseName").trim();
   const amount = Number(getValue("expenseAmount") || 0);
-  const date = getValue("expenseDate") || todayISO();
+  const date = getValue("expenseDate") || defaultExpenseDateForType(type);
   const note = getValue("expenseNote").trim();
 
   if (!name) {
@@ -667,14 +713,14 @@ on("expenseForm", "submit", event => {
     name,
     amount,
     date,
-    note,
+    note: note || (type === "fixed" ? "5月開始，每月一定要付" : ""),
     spent: false,
     createdAt: todayISO()
   });
 
   setValue("expenseName", "");
   setValue("expenseAmount", "");
-  setValue("expenseDate", todayISO());
+  setValue("expenseDate", defaultExpenseDateForType(type));
   setValue("expenseNote", "");
 
   saveState();
@@ -959,7 +1005,7 @@ function expenseCard(item, mode) {
           <div class="list-title">${esc(item.name)}</div>
           <div class="list-meta">
             ${amountText}
-            ${dateText ? "｜日期：" + esc(dateText) : ""}
+            ${dateText ? "｜開始 / 日期：" + esc(dateText) : ""}
             ${spentText}
             ${item.note ? "｜" + esc(item.note) : ""}
           </div>
@@ -1139,13 +1185,16 @@ function countChart(label, value, max, colorClass = "") {
 ========================= */
 
 function renderExpenses() {
+  const currentType = getValue("expenseType") || "fixed";
+
   if ($("expenseDate") && !getValue("expenseDate")) {
-    setValue("expenseDate", todayISO());
+    setValue("expenseDate", defaultExpenseDateForType(currentType));
   }
 
   const fixed = fixedExpenses();
   const annual = annualExpenses();
   const oneTime = activeOneTimeExpenses();
+  const month = selectedMonth();
 
   setText("heroMonthlyPressure", money(monthlyPressure()));
 
@@ -1162,7 +1211,7 @@ function renderExpenses() {
     "fixedList",
     fixed.length
       ? fixed.map(item => expenseCard(item, "fixed")).join("")
-      : empty("還沒有固定開銷。")
+      : empty(`${month} 暫時沒有固定開銷。固定開銷會從 2026-05 開始計算。`)
   );
 
   setHTML(
@@ -1259,7 +1308,7 @@ function renderProfile() {
     "spendingChart",
     [
       chartRow("收入", income, maxSpending, "green"),
-      chartRow("固定壓力", planSpend, maxSpending, "orange"),
+      chartRow(`${month} 固定壓力`, planSpend, maxSpending, "orange"),
       chartRow(`${month} 娛樂已花`, entertainmentSpent, maxEntertainment, "purple"),
       chartRow(`${month} 娛樂待花`, entertainmentPending, maxEntertainment, "orange"),
       chartRow("娛樂預算", entertainment, maxEntertainment, "green")
@@ -1293,7 +1342,7 @@ function renderProfile() {
       <article class="stat">
         <span>每月固定壓力</span>
         <strong>${money(planSpend)}</strong>
-        <p>固定 + 年費月均 + 長期付款</p>
+        <p>4月不含固定開銷，5月開始計算</p>
       </article>
 
       <article class="stat">
