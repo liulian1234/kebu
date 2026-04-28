@@ -1087,5 +1087,1086 @@ on("profileForm", "submit", (event) => {
 /* =========================
    16. 動態月份監聽
 ========================= */
+/* =========================
+   16. 動態月份監聽
+========================= */
 
-document
+document.addEventListener("change", (event) => {
+  const target = event.target;
+  if (!target) return;
+
+  if (target.id === "reportMonth" || target.id === "autoReportMonth") {
+    state.profile.reportMonth = target.value || thisMonthISO();
+
+    if ($("reportMonth") && $("reportMonth") !== target) {
+      $("reportMonth").value = state.profile.reportMonth;
+    }
+
+    if ($("autoReportMonth") && $("autoReportMonth") !== target) {
+      $("autoReportMonth").value = state.profile.reportMonth;
+    }
+
+    saveState();
+    render();
+  }
+
+  if (target.id === "forecastMonth" || target.id === "autoForecastMonth") {
+    state.profile.forecastMonth = target.value || nextMonthISO(selectedReportMonth());
+
+    if ($("forecastMonth") && $("forecastMonth") !== target) {
+      $("forecastMonth").value = state.profile.forecastMonth;
+    }
+
+    if ($("autoForecastMonth") && $("autoForecastMonth") !== target) {
+      $("autoForecastMonth").value = state.profile.forecastMonth;
+    }
+
+    saveState();
+    render();
+  }
+
+  if (target.id === "forecastDate") {
+    const month = monthValue(target.value);
+
+    if (month) {
+      state.profile.forecastMonth = month;
+      saveState();
+      render();
+    }
+  }
+});
+
+/* =========================
+   17. 操作功能
+========================= */
+
+window.App = {
+  deleteExpense(id) {
+    const target = state.expenses.find(expense => expense.id === id);
+
+    if (!target) return;
+
+    if (isSystemFixedExpense(target)) {
+      alert("這是系統固定開銷，不能刪除。");
+      repairSystemData();
+      render();
+      return;
+    }
+
+    if (!confirm("確定刪除這筆開銷嗎？")) return;
+
+    state.expenses = state.expenses.filter(expense => expense.id !== id);
+
+    saveState();
+    render();
+  },
+
+  stepExpense(id) {
+    const target = state.expenses.find(expense => expense.id === id);
+
+    if (!target) return;
+    if (target.type === "fixed") return;
+
+    if (target.flowStatus === "open") {
+      target.flowStatus = "checked";
+      target.checkedAt = todayISO();
+    } else if (target.flowStatus === "checked") {
+      target.flowStatus = "done";
+      target.historyAt = todayISO();
+    }
+
+    saveState();
+    render();
+  },
+
+  undoExpense(id) {
+    const target = state.expenses.find(expense => expense.id === id);
+
+    if (!target) return;
+    if (target.type === "fixed") return;
+
+    if (target.flowStatus === "checked") {
+      target.flowStatus = "open";
+      target.checkedAt = "";
+    } else if (target.flowStatus === "done") {
+      target.flowStatus = "checked";
+      target.historyAt = "";
+    }
+
+    saveState();
+    render();
+  },
+
+  restoreHistoryExpense(id) {
+    const target = state.expenses.find(expense => expense.id === id);
+
+    if (!target) return;
+
+    target.flowStatus = "open";
+    target.checkedAt = "";
+    target.historyAt = "";
+
+    saveState();
+    render();
+  },
+
+  stepFixed(expenseId, month) {
+    const current = getFixedStatus(expenseId, month);
+
+    if (current === "open") {
+      setFixedRecord(expenseId, month, {
+        status: "checked",
+        checkedAt: todayISO(),
+        doneAt: ""
+      });
+    } else if (current === "checked") {
+      setFixedRecord(expenseId, month, {
+        status: "done",
+        doneAt: todayISO()
+      });
+    }
+
+    saveState();
+    render();
+  },
+
+  undoFixed(expenseId, month) {
+    const current = getFixedStatus(expenseId, month);
+
+    if (current === "checked") {
+      setFixedRecord(expenseId, month, null);
+    } else if (current === "done") {
+      setFixedRecord(expenseId, month, {
+        status: "checked",
+        doneAt: ""
+      });
+    }
+
+    saveState();
+    render();
+  },
+
+  completeTask(id) {
+    const task = state.tasks.find(item => item.id === id);
+
+    if (!task || task.done) return;
+
+    task.done = true;
+    task.completedAt = todayISO();
+    state.xp += Number(task.xp || 0);
+
+    saveState();
+    render();
+  },
+
+  deleteTask(id) {
+    if (!confirm("確定刪除這個任務嗎？")) return;
+
+    state.tasks = state.tasks.filter(task => task.id !== id);
+
+    saveState();
+    render();
+  },
+
+  updatePlanCurrent(id, value) {
+    const plan = state.plans.find(item => item.id === id);
+
+    if (!plan) return;
+
+    if (plan.carLoan || plan.locked || String(plan.name || "").includes("車貸")) {
+      alert("車貸資料已固定，不能手動修改。");
+      repairSystemData();
+      render();
+      return;
+    }
+
+    plan.current = Number(value || 0);
+
+    saveState();
+    render();
+  },
+
+  deletePlan(id) {
+    const target = state.plans.find(item => item.id === id);
+
+    if (!target) return;
+
+    if (target.carLoan || target.locked || String(target.name || "").includes("車貸")) {
+      alert("車貸資料已固定，不能刪除。");
+      repairSystemData();
+      render();
+      return;
+    }
+
+    if (!confirm("確定刪除這個長期項目嗎？")) return;
+
+    state.plans = state.plans.filter(plan => plan.id !== id);
+
+    saveState();
+    render();
+  }
+};
+
+/* =========================
+   18. 匯入 / 匯出 / 重置
+========================= */
+
+on("exportBtn", "click", () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], {
+    type: "application/json"
+  });
+
+  const a = document.createElement("a");
+
+  a.href = URL.createObjectURL(blob);
+  a.download = `mytask-pro-backup-${todayISO()}.json`;
+  a.click();
+
+  URL.revokeObjectURL(a.href);
+});
+
+on("importFile", "change", async (event) => {
+  const file = event.target.files[0];
+
+  if (!file) return;
+
+  try {
+    const imported = JSON.parse(await file.text());
+
+    if (!imported.expenses || !imported.tasks || !imported.plans) {
+      alert("這不是正確的 MyTask 備份檔。");
+      return;
+    }
+
+    state = imported;
+
+    if (!Array.isArray(state.fixedMonthlyRecords)) {
+      state.fixedMonthlyRecords = [];
+    }
+
+    repairSystemData();
+    render();
+
+    alert("匯入成功。");
+  } catch {
+    alert("匯入失敗，請確認 JSON 檔案正確。");
+  }
+});
+
+on("resetBtn", "click", () => {
+  if (!confirm("確定重置全部資料嗎？")) return;
+
+  state = defaultState();
+  repairSystemData();
+  render();
+});
+
+/* =========================
+   19. HTML 小工具
+========================= */
+
+function empty(text) {
+  return `<div class="empty">${text}</div>`;
+}
+
+function groupBlock(title, html) {
+  return `
+    <div class="sub-block">
+      <div>${title}</div>
+      ${html}
+    </div>
+  `;
+}
+
+function statusBadge(text, color = "") {
+  return `
+    <span class="status-badge ${color}">
+      ${text}
+    </span>
+  `;
+}
+
+function progressBar(percent) {
+  return `
+    <div class="progress">
+      <span style="width:${pct(percent)}"></span>
+    </div>
+  `;
+}
+
+function expenseCard(item) {
+  const status = getExpenseFlowStatus(item);
+  const checked = status === "checked";
+  const archived = expenseIsArchived(item);
+  const strikeStyle = checked ? 'style="text-decoration:line-through;opacity:.7;"' : "";
+
+  const typeText =
+    item.type === "annual"
+      ? "一年一次"
+      : item.type === "oneTime"
+        ? "一次性"
+        : "固定";
+
+  const dateLabel =
+    item.type === "annual" || item.type === "oneTime"
+      ? "截止日期"
+      : "開始日期";
+
+  let actions = "";
+
+  if (!archived) {
+    if (status === "open") {
+      actions = `<button class="mini-btn green" onclick="App.stepExpense('${item.id}')">打勾</button>`;
+    } else if (status === "checked") {
+      actions = `
+        <button class="mini-btn" onclick="App.undoExpense('${item.id}')">取消</button>
+        <button class="mini-btn green" onclick="App.stepExpense('${item.id}')">確認完成</button>
+      `;
+    }
+  } else {
+    actions = `<button class="mini-btn" onclick="App.restoreHistoryExpense('${item.id}')">恢復</button>`;
+  }
+
+  const deleteButton = item.type !== "fixed" && !archived
+    ? `<button class="mini-btn red" onclick="App.deleteExpense('${item.id}')">刪除</button>`
+    : "";
+
+  return `
+    <article class="list-card ${checked ? "checked" : ""}">
+      <div class="list-top">
+        <div>
+          <div class="list-title" ${strikeStyle}>
+            ${esc(item.name)}
+            ${checked ? statusBadge("已打勾", "orange") : ""}
+            ${archived ? statusBadge("歷史完成", "green") : ""}
+          </div>
+
+          ${
+            item.date
+              ? `
+                <div class="deadline-date">
+                  <span>${dateLabel}</span>
+                  <strong>${esc(item.date)}</strong>
+                </div>
+              `
+              : ""
+          }
+
+          <div class="list-meta">
+            ${typeText}｜${money(item.amount)}
+            ${item.note ? `｜${esc(item.note)}` : ""}
+            ${item.checkedAt ? `｜第一次打勾：${esc(item.checkedAt)}` : ""}
+            ${item.historyAt ? `｜完成：${esc(item.historyAt)}` : ""}
+          </div>
+        </div>
+
+        <div class="amount">${money(item.amount)}</div>
+      </div>
+
+      <div class="list-actions">
+        ${actions}
+        ${deleteButton}
+      </div>
+    </article>
+  `;
+}
+
+function fixedExpenseCard(item, month) {
+  const status = getFixedStatus(item.id, month);
+  const checked = status === "checked";
+  const done = status === "done";
+  const strikeStyle = checked || done ? 'style="text-decoration:line-through;opacity:.75;"' : "";
+
+  let badge = "";
+  let actions = "";
+
+  if (status === "open") {
+    badge = statusBadge("未完成", "orange");
+    actions = `<button class="mini-btn green" onclick="App.stepFixed('${item.id}','${month}')">打勾</button>`;
+  } else if (status === "checked") {
+    badge = statusBadge("已打勾", "orange");
+    actions = `
+      <button class="mini-btn" onclick="App.undoFixed('${item.id}','${month}')">取消</button>
+      <button class="mini-btn green" onclick="App.stepFixed('${item.id}','${month}')">確認完成</button>
+    `;
+  } else if (status === "done") {
+    badge = statusBadge("已完成", "green");
+    actions = `<button class="mini-btn" onclick="App.undoFixed('${item.id}','${month}')">還原一步</button>`;
+  }
+
+  return `
+    <article class="list-card ${checked || done ? "checked" : ""}">
+      <div class="list-top">
+        <div>
+          <div class="list-title" ${strikeStyle}>
+            ${esc(item.name)} ${badge}
+          </div>
+
+          <div class="list-meta">
+            ${money(item.amount)}｜月份：${esc(month)}
+            ${item.note ? `｜${esc(item.note)}` : ""}
+          </div>
+        </div>
+
+        <div class="amount">${money(item.amount)}</div>
+      </div>
+
+      <div class="list-actions">
+        ${actions}
+        <button class="mini-btn" type="button" disabled>🔒 固定</button>
+      </div>
+    </article>
+  `;
+}
+
+function fixedHistoryCard(month) {
+  const due = fixedExpensesForMonth(month);
+
+  if (!due.length) return "";
+
+  const progress = fixedMonthProgress(month);
+
+  const detail = due.map(item => {
+    const status = getFixedStatus(item.id, month);
+
+    const badge =
+      status === "done"
+        ? "完成"
+        : status === "checked"
+          ? "已打勾"
+          : "未完成";
+
+    return `
+      <div style="display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);">
+        <span>${esc(item.name)}</span>
+        <span>${money(item.amount)}｜${badge}</span>
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <article class="plan-card">
+      <h4>${esc(month)} 固定開銷</h4>
+      <p>${money(progress.totalAmount)}｜${progress.status}</p>
+
+      <div class="plan-numbers">
+        <div>
+          <span>總額</span>
+          <strong>${money(progress.totalAmount)}</strong>
+        </div>
+
+        <div>
+          <span>已完成</span>
+          <strong>${money(progress.doneAmount)}</strong>
+        </div>
+
+        <div>
+          <span>進度</span>
+          <strong>${pct(progress.percent)}</strong>
+        </div>
+      </div>
+
+      ${progressBar(progress.percent)}
+
+      <div class="list-meta" style="margin-top:8px;">
+        已打勾：${money(progress.checkedAmount)}｜
+        狀態：${progress.status}
+      </div>
+
+      <div style="margin-top:12px;">
+        ${detail}
+      </div>
+    </article>
+  `;
+}
+
+function planCard(plan) {
+  const isCarLoan =
+    plan.carLoan ||
+    plan.locked ||
+    String(plan.name || "").includes("車貸");
+
+  const currency = plan.currency || "SGD";
+
+  const progress =
+    plan.total
+      ? (Number(plan.current || 0) / Number(plan.total || 1)) * 100
+      : 0;
+
+  const remain = Math.max(
+    0,
+    Number(plan.total || 0) - Number(plan.current || 0)
+  );
+
+  const months = plan.deadline ? monthsUntil(plan.deadline) : null;
+  const needMonthly = months ? remain / months : 0;
+
+  let monthlyText = "";
+
+  if (isCarLoan) {
+    monthlyText = `${money(plan.monthly || 0)} / ${money(plan.monthlyMYR || 1000, "MYR")}`;
+  } else if (plan.type === "loan") {
+    monthlyText = money(plan.monthly || 0);
+  } else {
+    monthlyText = months ? money(needMonthly) : money(suggestedSaving());
+  }
+
+  const detailText = isCarLoan
+    ? `
+      <div class="list-meta" style="margin-top:8px;">
+        🔒 已固定，不能手動修改｜
+        開始供：14/3/2025｜
+        已供到：2026 年 4 月｜
+        下一期：2026/5/14｜
+        5月尚未付款
+      </div>
+    `
+    : "";
+
+  const actions = isCarLoan
+    ? `
+      <div class="list-actions">
+        <button class="mini-btn" type="button" disabled>🔒 車貸已固定</button>
+      </div>
+    `
+    : `
+      <div class="list-actions">
+        <input
+          type="number"
+          value="${Number(plan.current || 0)}"
+          onchange="App.updatePlanCurrent('${plan.id}', this.value)"
+        />
+
+        <button class="mini-btn red" onclick="App.deletePlan('${plan.id}')">
+          刪除
+        </button>
+      </div>
+    `;
+
+  return `
+    <article class="plan-card">
+      <h4>${esc(plan.name)} ${isCarLoan ? "🔒" : ""}</h4>
+      <p>${plan.type === "loan" ? "貸款 / 分期" : "存款目標"}</p>
+
+      <div class="plan-numbers">
+        <div>
+          <span>總額</span>
+          <strong>${money(plan.total, currency)}</strong>
+        </div>
+
+        <div>
+          <span>已完成 / 已還</span>
+          <strong>${money(plan.current, currency)}</strong>
+        </div>
+
+        <div>
+          <span>${plan.type === "loan" ? "每月付款" : "每月建議"}</span>
+          <strong>${monthlyText}</strong>
+        </div>
+      </div>
+
+      ${progressBar(progress)}
+
+      <div class="list-meta" style="margin-top:8px;">
+        進度 ${pct(progress)}｜剩餘 ${money(remain, currency)}
+        ${months ? `｜剩餘 ${months} 個月` : ""}
+      </div>
+
+      ${detailText}
+      ${actions}
+    </article>
+  `;
+}
+
+function taskCard(task) {
+  return `
+    <article class="list-card">
+      <div class="list-top">
+        <div>
+          <div class="list-title">
+            ${task.done ? "✅ " : ""}${esc(task.title)}
+          </div>
+
+          <div class="list-meta">
+            ${esc(task.category)}｜+${task.xp} XP
+            ${task.createdAt ? `｜建立：${esc(task.createdAt)}` : ""}
+            ${task.note ? `｜${esc(task.note)}` : ""}
+            ${task.done ? `｜完成：${esc(task.completedAt || "")}` : ""}
+          </div>
+        </div>
+
+        <div class="amount">${task.done ? "DONE" : `+${task.xp} XP`}</div>
+      </div>
+
+      <div class="list-actions">
+        ${
+          task.done
+            ? ""
+            : `<button class="mini-btn green" onclick="App.completeTask('${task.id}')">完成 +XP</button>`
+        }
+
+        <button class="mini-btn red" onclick="App.deleteTask('${task.id}')">刪除</button>
+      </div>
+    </article>
+  `;
+}
+
+function chartRow(label, value, max, colorClass = "") {
+  const width = max ? (value / max) * 100 : 0;
+
+  return `
+    <div class="chart-row">
+      <div class="chart-info">
+        <span>${label}</span>
+        <strong>${money(value)}</strong>
+      </div>
+
+      <div class="chart-bar ${colorClass}">
+        <span style="width:${pct(width)}"></span>
+      </div>
+    </div>
+  `;
+}
+
+function countChart(label, value, max, colorClass = "") {
+  const width = max ? (value / max) * 100 : 0;
+
+  return `
+    <div class="chart-row">
+      <div class="chart-info">
+        <span>${label}</span>
+        <strong>${value}</strong>
+      </div>
+
+      <div class="chart-bar ${colorClass}">
+        <span style="width:${pct(width)}"></span>
+      </div>
+    </div>
+  `;
+}
+
+/* =========================
+   20. Render：開銷首頁
+========================= */
+
+function renderFixedSection() {
+  const month = selectedReportMonth();
+  const due = fixedExpensesForMonth(month);
+
+  const pending = due.filter(item => getFixedStatus(item.id, month) === "open");
+  const checked = due.filter(item => getFixedStatus(item.id, month) === "checked");
+  const done = due.filter(item => getFixedStatus(item.id, month) === "done");
+
+  const html = [
+    groupBlock(
+      "待完成固定開銷",
+      pending.length
+        ? pending.map(item => fixedExpenseCard(item, month)).join("")
+        : empty("本月沒有待完成固定開銷。")
+    ),
+
+    groupBlock(
+      "已打勾，等待確認",
+      checked.length
+        ? checked.map(item => fixedExpenseCard(item, month)).join("")
+        : empty("沒有已打勾的固定開銷。")
+    ),
+
+    groupBlock(
+      "本月已完成",
+      done.length
+        ? done.map(item => fixedExpenseCard(item, month)).join("")
+        : empty("本月還沒有完成的固定開銷。")
+    )
+  ].join("");
+
+  setHTML("fixedList", html);
+  setText("fixedCount", `${due.length} 項`);
+}
+
+function renderAnnualSection() {
+  const open = annualOpenList();
+  const checked = annualCheckedList();
+
+  const html = [
+    groupBlock(
+      "待處理的一年一次費用",
+      open.length
+        ? open.map(expenseCard).join("")
+        : empty("還沒有年費。")
+    ),
+
+    groupBlock(
+      "已打勾，等待確認",
+      checked.length
+        ? checked.map(expenseCard).join("")
+        : empty("沒有已打勾的年費。")
+    )
+  ].join("");
+
+  setHTML("annualList", html);
+  setText("annualCount", `${open.length + checked.length} 項`);
+}
+
+function renderOneTimeSection() {
+  const open = oneTimeOpenByMonth();
+  const checked = oneTimeCheckedByMonth();
+
+  const html = [
+    groupBlock(
+      "待處理的一次性開銷",
+      open.length
+        ? open.map(expenseCard).join("")
+        : empty("目前沒有待處理的一次性開銷。")
+    ),
+
+    groupBlock(
+      "已打勾，等待確認",
+      checked.length
+        ? checked.map(expenseCard).join("")
+        : empty("沒有已打勾的一次性開銷。")
+    )
+  ].join("");
+
+  setHTML("oneTimeList", html);
+  setText("oneTimeCount", `${open.length + checked.length} 項`);
+}
+
+function renderExpenseHistoryAndForecast() {
+  const reportMonth = selectedReportMonth();
+  const forecastMonth = selectedForecastMonth();
+
+  const wrap = ensureMount("expenseExtraArea", "page-expenses", "card");
+
+  if (!wrap) return;
+
+  const earliestFixedMonth = monthValue(FIXED_START_DATE);
+
+  const monthList = getMonthList(earliestFixedMonth, reportMonth)
+    .reverse()
+    .slice(0, 12);
+
+  const fixedHistoryHtml = monthList
+    .map(month => fixedHistoryCard(month))
+    .filter(Boolean)
+    .join("") || empty("目前沒有固定開銷歷史。");
+
+  const annualHistoryHtml = annualHistoryList().length
+    ? annualHistoryList().map(expenseCard).join("")
+    : empty("目前沒有一年一次歷史記錄。");
+
+  const oneTimeHistoryHtml = oneTimeHistoryList().length
+    ? oneTimeHistoryList().map(expenseCard).join("")
+    : empty("目前沒有一次性歷史記錄。");
+
+  const annualForecastList = annualExpensesActive().length
+    ? annualExpensesActive().map(expenseCard).join("")
+    : empty("沒有待處理的一年一次費用。");
+
+  const oneTimeForecastList = oneTimeExpensesActive().length
+    ? oneTimeExpensesActive().map(expenseCard).join("")
+    : empty("沒有待處理的一次性開銷。");
+
+  const forecast = forecastSummary(forecastMonth);
+
+  wrap.innerHTML = `
+    <section class="card" style="margin-top:20px;">
+      <h3 style="margin-bottom:14px;">月份控制 / 預測</h3>
+
+      <div class="form-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;">
+        <div>
+          <label>統計月份</label>
+          <input type="month" id="autoReportMonth" value="${esc(reportMonth)}">
+        </div>
+
+        <div>
+          <label>預測月份</label>
+          <input type="month" id="autoForecastMonth" value="${esc(forecastMonth)}">
+        </div>
+      </div>
+
+      <div class="stats-grid" style="margin-top:18px;">
+        <article class="stat">
+          <span>預測固定開銷</span>
+          <strong>${money(forecast.fixed)}</strong>
+          <p>${esc(forecastMonth)} 固定開銷</p>
+        </article>
+
+        <article class="stat">
+          <span>一年一次待處理</span>
+          <strong>${money(forecast.annualTotal)}</strong>
+          <p>不管幾月都會提醒</p>
+        </article>
+
+        <article class="stat">
+          <span>預測貸款</span>
+          <strong>${money(forecast.loans)}</strong>
+          <p>固定長期付款</p>
+        </article>
+
+        <article class="stat">
+          <span>一次性待處理</span>
+          <strong>${money(forecast.oneTime)}</strong>
+          <p>不管幾月都會提醒</p>
+        </article>
+
+        <article class="stat">
+          <span>預測總壓力</span>
+          <strong>${money(forecast.total)}</strong>
+          <p>${esc(forecastMonth)} + 未完成提醒</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="card forecast-section" style="margin-top:20px;">
+      <h3>預測提醒：一年一次費用</h3>
+      <p class="section-desc">這裡不會因為月份不同而隱藏，日期會當作截止日期提醒你。</p>
+
+      <div class="history-list">
+        ${annualForecastList}
+      </div>
+    </section>
+
+    <section class="card forecast-section" style="margin-top:20px;">
+      <h3>預測提醒：一次性開銷</h3>
+      <p class="section-desc">這裡不會因為月份不同而隱藏，日期會當作截止日期提醒你。</p>
+
+      <div class="history-list">
+        ${oneTimeForecastList}
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:20px;">
+      <h3 style="margin-bottom:14px;">一次性歷史記錄</h3>
+      ${oneTimeHistoryHtml}
+    </section>
+
+    <section class="card" style="margin-top:20px;">
+      <h3 style="margin-bottom:14px;">一年一次歷史記錄</h3>
+      ${annualHistoryHtml}
+    </section>
+
+    <section class="card" style="margin-top:20px;">
+      <h3 style="margin-bottom:14px;">固定開銷歷史（按月份）</h3>
+      ${fixedHistoryHtml}
+    </section>
+  `;
+}
+
+function renderExpenses() {
+  const currentType = getValue("expenseType") || "fixed";
+
+  if ($("expenseDate") && !getValue("expenseDate")) {
+    setValue("expenseDate", defaultExpenseDateForType(currentType));
+  }
+
+  const month = selectedReportMonth();
+
+  setText("heroMonthlyPressure", money(monthlyPressure(month)));
+  setText("fixedTotal", money(totalFixedForMonth(month)));
+  setText("annualMonthly", money(totalAnnualMonthly()));
+  setText("oneTimePending", money(totalOneTimePendingForMonth(month)));
+  setText("oneTimeSpent", money(spentOneTimeThisMonth(month)));
+
+  renderFixedSection();
+  renderAnnualSection();
+  renderOneTimeSection();
+  renderExpenseHistoryAndForecast();
+}
+
+/* =========================
+   21. Render：任務 RPG
+========================= */
+
+function renderTasks() {
+  const stats = taskStats();
+
+  setText("playerLevel", playerLevel());
+  setText("playerTitle", playerTitle());
+
+  setWidth("xpBar", pct(currentLevelXp()));
+  setText("xpText", `${currentLevelXp()} / 100 XP`);
+
+  setText("taskOpenCount", stats.open);
+  setText("taskDoneCount", stats.done);
+  setText("totalXp", state.xp);
+
+  const sorted = [...state.tasks].sort((a, b) => {
+    return Number(a.done) - Number(b.done);
+  });
+
+  setHTML(
+    "taskList",
+    sorted.length
+      ? sorted.map(taskCard).join("")
+      : empty("還沒有任務，右上角新增一個。")
+  );
+}
+
+/* =========================
+   22. Render：長期付款 / 存款
+========================= */
+
+function renderPlans() {
+  setText("suggestedSaving", money(suggestedSaving()));
+
+  const goals = state.plans.filter(plan => plan.type === "savingGoal");
+  const loans = state.plans.filter(plan => plan.type === "loan");
+
+  setHTML(
+    "savingGoalsList",
+    goals.length
+      ? goals.map(planCard).join("")
+      : empty("還沒有存款目標。")
+  );
+
+  setHTML(
+    "loanList",
+    loans.length
+      ? loans.map(planCard).join("")
+      : empty("還沒有貸款或長期付款。")
+  );
+}
+
+/* =========================
+   23. Render：資料 / 統計
+========================= */
+
+function renderProfile() {
+  setValue("profileName", state.profile.name || "");
+  setValue("monthlyIncome", state.profile.monthlyIncome || "");
+  setValue("entertainmentBudget", state.profile.entertainmentBudget || "");
+  setValue("reportMonth", selectedReportMonth());
+  setValue("forecastMonth", selectedForecastMonth());
+
+  const reportMonth = selectedReportMonth();
+
+  const income = Number(state.profile.monthlyIncome || 0);
+  const planSpend = monthlyPressure(reportMonth);
+  const entertainment = Number(state.profile.entertainmentBudget || 0);
+  const entertainmentSpent = spentOneTimeThisMonth(reportMonth);
+  const entertainmentPending = totalOneTimePendingForMonth(reportMonth);
+  const annualPaid = spentAnnualThisMonth(reportMonth);
+  const fixedProgress = fixedMonthProgress(reportMonth);
+  const stats = taskStats();
+
+  const maxSpending = Math.max(income, planSpend + entertainmentSpent + annualPaid, 1);
+  const maxEntertainment = Math.max(entertainment, entertainmentSpent, entertainmentPending, 1);
+
+  setHTML(
+    "spendingChart",
+    [
+      chartRow("收入", income, maxSpending, "green"),
+      chartRow(`${reportMonth} 固定壓力`, planSpend, maxSpending, "orange"),
+      chartRow(`${reportMonth} 娛樂已花`, entertainmentSpent, maxEntertainment, "purple"),
+      chartRow(`${reportMonth} 娛樂待花`, entertainmentPending, maxEntertainment, "orange"),
+      chartRow(`${reportMonth} 年費已完成`, annualPaid, maxSpending, "green"),
+      chartRow("娛樂預算", entertainment, maxEntertainment, "green")
+    ].join("")
+  );
+
+  setHTML(
+    "taskChart",
+    [
+      countChart("全部任務", stats.total, Math.max(1, stats.total), "purple"),
+      countChart("已完成", stats.done, Math.max(1, stats.total), "green"),
+      countChart("未完成", stats.open, Math.max(1, stats.total), "orange")
+    ].join("")
+  );
+
+  setHTML(
+    "profileStats",
+    `
+      <article class="stat">
+        <span>統計月份</span>
+        <strong>${esc(reportMonth)}</strong>
+        <p>根據你選擇的月份統計</p>
+      </article>
+
+      <article class="stat">
+        <span>每月收入</span>
+        <strong>${money(income)}</strong>
+        <p>你自己填寫</p>
+      </article>
+
+      <article class="stat">
+        <span>每月固定壓力</span>
+        <strong>${money(planSpend)}</strong>
+        <p>4月不含固定開銷，5月開始計算</p>
+      </article>
+
+      <article class="stat">
+        <span>建議可存</span>
+        <strong>${money(suggestedSaving())}</strong>
+        <p>收入扣除固定壓力後</p>
+      </article>
+
+      <article class="stat">
+        <span>娛樂已花</span>
+        <strong>${money(entertainmentSpent)}</strong>
+        <p>${esc(reportMonth)} 已確認完成</p>
+      </article>
+
+      <article class="stat">
+        <span>娛樂待花</span>
+        <strong>${money(entertainmentPending)}</strong>
+        <p>${esc(reportMonth)} 尚未完成</p>
+      </article>
+
+      <article class="stat">
+        <span>年費已完成</span>
+        <strong>${money(annualPaid)}</strong>
+        <p>${esc(reportMonth)} 進入歷史的一年一次費用</p>
+      </article>
+
+      <article class="stat">
+        <span>固定開銷完成率</span>
+        <strong>${pct(fixedProgress.percent)}</strong>
+        <p>${fixedProgress.status}｜${money(fixedProgress.doneAmount)} / ${money(fixedProgress.totalAmount)}</p>
+      </article>
+
+      <article class="stat">
+        <span>任務完成率</span>
+        <strong>${pct(stats.rate)}</strong>
+        <p>${stats.done} 完成 / ${stats.open} 剩餘</p>
+      </article>
+
+      <article class="stat">
+        <span>總 XP</span>
+        <strong>${state.xp}</strong>
+        <p>目前等級 LV ${playerLevel()}</p>
+      </article>
+    `
+  );
+}
+
+/* =========================
+   24. 主 Render
+========================= */
+
+let isRendering = false;
+
+function render() {
+  if (isRendering) return;
+
+  isRendering = true;
+
+  setText("todayText", displayToday());
+
+  renderExpenses();
+  renderTasks();
+  renderPlans();
+  renderProfile();
+
+  saveState();
+
+  isRendering = false;
+}
+
+/* =========================
+   25. 初始化
+========================= */
+
+repairSystemData();
+saveState();
+render();
