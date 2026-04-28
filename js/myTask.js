@@ -2170,3 +2170,37 @@ function render() {
 repairSystemData();
 saveState();
 render();
+
+
+/* =========================
+   Main Render
+========================= */
+
+let isRendering = false;
+
+function render() {
+  if (isRendering) return;
+
+  isRendering = true;
+
+  setText("todayText", displayToday());
+
+  renderExpenses();
+  renderTasks();
+  renderPlans();
+  renderProfile();
+
+  saveState();
+
+  isRendering = false;
+}
+
+/* =========================
+   Init
+========================= */
+
+repairSystemData();
+saveState();
+render();
+
+console.log("MyTask JS loaded v1001");
