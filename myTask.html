@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>MyTask Pro | 開銷・任務・存款管理</title>
-  <meta name="description" content="一個乾淨、專業、適合每天使用的個人開銷、任務、長期付款與統計儀表板。" />
+  <meta name="description" content="個人開銷、任務、長期付款、存款目標與歷史記錄管理系統。" />
 
   <link rel="stylesheet" href="css/myTask.css" />
 </head>
@@ -56,7 +56,7 @@
           <button class="icon-btn mobile-only" id="mobileMenuBtn" type="button">☰</button>
           <div>
             <h1 id="pageTitle">開銷首頁</h1>
-            <p id="pageDesc">主頁只負責顯示與添加開銷，乾淨、直接、好記錄。</p>
+            <p id="pageDesc">主頁負責顯示、添加、追蹤與查看開銷歷史。</p>
           </div>
         </div>
 
@@ -74,7 +74,10 @@
           <div>
             <span class="eyebrow">Monthly Expense Desk</span>
             <h2>先把錢流去哪裡看清楚。</h2>
-            <p>固定開銷、每年一次費用、一次性娛樂開銷分開顯示。4月暫時不算固定開銷，5月開始才正式計算。</p>
+            <p>
+              固定開銷、每年一次費用、一次性娛樂開銷分開顯示。
+              一次性和年費會先打勾，再確認完成，最後才進入歷史。
+            </p>
           </div>
 
           <div class="hero-total">
@@ -88,7 +91,7 @@
           <div class="panel-head">
             <div>
               <h3>新增開銷</h3>
-              <p>選擇開銷類型，填名稱、金額和開始日期即可。</p>
+              <p>選擇開銷類型，填名稱、金額和日期。固定開銷會從選定月份開始出現。</p>
             </div>
           </div>
 
@@ -130,7 +133,7 @@
           <article class="stat">
             <span>Total 固定開銷</span>
             <strong id="fixedTotal">SGD 0</strong>
-            <p>5月開始才計算</p>
+            <p>依照統計月份計算</p>
           </article>
 
           <article class="stat">
@@ -142,13 +145,13 @@
           <article class="stat">
             <span>一次性待花</span>
             <strong id="oneTimePending">SGD 0</strong>
-            <p>勾選花了就移除</p>
+            <p>尚未進入歷史</p>
           </article>
 
           <article class="stat">
             <span>本月已花娛樂</span>
             <strong id="oneTimeSpent">SGD 0</strong>
-            <p>根據統計月份計算</p>
+            <p>確認完成後才計算</p>
           </article>
         </section>
 
@@ -177,9 +180,11 @@
             <div class="list" id="oneTimeList"></div>
           </div>
         </section>
+
+        <section id="expenseExtraArea"></section>
       </section>
 
-      <!-- PAGE 2: TASKS RPG -->
+      <!-- PAGE 2: TASKS -->
       <section class="page" id="page-tasks">
         <section class="hero task-hero">
           <div>
@@ -262,13 +267,13 @@
         </section>
       </section>
 
-      <!-- PAGE 3: LONG PLANS -->
+      <!-- PAGE 3: PLANS -->
       <section class="page" id="page-plans">
         <section class="hero plan-hero">
           <div>
             <span class="eyebrow">Long-Term Planner</span>
             <h2>長期需要付款的東西，全部放這裡。</h2>
-            <p>貸款、分期、存款目標都可以記錄。系統會依照工資扣除固定開銷後，建議每月可存多少。</p>
+            <p>貸款、分期、存款目標都可以記錄。車貸會被固定鎖住，避免不小心改掉。</p>
           </div>
 
           <div class="hero-total">
@@ -297,7 +302,7 @@
 
             <div class="field">
               <label>名稱</label>
-              <input id="planName" type="text" placeholder="例如：10萬存款 / 車貸 / 電腦分期" />
+              <input id="planName" type="text" placeholder="例如：10萬存款 / 電腦分期" />
             </div>
 
             <div class="field">
@@ -347,13 +352,13 @@
         </section>
       </section>
 
-      <!-- PAGE 4: PROFILE / STATS -->
+      <!-- PAGE 4: PROFILE -->
       <section class="page" id="page-profile">
         <section class="panel">
           <div class="panel-head">
             <div>
               <h3>我的資料</h3>
-              <p>填寫收入和基本資料後，統計才會更準。</p>
+              <p>填寫收入和月份後，統計會更準，也可以提前預測未來開銷。</p>
             </div>
             <button class="btn danger" id="resetBtn" type="button">重置全部資料</button>
           </div>
@@ -377,6 +382,11 @@
             <div class="field">
               <label>統計月份</label>
               <input id="reportMonth" type="month" />
+            </div>
+
+            <div class="field">
+              <label>預測月份</label>
+              <input id="forecastMonth" type="month" />
             </div>
 
             <button class="btn primary" type="submit">保存資料</button>
@@ -421,6 +431,6 @@
     </main>
   </div>
 
-  <script src="./js/myTask.js?v=100" defer></script>
+  <script src="./js/myTask.js?v=300" defer></script>
 </body>
 </html>
