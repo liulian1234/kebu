@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-Hans">
 <head>
@@ -679,6 +678,156 @@
         flex-wrap: wrap;
       }
     }
+
+
+    /* ===== Product Catalog Table Style ===== */
+    .catalog-filter {
+      display: grid;
+      grid-template-columns: 1fr 1fr 2fr;
+      gap: 16px 18px;
+      margin-bottom: 18px;
+      align-items: end;
+    }
+
+    .catalog-filter .field textarea {
+      width: 100%;
+      min-height: 92px;
+      resize: vertical;
+      border: 1px solid #cbd5e1;
+      border-radius: 5px;
+      background: #e5e7eb;
+      padding: 11px 12px;
+      font-size: 15px;
+      outline: none;
+      color: #1f2937;
+    }
+
+    .catalog-filter .field textarea:focus {
+      border-color: var(--active);
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.12);
+    }
+
+    .filter-checks {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      grid-column: 1 / -1;
+      padding: 6px 0 2px;
+    }
+
+    .filter-checks label {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-weight: 700;
+      color: #334155;
+      margin: 0;
+    }
+
+    .filter-checks input {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+    }
+
+    .catalog-actions {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .right-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .catalog-table-wrap {
+      width: 100%;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .catalog-table {
+      width: 100%;
+      min-width: 1280px;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .catalog-table th {
+      background: #dcfce7;
+      color: #0f172a;
+      text-transform: uppercase;
+      font-weight: 900;
+      border: 1px solid var(--line);
+      padding: 12px 10px;
+      white-space: nowrap;
+    }
+
+    .catalog-table td {
+      border: 1px solid var(--line);
+      padding: 9px 10px;
+      color: #334155;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+
+    .catalog-table tr:nth-child(even) td {
+      background: #fafafa;
+    }
+
+    .catalog-table tr:hover td {
+      background: #f0fdf4;
+    }
+
+    .table-code {
+      font-family: Consolas, monospace;
+      font-weight: 900;
+      color: #0f172a;
+    }
+
+    .table-hidden {
+      color: #64748b;
+      font-family: Consolas, monospace;
+      font-weight: 900;
+    }
+
+    .row-check {
+      width: 18px;
+      height: 18px;
+    }
+
+    .table-tag {
+      display: inline-block;
+      padding: 3px 7px;
+      border-radius: 4px;
+      color: #fff;
+      font-weight: 900;
+      font-size: 12px;
+    }
+
+    .table-tag.z {
+      background: var(--green);
+    }
+
+    .table-tag.x {
+      background: var(--blue);
+    }
+
+    @media (max-width: 980px) {
+      .catalog-filter {
+        grid-template-columns: 1fr;
+      }
+    }
+
   </style>
 </head>
 
@@ -834,16 +983,113 @@
         <section id="page-catalog" class="page">
           <h1 class="title" data-i18n="catalog">Product Catalog</h1>
 
-          <div class="toolbar">
-            <input id="searchInput" class="input" type="text" placeholder="Search number / name" oninput="renderProducts()" />
-            <select id="typeFilter" class="select" onchange="renderProducts()">
-              <option value="all">All Types</option>
-              <option value="Z">Type Z</option>
-              <option value="X">Type X</option>
-            </select>
+          <div class="catalog-filter">
+            <div class="field">
+              <label data-i18n="codes">Codes</label>
+              <textarea id="codeSearch" placeholder="9080&#10;1234&#10;7788" oninput="renderProducts()"></textarea>
+            </div>
+
+            <div class="field">
+              <label data-i18n="zips">Zips</label>
+              <textarea id="zipSearch" placeholder="00001&#10;56000&#10;10010" oninput="renderProducts()"></textarea>
+            </div>
+
+            <div class="field">
+              <label data-i18n="country">Country</label>
+              <select id="countryFilter" class="select" onchange="renderProducts()">
+                <option value="all">ALL</option>
+                <option value="MY">MY</option>
+                <option value="US">US</option>
+                <option value="SG">SG</option>
+                <option value="UK">UK</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label data-i18n="productName">Product Name</label>
+              <input id="searchInput" class="input" type="text" placeholder="Search name / code" oninput="renderProducts()" />
+            </div>
+
+            <div class="field">
+              <label data-i18n="browserType">Browser Type</label>
+              <select id="browserFilter" class="select" onchange="renderProducts()">
+                <option value="all">ALL</option>
+                <option value="Chrome">Chrome</option>
+                <option value="Firefox">Firefox</option>
+                <option value="Edge">Edge</option>
+                <option value="Safari">Safari</option>
+                <option value="Opera">Opera</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label data-i18n="type">Type</label>
+              <select id="typeFilter" class="select" onchange="renderProducts()">
+                <option value="all">ALL</option>
+                <option value="Z">Z</option>
+                <option value="X">X</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label data-i18n="city">City</label>
+              <input id="cityFilter" class="input" type="text" placeholder="Kuala Lumpur" oninput="renderProducts()" />
+            </div>
+
+            <div class="field">
+              <label data-i18n="state">State</label>
+              <input id="stateFilter" class="input" type="text" placeholder="MY-14" oninput="renderProducts()" />
+            </div>
+
+            <div class="field">
+              <label data-i18n="level">Level</label>
+              <select id="levelFilter" class="select" onchange="renderProducts()">
+                <option value="all">ALL</option>
+                <option value="STANDARD">STANDARD</option>
+                <option value="PREMIUM">PREMIUM</option>
+                <option value="VIP">VIP</option>
+              </select>
+            </div>
+
+            <div class="filter-checks">
+              <label><input id="onlyAddress" type="checkbox" onchange="renderProducts()"> <span data-i18n="hasAddress">ADDRESS</span></label>
+              <label><input id="onlyBrowser" type="checkbox" onchange="renderProducts()"> <span data-i18n="hasBrowser">BROWSER</span></label>
+              <label><input id="onlyVersion" type="checkbox" onchange="renderProducts()"> <span data-i18n="hasVersion">VERSION</span></label>
+            </div>
+
+            <div class="catalog-actions">
+              <button class="btn green" onclick="addSelectedToCart()">+ <span data-i18n="addCart">Add Cart</span></button>
+              <div class="right-actions">
+                <button class="btn gray" onclick="resetCatalogFilters()">↻ <span data-i18n="reset">Reset</span></button>
+                <button class="btn gray" onclick="renderProducts()">🔍 <span data-i18n="search">Search</span></button>
+              </div>
+            </div>
           </div>
 
-          <div id="productGrid" class="product-grid"></div>
+          <div class="catalog-table-wrap">
+            <table class="catalog-table">
+              <thead>
+                <tr>
+                  <th><input id="selectAllRows" type="checkbox" onchange="toggleSelectAll(this.checked)"></th>
+                  <th data-i18n="code">Code</th>
+                  <th data-i18n="type">Type</th>
+                  <th data-i18n="level">Level</th>
+                  <th data-i18n="category">Category</th>
+                  <th data-i18n="country">Country</th>
+                  <th data-i18n="name">Name</th>
+                  <th data-i18n="address">Address</th>
+                  <th data-i18n="city">City</th>
+                  <th data-i18n="state">State</th>
+                  <th data-i18n="zip">Zip</th>
+                  <th data-i18n="browserType">Browser</th>
+                  <th data-i18n="browserVersion">Version</th>
+                  <th data-i18n="price">Price</th>
+                  <th data-i18n="action">Action</th>
+                </tr>
+              </thead>
+              <tbody id="productTableBody"></tbody>
+            </table>
+          </div>
         </section>
 
         <section id="page-upload" class="page">
@@ -982,20 +1228,20 @@
   </div>
 
   <script>
-    const USERS_KEY = "dashboard_shop_users_v1";
-    const SESSION_KEY = "dashboard_shop_session_v1";
-    const PRODUCTS_KEY = "dashboard_shop_products_v1";
-    const OWNER_KEY = "dashboard_shop_owner_v1";
-    const LANG_KEY = "dashboard_shop_lang_v1";
+    const USERS_KEY = "dashboard_shop_users_v2";
+    const SESSION_KEY = "dashboard_shop_session_v2";
+    const PRODUCTS_KEY = "dashboard_shop_products_v2";
+    const OWNER_KEY = "dashboard_shop_owner_v2";
+    const LANG_KEY = "dashboard_shop_lang_v2";
     const OWNER_PASSWORD = "123456";
 
     const defaultProducts = [
-      { id:"Z001", name:"Z Premium Number", number:"908099912345", secret:"999", type:"Z", price:999, address:"Sector-09 / Node-9080", browser:"Chrome", version:"120.0.6099" },
-      { id:"X002", name:"X Lucky Number", number:"778899001122", secret:"908", type:"X", price:699, address:"Sector-22 / Node-7788", browser:"Firefox", version:"121.0" },
-      { id:"Z003", name:"Z Classic Number", number:"123456789080", secret:"777", type:"Z", price:580, address:"Sector-17 / Node-1234", browser:"Edge", version:"120.0.2210" },
-      { id:"X004", name:"X Special Number", number:"990088776655", secret:"555", type:"X", price:880, address:"Sector-44 / Node-9900", browser:"Safari", version:"17.2" },
-      { id:"Z005", name:"Z Gold Number", number:"111222333999", secret:"333", type:"Z", price:1200, address:"Sector-01 / Node-1122", browser:"Chrome", version:"121.0.6167" },
-      { id:"X006", name:"X Starter Number", number:"456789123000", secret:"000", type:"X", price:399, address:"Sector-30 / Node-4567", browser:"Opera", version:"105.0" }
+      { id:"Z001", name:"Z Premium Number", number:"908099912345", secret:"999", type:"Z", level:"PREMIUM", category:"Digital", country:"MY", city:"Kuala Lumpur", state:"MY-14", zip:"56000", price:999, address:"Sector-09 / Node-9080", browser:"Chrome", version:"120.0.6099" },
+      { id:"X002", name:"X Lucky Number", number:"778899001122", secret:"908", type:"X", level:"STANDARD", category:"Digital", country:"SG", city:"Singapore", state:"SG-01", zip:"10010", price:699, address:"Sector-22 / Node-7788", browser:"Firefox", version:"121.0" },
+      { id:"Z003", name:"Z Classic Number", number:"123456789080", secret:"777", type:"Z", level:"STANDARD", category:"Digital", country:"US", city:"Austin", state:"TX", zip:"73301", price:580, address:"Sector-17 / Node-1234", browser:"Edge", version:"120.0.2210" },
+      { id:"X004", name:"X Special Number", number:"990088776655", secret:"555", type:"X", level:"VIP", category:"Digital", country:"UK", city:"London", state:"LDN", zip:"EC1A", price:880, address:"Sector-44 / Node-9900", browser:"Safari", version:"17.2" },
+      { id:"Z005", name:"Z Gold Number", number:"111222333999", secret:"333", type:"Z", level:"VIP", category:"Digital", country:"MY", city:"Johor", state:"MY-01", zip:"81200", price:1200, address:"Sector-01 / Node-1122", browser:"Chrome", version:"121.0.6167" },
+      { id:"X006", name:"X Starter Number", number:"456789123000", secret:"000", type:"X", level:"STANDARD", category:"Digital", country:"US", city:"Miami", state:"FL", zip:"33101", price:399, address:"Sector-30 / Node-4567", browser:"Opera", version:"105.0" }
     ];
 
     const i18n = {
@@ -1047,6 +1293,23 @@
         resetProducts:"重置商品",
         rechargeText:"这里是模拟充值，不连接真实支付。",
         supportText:"你可以把这里改成 WhatsApp、Telegram、邮箱或客服链接。",
+        codes:"Codes",
+        zips:"Zips",
+        country:"Country",
+        city:"City",
+        state:"State",
+        level:"Level",
+        category:"Category",
+        name:"Name",
+        zip:"Zip",
+        code:"Code",
+        action:"Action",
+        hasAddress:"ADDRESS",
+        hasBrowser:"BROWSER",
+        hasVersion:"VERSION",
+        addCart:"Add Cart",
+        reset:"Reset",
+        search:"Search",
         buy:"购买",
         hidden:"已隐藏，仅显示最后 4 位",
         security:"安全码",
@@ -1121,6 +1384,23 @@
         resetProducts:"Reset Products",
         rechargeText:"Demo recharge only. No real payment is connected.",
         supportText:"Replace this area with your WhatsApp, Telegram, email, or support link.",
+        codes:"Codes",
+        zips:"Zips",
+        country:"Country",
+        city:"City",
+        state:"State",
+        level:"Level",
+        category:"Category",
+        name:"Name",
+        zip:"Zip",
+        code:"Code",
+        action:"Action",
+        hasAddress:"ADDRESS",
+        hasBrowser:"BROWSER",
+        hasVersion:"VERSION",
+        addCart:"Add Cart",
+        reset:"Reset",
+        search:"Search",
         buy:"Buy",
         hidden:"Hidden, only last 4 digits visible",
         security:"Security",
@@ -1362,52 +1642,147 @@
       goPage("orders");
     }
 
-    function renderProducts() {
-      const grid = document.getElementById("productGrid");
+    function getVisibleProducts() {
       const q = (document.getElementById("searchInput")?.value || "").toLowerCase().trim();
+      const codeLines = (document.getElementById("codeSearch")?.value || "")
+        .split(/\s+/).map(x => x.trim()).filter(Boolean);
+      const zipLines = (document.getElementById("zipSearch")?.value || "")
+        .split(/\s+/).map(x => x.trim()).filter(Boolean);
+
       const type = document.getElementById("typeFilter")?.value || "all";
-      const products = getProducts().filter(p => {
+      const country = document.getElementById("countryFilter")?.value || "all";
+      const browser = document.getElementById("browserFilter")?.value || "all";
+      const level = document.getElementById("levelFilter")?.value || "all";
+      const city = (document.getElementById("cityFilter")?.value || "").toLowerCase().trim();
+      const state = (document.getElementById("stateFilter")?.value || "").toLowerCase().trim();
+
+      const onlyAddress = document.getElementById("onlyAddress")?.checked;
+      const onlyBrowser = document.getElementById("onlyBrowser")?.checked;
+      const onlyVersion = document.getElementById("onlyVersion")?.checked;
+
+      return getProducts().filter(p => {
+        const matchQ = !q || p.name.toLowerCase().includes(q) || p.number.includes(q) || p.id.toLowerCase().includes(q);
+        const matchCodes = codeLines.length === 0 || codeLines.some(code => p.number.includes(code));
+        const matchZip = zipLines.length === 0 || zipLines.some(zip => String(p.zip || "").includes(zip));
         const matchType = type === "all" || p.type === type;
-        const matchQ = !q || p.name.toLowerCase().includes(q) || p.number.includes(q);
-        return matchType && matchQ;
+        const matchCountry = country === "all" || (p.country || "") === country;
+        const matchBrowser = browser === "all" || (p.browser || "") === browser;
+        const matchLevel = level === "all" || (p.level || "") === level;
+        const matchCity = !city || String(p.city || "").toLowerCase().includes(city);
+        const matchState = !state || String(p.state || "").toLowerCase().includes(state);
+        const matchAddress = !onlyAddress || !!p.address;
+        const matchBrowserData = !onlyBrowser || !!p.browser;
+        const matchVersion = !onlyVersion || !!p.version;
+
+        return matchQ && matchCodes && matchZip && matchType && matchCountry && matchBrowser && matchLevel && matchCity && matchState && matchAddress && matchBrowserData && matchVersion;
       });
+    }
+
+    function renderProducts() {
+      const body = document.getElementById("productTableBody");
+      if (!body) return;
+
+      const products = getVisibleProducts();
 
       if (!products.length) {
-        grid.innerHTML = `<div class="notice" style="grid-column:1/-1;">No products found.</div>`;
+        body.innerHTML = `<tr><td colspan="15" style="text-align:center;padding:22px;">No products found.</td></tr>`;
         return;
       }
 
-      grid.innerHTML = products.map(p => `
-        <article class="product">
-          <div class="product-head">
-            <div>
-              <h3>${safe(p.name)}</h3>
-              <small>ID: ${safe(p.id)}</small>
-            </div>
-            <div class="type ${p.type.toLowerCase()}">${safe(p.type)}</div>
-          </div>
-          <div class="product-body">
-            <div class="mini-line">🔒 ${t("hidden")}</div>
-            <div class="code-line">${safe(mask(p.number))}</div>
-            <div class="mini-line">${t("security")}: ${mask3()}</div>
-            <div class="mini-line">${t("address")}: ${safe(p.address)}</div>
-            <div class="mini-line">${t("browserType")}: ${safe(p.browser)} / ${t("browserVersion")}: ${safe(p.version)}</div>
-
-            <div class="meta-grid">
-              <div class="meta">
-                <span>${t("type")}</span>
-                <strong>${safe(p.type)}</strong>
-              </div>
-              <div class="meta">
-                <span>${t("price")}</span>
-                <strong>$${safe(p.price)}</strong>
-              </div>
-            </div>
-
-            <button class="btn green full" onclick="buyProduct('${safe(p.id)}')">🛒 ${t("buy")}</button>
-          </div>
-        </article>
+      body.innerHTML = products.map(p => `
+        <tr>
+          <td><input class="row-check" type="checkbox" value="${safe(p.id)}"></td>
+          <td class="table-hidden">${safe(mask(p.number))}</td>
+          <td><span class="table-tag ${String(p.type).toLowerCase()}">${safe(p.type)}</span></td>
+          <td>${safe(p.level || "STANDARD")}</td>
+          <td>${safe(p.category || "Digital")}</td>
+          <td>${safe(p.country || "MY")}</td>
+          <td>${safe(p.name)}</td>
+          <td>${safe(p.address || "-")}</td>
+          <td>${safe(p.city || "-")}</td>
+          <td>${safe(p.state || "-")}</td>
+          <td>${safe(p.zip || "-")}</td>
+          <td>${safe(p.browser || "-")}</td>
+          <td>${safe(p.version || "-")}</td>
+          <td>$${safe(p.price)}</td>
+          <td><button class="btn green" onclick="buyProduct('${safe(p.id)}')">${t("buy")}</button></td>
+        </tr>
       `).join("");
+
+      const selectAll = document.getElementById("selectAllRows");
+      if (selectAll) selectAll.checked = false;
+    }
+
+    function toggleSelectAll(checked) {
+      document.querySelectorAll(".row-check").forEach(cb => cb.checked = checked);
+    }
+
+    function addSelectedToCart() {
+      const selected = Array.from(document.querySelectorAll(".row-check:checked")).map(cb => cb.value);
+      if (!selected.length) {
+        toast("Please select at least one product.");
+        return;
+      }
+
+      const u = requireLogin();
+      if (!u) return;
+
+      // Demo behavior: Add Cart will purchase selected items directly and remove them from catalog.
+      const products = getProducts();
+      let balance = Number(u.balance || 0);
+      let orders = [...(u.orders || [])];
+      let bought = [];
+      let total = 0;
+
+      for (const id of selected) {
+        const p = products.find(item => item.id === id);
+        if (!p) continue;
+        total += Number(p.price || 0);
+      }
+
+      if (balance < total) {
+        toast(t("insufficient"));
+        return;
+      }
+
+      for (const id of selected) {
+        const p = products.find(item => item.id === id);
+        if (!p) continue;
+        orders.unshift({
+          ...p,
+          orderId: "ORD-" + Date.now() + "-" + id,
+          createdAt: new Date().toLocaleString()
+        });
+        bought.push(id);
+      }
+
+      updateUser({
+        balance: balance - total,
+        orders
+      });
+
+      saveProducts(products.filter(p => !bought.includes(p.id)));
+      toast(t("bought"));
+      goPage("orders");
+    }
+
+    function resetCatalogFilters() {
+      ["searchInput", "codeSearch", "zipSearch", "cityFilter", "stateFilter"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+      });
+
+      ["typeFilter", "countryFilter", "browserFilter", "levelFilter"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = "all";
+      });
+
+      ["onlyAddress", "onlyBrowser", "onlyVersion", "selectAllRows"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.checked = false;
+      });
+
+      renderProducts();
     }
 
     function renderOrders() {
@@ -1427,6 +1802,7 @@
           <p>${t("type")}: ${safe(o.type)}</p>
           <p>${t("price")}: $${safe(o.price)}</p>
           <p>${t("address")}: ${safe(o.address)}</p>
+          <p>${t("country")}: ${safe(o.country || "-")} / ${t("city")}: ${safe(o.city || "-")} / ${t("state")}: ${safe(o.state || "-")} / ${t("zip")}: ${safe(o.zip || "-")}</p>
           <p>${t("browserType")}: ${safe(o.browser)}</p>
           <p>${t("browserVersion")}: ${safe(o.version)}</p>
           <p>${safe(o.createdAt)}</p>
@@ -1476,6 +1852,12 @@
         type,
         price,
         address,
+        country:"MY",
+        city:"Kuala Lumpur",
+        state:"MY-14",
+        zip:"56000",
+        level: type === "Z" ? "PREMIUM" : "STANDARD",
+        category:"Digital",
         browser,
         version
       });
