@@ -10,11 +10,14 @@
    5. 長期付款 / 存款：貸款、分期、存款目標
    6. 我的資料 / 統計
    7. 黑暗模式
-   8. 車貸：
+   8. 車貸固定：
       - 開始供：14/3/2025
       - 已供到：2026 年 4 月
       - 2026 年 5 月尚未付款
       - 每月 RM1,000，約 SGD334
+      - 已還 RM14,000
+      - 不能手動修改
+      - 不能刪除
    ========================================================== */
 
 const STORAGE_KEY = "mytask_pro_clean_v2";
@@ -311,6 +314,7 @@ function defaultState() {
         nextDue: "2026-05-14",
         note: "5月尚未付款",
         carLoan: true,
+        locked: true,
         createdAt: today
       }
     ]
@@ -416,7 +420,8 @@ function migrateCarLoanData() {
     paidThrough: "2026-04",
     nextDue: "2026-05-14",
     note: "5月尚未付款",
-    carLoan: true
+    carLoan: true,
+    locked: true
   };
 
   let car = state.plans.find(plan => {
@@ -430,16 +435,7 @@ function migrateCarLoanData() {
       createdAt: todayISO()
     });
   } else {
-    const isOldData =
-      !car.carLoan ||
-      car.total === 31319 ||
-      !car.startDate ||
-      !car.monthlyMYR ||
-      car.startDate !== "2025-03-14";
-
-    if (isOldData) {
-      Object.assign(car, carData);
-    }
+    Object.assign(car, carData);
   }
 
   state.expenses = state.expenses.filter(expense => {
@@ -466,10 +462,6 @@ function fixedExpenses() {
       isExpenseActiveInMonth(expense, month)
     );
   });
-}
-
-function allFixedExpenses() {
-  return state.expenses.filter(expense => expense.type === "fixed");
 }
 
 function annualExpenses() {
@@ -812,6 +804,8 @@ on("planForm", "submit", event => {
     createdAt: todayISO()
   });
 
+  migrateCarLoanData();
+
   setValue("planName", "");
   setValue("planTotal", "");
   setValue("planCurrent", "");
@@ -900,6 +894,13 @@ window.App = {
 
     if (!plan) return;
 
+    if (plan.carLoan || plan.locked || String(plan.name || "").includes("車貸")) {
+      alert("車貸資料已固定，不能手動修改。");
+      migrateCarLoanData();
+      render();
+      return;
+    }
+
     plan.current = Number(value || 0);
 
     saveState();
@@ -907,6 +908,17 @@ window.App = {
   },
 
   deletePlan(id) {
+    const target = state.plans.find(item => item.id === id);
+
+    if (!target) return;
+
+    if (target.carLoan || target.locked || String(target.name || "").includes("車貸")) {
+      alert("車貸資料已固定，不能刪除。");
+      migrateCarLoanData();
+      render();
+      return;
+    }
+
     if (!confirm("確定刪除這個長期項目嗎？")) return;
 
     state.plans = state.plans.filter(plan => plan.id !== id);
@@ -1060,7 +1072,11 @@ function taskCard(task) {
 }
 
 function planCard(plan) {
-  const isCarLoan = plan.carLoan || (plan.name && plan.name.includes("車貸"));
+  const isCarLoan =
+    plan.carLoan ||
+    plan.locked ||
+    (plan.name && plan.name.includes("車貸"));
+
   const currency = plan.currency || "SGD";
 
   const progress =
@@ -1089,6 +1105,7 @@ function planCard(plan) {
   const detailText = isCarLoan
     ? `
       <div class="list-meta" style="margin-top:8px;">
+        🔒 已固定，不能手動修改｜
         開始供：14/3/2025｜
         已供到：2026 年 4 月｜
         下一期：2026/5/14｜
@@ -1097,9 +1114,29 @@ function planCard(plan) {
     `
     : "";
 
+  const actions = isCarLoan
+    ? `
+      <div class="list-actions">
+        <button class="mini-btn" type="button" disabled>🔒 車貸已固定</button>
+      </div>
+    `
+    : `
+      <div class="list-actions">
+        <input
+          type="number"
+          value="${Number(plan.current || 0)}"
+          onchange="App.updatePlanCurrent('${plan.id}', this.value)"
+        />
+
+        <button class="mini-btn red" onclick="App.deletePlan('${plan.id}')">
+          刪除
+        </button>
+      </div>
+    `;
+
   return `
     <article class="plan-card">
-      <h4>${esc(plan.name)}</h4>
+      <h4>${esc(plan.name)} ${isCarLoan ? "🔒" : ""}</h4>
 
       <p>${plan.type === "loan" ? "貸款 / 分期" : "存款目標"}</p>
 
@@ -1131,17 +1168,7 @@ function planCard(plan) {
 
       ${detailText}
 
-      <div class="list-actions">
-        <input
-          type="number"
-          value="${Number(plan.current || 0)}"
-          onchange="App.updatePlanCurrent('${plan.id}', this.value)"
-        />
-
-        <button class="mini-btn red" onclick="App.deletePlan('${plan.id}')">
-          刪除
-        </button>
-      </div>
+      ${actions}
     </article>
   `;
 }
@@ -1185,6 +1212,8 @@ function countChart(label, value, max, colorClass = "") {
 ========================= */
 
 function renderExpenses() {
+  migrateCarLoanData();
+
   const currentType = getValue("expenseType") || "fixed";
 
   if ($("expenseDate") && !getValue("expenseDate")) {
@@ -1263,6 +1292,8 @@ function renderTasks() {
 ========================= */
 
 function renderPlans() {
+  migrateCarLoanData();
+
   setText("suggestedSaving", money(suggestedSaving()));
 
   const goals = state.plans.filter(plan => plan.type === "savingGoal");
@@ -1382,7 +1413,15 @@ function renderProfile() {
    20. 主 Render
 ========================= */
 
+let isRendering = false;
+
 function render() {
+  if (isRendering) return;
+
+  isRendering = true;
+
+  migrateCarLoanData();
+
   setText("todayText", displayToday());
 
   renderExpenses();
@@ -1391,6 +1430,8 @@ function render() {
   renderProfile();
 
   saveState();
+
+  isRendering = false;
 }
 
 /* =========================
