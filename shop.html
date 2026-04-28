@@ -1915,6 +1915,11 @@
       };
 
       const orders = [order, ...(user.orders || [])];
+
+      // 购买成功后，从商品列表删除该商品，避免重复售卖
+      const remainingProducts = products.filter(p => p.id !== productId);
+      saveProducts(remainingProducts);
+
       updateCurrentUser({
         balance: Number(user.balance) - Number(product.price),
         orders
