@@ -4,36 +4,55 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Virtual Code Shop | 虚拟商品号码网店</title>
-  <meta name="description" content="虚拟商品号码网店演示版，支持注册、登录、虚拟商品购买、自动生成虚拟号码和订单记录。" />
+  <title>Code Market | 虚拟号码商品店</title>
+  <meta name="description" content="虚拟号码商品网店演示版，支持中文英文切换、登录注册、商品展示、管理员上传商品、充值和用户中心。" />
 
   <!--
-    重要说明：
-    这是 GitHub Pages 可运行的前端演示版。
-    登录、注册、余额、订单都会保存在浏览器 localStorage。
-    如果你要真实上线卖商品，需要后端数据库、真实支付系统、HTTPS、Cloudflare 防护、服务器验证和订单管理。
+    GitHub Pages 前端演示版：
+    1. 登录、注册、余额、订单、商品都保存在浏览器 localStorage。
+    2. “只有我可以上传”在纯 HTML 里只能做演示管理员密码。
+    3. 真实上线必须使用后端数据库、服务器验证、Cloudflare/WAF、真实支付系统。
+    4. 默认管理员上传密码在 JS 里：OWNER_PASSWORD = "123456"，你可以自己改。
   -->
 
   <style>
+    :root {
+      --bg: #08111f;
+      --panel: rgba(15, 23, 42, 0.88);
+      --panel2: rgba(2, 6, 23, 0.62);
+      --line: rgba(148, 163, 184, 0.18);
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --gold: #facc15;
+      --blue: #38bdf8;
+      --green: #22c55e;
+      --red: #ef4444;
+      --purple: #a78bfa;
+      --radius: 22px;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
 
-    html {
-      scroll-behavior: smooth;
+    body {
+      min-height: 100vh;
+      font-family: Arial, "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(56, 189, 248, 0.20), transparent 28%),
+        radial-gradient(circle at 88% 10%, rgba(250, 204, 21, 0.14), transparent 26%),
+        radial-gradient(circle at 75% 90%, rgba(167, 139, 250, 0.15), transparent 28%),
+        var(--bg);
+      line-height: 1.55;
     }
 
-    body {
-      font-family: Arial, "Microsoft YaHei", sans-serif;
-      background:
-        radial-gradient(circle at top left, rgba(59, 130, 246, 0.22), transparent 30%),
-        radial-gradient(circle at bottom right, rgba(250, 204, 21, 0.14), transparent 28%),
-        #020617;
-      color: #e5e7eb;
-      min-height: 100vh;
-      line-height: 1.6;
+    button,
+    input,
+    select {
+      font-family: inherit;
     }
 
     a {
@@ -41,170 +60,186 @@
       text-decoration: none;
     }
 
-    .container {
-      width: min(1160px, 94%);
-      margin: auto;
+    .app {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 100vh;
     }
 
-    header {
+    .sidebar {
       position: sticky;
       top: 0;
-      z-index: 30;
-      background: rgba(2, 6, 23, 0.86);
-      backdrop-filter: blur(14px);
-      border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+      height: 100vh;
+      padding: 22px 18px;
+      background: rgba(2, 6, 23, 0.76);
+      border-right: 1px solid var(--line);
+      backdrop-filter: blur(16px);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      z-index: 10;
     }
 
-    .nav {
-      min-height: 72px;
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 12px;
+      border-radius: 18px;
+      background: rgba(250, 204, 21, 0.08);
+      border: 1px solid rgba(250, 204, 21, 0.18);
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--gold), #fb923c);
+      display: grid;
+      place-items: center;
+      color: #111827;
+      font-size: 23px;
+      font-weight: 900;
+      box-shadow: 0 14px 28px rgba(250, 204, 21, 0.20);
+    }
+
+    .brand h1 {
+      font-size: 18px;
+      color: #fff;
+      line-height: 1.1;
+    }
+
+    .brand p {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .side-menu {
+      display: grid;
+      gap: 8px;
+    }
+
+    .side-btn {
+      border: 1px solid transparent;
+      background: transparent;
+      color: #cbd5e1;
+      text-align: left;
+      padding: 13px 14px;
+      border-radius: 16px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: 0.18s ease;
+    }
+
+    .side-btn:hover {
+      background: rgba(148, 163, 184, 0.10);
+      color: #fff;
+    }
+
+    .side-btn.active {
+      background: linear-gradient(135deg, rgba(250, 204, 21, 0.22), rgba(56, 189, 248, 0.12));
+      color: #fff;
+      border-color: rgba(250, 204, 21, 0.28);
+      box-shadow: 0 16px 35px rgba(0,0,0,0.20);
+    }
+
+    .side-card {
+      margin-top: auto;
+      background: var(--panel2);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 15px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .side-card strong {
+      display: block;
+      color: #fff;
+      margin-bottom: 5px;
+    }
+
+    .main {
+      min-width: 0;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 9;
+      min-height: 74px;
+      padding: 14px 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 16px;
-      padding: 12px 0;
-    }
-
-    .logo {
-      font-size: 22px;
-      font-weight: 900;
-      color: #facc15;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .nav-links {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
       gap: 14px;
-      color: #cbd5e1;
-      font-size: 14px;
+      background: rgba(8, 17, 31, 0.78);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(16px);
     }
 
-    .nav-links a:hover {
-      color: #facc15;
-    }
-
-    .user-chip {
-      display: none;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid rgba(250, 204, 21, 0.28);
-      color: #fde68a;
-      font-weight: 800;
-    }
-
-    .hero {
-      padding: 76px 0 48px;
-    }
-
-    .hero-grid {
-      display: grid;
-      grid-template-columns: 1.05fr 0.95fr;
-      gap: 28px;
-      align-items: center;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 8px 14px;
-      border-radius: 999px;
-      background: rgba(250, 204, 21, 0.1);
-      border: 1px solid rgba(250, 204, 21, 0.32);
-      color: #fde68a;
-      font-size: 14px;
-      margin-bottom: 18px;
-    }
-
-    h1 {
-      color: #fff;
-      font-size: clamp(36px, 6vw, 64px);
-      line-height: 1.08;
-      margin-bottom: 16px;
-    }
-
-    .hero p {
-      color: #cbd5e1;
-      font-size: 18px;
-      margin-bottom: 24px;
-      max-width: 680px;
-    }
-
-    .buttons {
+    .page-title {
       display: flex;
+      align-items: center;
       gap: 12px;
+    }
+
+    .page-title-text h2 {
+      color: #fff;
+      font-size: 22px;
+    }
+
+    .page-title-text p {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
-    .btn {
-      border: none;
-      cursor: pointer;
-      padding: 12px 18px;
-      border-radius: 13px;
+    .lang-select {
+      width: auto;
+      min-width: 112px;
+      margin: 0;
+    }
+
+    .user-pill {
+      display: none;
+      padding: 10px 13px;
+      border-radius: 999px;
+      border: 1px solid rgba(250, 204, 21, 0.24);
+      color: #fde68a;
+      background: rgba(250, 204, 21, 0.08);
       font-weight: 900;
-      font-size: 15px;
-      transition: 0.18s ease;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
+      font-size: 14px;
     }
 
-    .btn:hover {
-      transform: translateY(-2px);
+    .content {
+      padding: 26px;
     }
 
-    .btn-primary {
-      background: #facc15;
-      color: #111827;
+    .page {
+      display: none;
+      animation: pageIn 0.3s ease both;
     }
 
-    .btn-secondary {
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid rgba(148, 163, 184, 0.24);
-      color: #e5e7eb;
+    .page.active {
+      display: block;
     }
 
-    .btn-green {
-      background: #22c55e;
-      color: #052e16;
-    }
-
-    .btn-blue {
-      background: #38bdf8;
-      color: #082f49;
-    }
-
-    .btn-red {
-      background: #ef4444;
-      color: #fff;
-    }
-
-    .btn-small {
-      padding: 8px 11px;
-      font-size: 13px;
-      border-radius: 10px;
-    }
-
-    .panel,
-    .card {
-      background: rgba(15, 23, 42, 0.86);
-      border: 1px solid rgba(148, 163, 184, 0.18);
-      border-radius: 24px;
-      padding: 22px;
-      box-shadow: 0 22px 60px rgba(0, 0, 0, 0.22);
-    }
-
-    .panel {
-      animation: fadeUp 0.8s ease both;
-    }
-
-    @keyframes fadeUp {
+    @keyframes pageIn {
       from {
         opacity: 0;
-        transform: translateY(22px);
+        transform: translateY(12px);
       }
       to {
         opacity: 1;
@@ -212,213 +247,367 @@
       }
     }
 
-    .login-tabs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+    .hero-card {
+      background:
+        linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(2, 6, 23, 0.82)),
+        radial-gradient(circle at top right, rgba(250, 204, 21, 0.18), transparent 34%);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 28px;
+      margin-bottom: 22px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.24);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero-card::after {
+      content: "X Z";
+      position: absolute;
+      right: 28px;
+      bottom: -24px;
+      font-size: 110px;
+      font-weight: 900;
+      letter-spacing: -10px;
+      color: rgba(255,255,255,0.035);
+      pointer-events: none;
+    }
+
+    .hero-card .badge {
+      display: inline-flex;
+      align-items: center;
       gap: 8px;
+      padding: 8px 13px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.10);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      color: #bae6fd;
+      font-weight: 800;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
+    .hero-card h3 {
+      color: #fff;
+      font-size: clamp(30px, 5vw, 54px);
+      line-height: 1.05;
+      margin-bottom: 12px;
+    }
+
+    .hero-card p {
+      max-width: 720px;
+      color: #cbd5e1;
+      font-size: 16px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .stat {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 18px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .stat strong {
+      display: block;
+      color: #fff;
+      font-size: 28px;
+      margin-top: 4px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: 0 18px 45px rgba(0,0,0,0.20);
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
       margin-bottom: 18px;
     }
 
-    .tab {
-      padding: 11px;
-      border-radius: 12px;
-      border: 1px solid rgba(148, 163, 184, 0.2);
-      background: rgba(2, 6, 23, 0.55);
-      color: #cbd5e1;
-      cursor: pointer;
-      font-weight: 800;
+    .panel-title h3 {
+      color: #fff;
+      font-size: 22px;
     }
 
-    .tab.active {
-      background: #facc15;
-      color: #111827;
-    }
-
-    label {
-      color: #e5e7eb;
+    .panel-title p {
+      color: var(--muted);
       font-size: 14px;
-      font-weight: 800;
-      display: block;
-      margin-bottom: 6px;
     }
 
-    input,
-    select {
-      width: 100%;
-      padding: 12px;
-      border-radius: 12px;
-      border: 1px solid rgba(148, 163, 184, 0.24);
-      background: #020617;
-      color: #fff;
-      outline: none;
-      font-size: 15px;
-      margin-bottom: 12px;
+    .filter-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
     }
 
-    input:focus,
-    select:focus {
-      border-color: #facc15;
+    .search-input {
+      max-width: 360px;
+      margin: 0;
     }
 
-    .hint {
-      color: #94a3b8;
-      font-size: 13px;
-      margin-top: -6px;
-      margin-bottom: 12px;
+    .type-filter {
+      width: auto;
+      min-width: 160px;
+      margin: 0;
     }
 
-    section {
-      padding: 46px 0;
-    }
-
-    .section-title {
-      text-align: center;
-      margin-bottom: 28px;
-    }
-
-    .section-title h2 {
-      color: #fff;
-      font-size: clamp(26px, 4vw, 42px);
-      margin-bottom: 8px;
-    }
-
-    .section-title p {
-      color: #94a3b8;
-      max-width: 780px;
-      margin: auto;
-    }
-
-    .grid-3 {
+    .product-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 18px;
     }
 
-    .grid-2 {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 18px;
-    }
-
-    .product-card {
+    .product {
+      background:
+        linear-gradient(180deg, rgba(15, 23, 42, 0.90), rgba(2, 6, 23, 0.82));
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 18px;
       position: relative;
       overflow: hidden;
       transition: 0.18s ease;
     }
 
-    .product-card:hover {
+    .product:hover {
       transform: translateY(-5px);
-      border-color: rgba(250, 204, 21, 0.4);
-      box-shadow: 0 20px 55px rgba(0, 0, 0, 0.28);
+      border-color: rgba(250, 204, 21, 0.34);
+      box-shadow: 0 20px 52px rgba(0,0,0,0.28);
     }
 
-    .product-icon {
-      font-size: 42px;
-      margin-bottom: 10px;
+    .product::before {
+      content: "";
+      position: absolute;
+      top: -80px;
+      right: -80px;
+      width: 160px;
+      height: 160px;
+      background: rgba(250, 204, 21, 0.08);
+      border-radius: 50%;
     }
 
-    .product-card h3 {
-      color: #fff;
-      margin-bottom: 8px;
-      font-size: 22px;
-    }
-
-    .product-card p {
-      color: #cbd5e1;
-      font-size: 15px;
-      margin-bottom: 12px;
-    }
-
-    .price {
-      display: inline-block;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: rgba(250, 204, 21, 0.1);
-      border: 1px solid rgba(250, 204, 21, 0.28);
-      color: #fde68a;
-      font-weight: 900;
+    .product-head {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
       margin-bottom: 14px;
     }
 
-    .stock {
-      display: inline-block;
-      padding: 5px 9px;
-      border-radius: 999px;
-      background: rgba(34, 197, 94, 0.1);
-      color: #bbf7d0;
-      border: 1px solid rgba(34, 197, 94, 0.25);
-      font-size: 13px;
-      margin-left: 6px;
+    .type-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      font-weight: 900;
+      color: #fff;
     }
 
-    .wallet {
+    .type-z {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+    }
+
+    .type-x {
+      background: linear-gradient(135deg, #38bdf8, #2563eb);
+    }
+
+    .product-title {
+      position: relative;
+    }
+
+    .product-title h4 {
+      color: #fff;
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+
+    .product-title small {
+      color: var(--muted);
+    }
+
+    .number-box {
+      position: relative;
+      background: rgba(2, 6, 23, 0.72);
+      border: 1px dashed rgba(250, 204, 21, 0.34);
+      color: #fde68a;
+      border-radius: 16px;
+      padding: 13px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      word-break: break-all;
+      margin-bottom: 12px;
+    }
+
+    .product-meta {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .meta {
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid rgba(148, 163, 184, 0.13);
+      border-radius: 14px;
+      padding: 10px;
+    }
+
+    .meta span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .meta strong {
+      color: #fff;
+      font-size: 16px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-weight: 900;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: 0.18s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: var(--gold);
+      color: #111827;
+    }
+
+    .btn-dark {
+      background: rgba(15, 23, 42, 0.86);
+      color: #e5e7eb;
+      border: 1px solid var(--line);
+    }
+
+    .btn-blue {
+      background: var(--blue);
+      color: #082f49;
+    }
+
+    .btn-green {
+      background: var(--green);
+      color: #052e16;
+    }
+
+    .btn-red {
+      background: var(--red);
+      color: #fff;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: #cbd5e1;
+      border: 1px solid var(--line);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .full {
+      width: 100%;
+    }
+
+    label {
+      display: block;
+      color: #e5e7eb;
+      font-weight: 900;
+      font-size: 14px;
+      margin-bottom: 7px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      outline: none;
+      background: rgba(2, 6, 23, 0.72);
+      color: #fff;
+      border-radius: 14px;
+      padding: 13px;
+      font-size: 15px;
+      margin-bottom: 14px;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--gold);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
       gap: 14px;
     }
 
-    .stat {
-      background: rgba(2, 6, 23, 0.55);
-      border: 1px solid rgba(148, 163, 184, 0.14);
-      border-radius: 18px;
-      padding: 16px;
-    }
-
-    .stat span {
-      color: #94a3b8;
-      display: block;
-      font-size: 13px;
-    }
-
-    .stat strong {
-      color: #fff;
-      display: block;
-      font-size: 26px;
-      margin-top: 4px;
-    }
-
     .notice {
-      background: rgba(250, 204, 21, 0.1);
-      border: 1px solid rgba(250, 204, 21, 0.32);
-      color: #fde68a;
+      padding: 14px 16px;
       border-radius: 18px;
-      padding: 16px;
-      margin-bottom: 18px;
+      background: rgba(250, 204, 21, 0.09);
+      border: 1px solid rgba(250, 204, 21, 0.24);
+      color: #fde68a;
+      margin-bottom: 16px;
     }
 
     .danger {
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(248, 113, 113, 0.32);
-      color: #fecaca;
+      padding: 14px 16px;
       border-radius: 18px;
-      padding: 16px;
-      margin-bottom: 18px;
+      background: rgba(239, 68, 68, 0.10);
+      border: 1px solid rgba(239, 68, 68, 0.28);
+      color: #fecaca;
+      margin-bottom: 16px;
     }
 
-    .order-list {
+    .orders {
       display: grid;
       gap: 12px;
-      max-height: 420px;
+      max-height: 360px;
       overflow: auto;
     }
 
     .order {
-      background: rgba(2, 6, 23, 0.55);
-      border: 1px solid rgba(148, 163, 184, 0.14);
-      border-radius: 16px;
+      background: rgba(2, 6, 23, 0.56);
+      border: 1px solid var(--line);
+      border-radius: 18px;
       padding: 14px;
-      animation: orderIn 0.35s ease both;
-    }
-
-    @keyframes orderIn {
-      from {
-        opacity: 0;
-        transform: translateX(12px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
     }
 
     .order h4 {
@@ -429,47 +618,95 @@
     .order p {
       color: #cbd5e1;
       font-size: 14px;
-      margin-bottom: 6px;
+      margin-bottom: 5px;
     }
 
-    .code-box {
-      background: #020617;
-      border: 1px dashed rgba(250, 204, 21, 0.4);
-      color: #fde68a;
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.72);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 99;
+      backdrop-filter: blur(10px);
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-box {
+      width: min(460px, 100%);
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      padding: 22px;
+      box-shadow: 0 26px 80px rgba(0,0,0,0.45);
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .modal-head h3 {
+      color: #fff;
+      font-size: 23px;
+    }
+
+    .close-btn {
+      width: 38px;
+      height: 38px;
       border-radius: 12px;
-      padding: 10px;
-      font-family: Consolas, monospace;
-      word-break: break-all;
-      margin-top: 8px;
+      border: 1px solid var(--line);
+      color: #fff;
+      background: rgba(2, 6, 23, 0.62);
+      cursor: pointer;
+      font-size: 20px;
     }
 
-    .security-list {
+    .auth-tabs {
       display: grid;
-      gap: 12px;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
     }
 
-    .security-item {
+    .auth-tab {
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
       background: rgba(2, 6, 23, 0.55);
-      border: 1px solid rgba(148, 163, 184, 0.14);
-      border-radius: 16px;
-      padding: 14px;
-      color: #dbeafe;
+      color: #cbd5e1;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .auth-tab.active {
+      background: var(--gold);
+      color: #111827;
     }
 
     .toast {
       position: fixed;
-      left: 50%;
       bottom: 26px;
-      z-index: 100;
+      left: 50%;
       transform: translateX(-50%) translateY(20px);
-      background: rgba(15, 23, 42, 0.96);
-      color: #fff;
-      border: 1px solid rgba(250, 204, 21, 0.35);
-      border-radius: 999px;
-      padding: 12px 18px;
+      z-index: 120;
       opacity: 0;
       pointer-events: none;
-      box-shadow: 0 16px 45px rgba(0,0,0,0.35);
+      background: rgba(15, 23, 42, 0.98);
+      color: #fff;
+      border: 1px solid rgba(250, 204, 21, 0.30);
+      border-radius: 999px;
+      padding: 12px 18px;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.34);
+      font-weight: 800;
     }
 
     .toast.show {
@@ -477,52 +714,60 @@
     }
 
     @keyframes toastIn {
-      0% {
-        opacity: 0;
-        transform: translateX(-50%) translateY(20px);
-      }
-      15%, 80% {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-      }
-      100% {
-        opacity: 0;
-        transform: translateX(-50%) translateY(20px);
-      }
+      0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+      15%, 80% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(20px); }
     }
 
-    .copy-btn {
-      margin-top: 8px;
-      width: 100%;
+    .mobile-menu-btn {
+      display: none;
     }
 
-    footer {
-      padding: 28px 0;
-      border-top: 1px solid rgba(148, 163, 184, 0.18);
-      color: #94a3b8;
-      text-align: center;
-      font-size: 14px;
-    }
-
-    @media (max-width: 900px) {
-      .hero-grid,
-      .grid-3,
-      .grid-2 {
+    @media (max-width: 980px) {
+      .app {
         grid-template-columns: 1fr;
       }
 
-      .wallet {
-        grid-template-columns: 1fr 1fr;
+      .sidebar {
+        position: fixed;
+        left: -280px;
+        transition: 0.22s ease;
       }
 
-      .nav {
+      .sidebar.show {
+        left: 0;
+      }
+
+      .mobile-menu-btn {
+        display: inline-flex;
+      }
+
+      .stats,
+      .product-grid,
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar {
         align-items: flex-start;
         flex-direction: column;
       }
+
+      .top-actions {
+        justify-content: flex-start;
+      }
     }
 
-    @media (max-width: 520px) {
-      .wallet {
+    @media (max-width: 560px) {
+      .content {
+        padding: 18px;
+      }
+
+      .hero-card {
+        padding: 22px;
+      }
+
+      .product-meta {
         grid-template-columns: 1fr;
       }
     }
@@ -532,277 +777,474 @@
 <body>
   <div id="toast" class="toast"></div>
 
-  <header>
-    <div class="container nav">
-      <a href="#" class="logo">🛒 Virtual Code Shop</a>
-      <nav class="nav-links">
-        <a href="#shop">商品</a>
-        <a href="#wallet">钱包</a>
-        <a href="#orders">订单</a>
-        <a href="#security">安全</a>
-        <span id="userChip" class="user-chip">Guest</span>
-        <button id="logoutBtn" class="btn btn-red btn-small" style="display:none;" onclick="logout()">退出</button>
-      </nav>
-    </div>
-  </header>
-
-  <main>
-    <section class="hero">
-      <div class="container hero-grid">
+  <div class="app">
+    <aside id="sidebar" class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">#</div>
         <div>
-          <span class="badge">虚拟商品号码 · 自动出码 · 网店演示版</span>
-          <h1>虚拟商品号码网店</h1>
-          <p>
-            这个网站可以模拟正常网店流程：用户注册、登录、选择虚拟商品、使用虚拟余额购买，然后系统自动生成虚拟商品号码。
-            适合 GitHub Pages 前端演示。
-          </p>
-          <div class="buttons">
-            <a class="btn btn-primary" href="#shop">开始购买</a>
-            <a class="btn btn-secondary" href="#security">查看安全说明</a>
-          </div>
-        </div>
-
-        <div class="panel" id="authPanel">
-          <div class="login-tabs">
-            <button class="tab active" id="loginTab" onclick="switchAuth('login')">登录</button>
-            <button class="tab" id="registerTab" onclick="switchAuth('register')">注册</button>
-          </div>
-
-          <div id="loginBox">
-            <label>用户名</label>
-            <input id="loginUsername" type="text" placeholder="输入用户名" autocomplete="username" />
-
-            <label>密码</label>
-            <input id="loginPassword" type="password" placeholder="输入密码" autocomplete="current-password" />
-
-            <button class="btn btn-primary" style="width:100%;" onclick="login()">登录</button>
-            <p class="hint" style="margin-top:12px;">演示账号可自己注册。资料只保存在当前浏览器。</p>
-          </div>
-
-          <div id="registerBox" style="display:none;">
-            <label>用户名</label>
-            <input id="registerUsername" type="text" placeholder="至少 3 个字" autocomplete="username" />
-
-            <label>密码</label>
-            <input id="registerPassword" type="password" placeholder="至少 6 个字" autocomplete="new-password" />
-
-            <label>确认密码</label>
-            <input id="registerPassword2" type="password" placeholder="再次输入密码" autocomplete="new-password" />
-
-            <button class="btn btn-green" style="width:100%;" onclick="register()">注册账户</button>
-            <p class="hint" style="margin-top:12px;">注册后会获得 1000 虚拟余额。</p>
-          </div>
+          <h1>Code Market</h1>
+          <p data-i18n="brandSub">虚拟号码商品店</p>
         </div>
       </div>
-    </section>
 
-    <section id="wallet">
-      <div class="container">
-        <div class="section-title">
-          <h2>我的账户</h2>
-          <p>这是演示钱包，不连接真实支付。真实网店不能用前端 localStorage 管钱。</p>
-        </div>
+      <nav class="side-menu">
+        <button class="side-btn active" onclick="goPage('home')" data-page-btn="home">
+          🛍️ <span data-i18n="menuHome">首页（商品）</span>
+        </button>
+        <button class="side-btn" onclick="goPage('upload')" data-page-btn="upload">
+          ⬆️ <span data-i18n="menuUpload">上传商品</span>
+        </button>
+        <button class="side-btn" onclick="goPage('recharge')" data-page-btn="recharge">
+          💳 <span data-i18n="menuRecharge">充值</span>
+        </button>
+        <button class="side-btn" onclick="goPage('user')" data-page-btn="user">
+          👤 <span data-i18n="menuUser">用户</span>
+        </button>
+      </nav>
 
-        <div class="wallet">
-          <div class="stat">
-            <span>当前用户</span>
-            <strong id="currentUserDisplay">未登录</strong>
-          </div>
-          <div class="stat">
-            <span>虚拟余额</span>
-            <strong id="balanceDisplay">0</strong>
-          </div>
-          <div class="stat">
-            <span>订单数量</span>
-            <strong id="orderCountDisplay">0</strong>
-          </div>
-          <div class="stat">
-            <span>账户状态</span>
-            <strong id="accountStatusDisplay">游客</strong>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top:18px;">
-          <h3 style="color:#fff;margin-bottom:8px;">模拟充值</h3>
-          <p style="color:#cbd5e1;margin-bottom:12px;">只用于测试网店流程，不接真实支付。</p>
-          <div class="buttons">
-            <button class="btn btn-blue" onclick="addBalance(500)">+500 虚拟余额</button>
-            <button class="btn btn-blue" onclick="addBalance(1000)">+1000 虚拟余额</button>
-            <button class="btn btn-blue" onclick="addBalance(5000)">+5000 虚拟余额</button>
-          </div>
-        </div>
+      <div class="side-card">
+        <strong data-i18n="sideNoteTitle">演示版本</strong>
+        <span data-i18n="sideNote">资料保存在浏览器。真实上线需要后端和数据库。</span>
       </div>
-    </section>
+    </aside>
 
-    <section id="shop">
-      <div class="container">
-        <div class="section-title">
-          <h2>虚拟商品</h2>
-          <p>购买后会自动生成一串虚拟商品号码，显示在订单记录里。</p>
-        </div>
-
-        <div class="notice">
-          <strong>说明：</strong>这里的商品号码是演示随机生成，不代表真实充值卡、真实兑换码或真实平台序列号。
-        </div>
-
-        <div class="grid-3" id="productGrid"></div>
-      </div>
-    </section>
-
-    <section id="orders">
-      <div class="container">
-        <div class="section-title">
-          <h2>我的订单</h2>
-          <p>购买成功后，虚拟商品号码会显示在这里。</p>
-        </div>
-
-        <div class="grid-2">
-          <div class="card">
-            <h3 style="color:#fff;margin-bottom:12px;">订单记录</h3>
-            <div id="orderList" class="order-list"></div>
+    <main class="main">
+      <header class="topbar">
+        <div class="page-title">
+          <button class="btn btn-dark mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+          <div class="page-title-text">
+            <h2 id="pageTitle">首页</h2>
+            <p id="pageSubtitle">显示所有虚拟号码商品</p>
           </div>
+        </div>
 
-          <div class="card">
-            <h3 style="color:#fff;margin-bottom:12px;">订单管理</h3>
-            <p style="color:#cbd5e1;margin-bottom:14px;">
-              你可以导出订单作为本机备份，或者清空本机订单资料。
+        <div class="top-actions">
+          <select id="languageSelect" class="lang-select" onchange="setLanguage(this.value)">
+            <option value="zh">中文</option>
+            <option value="en">English</option>
+          </select>
+
+          <span id="userPill" class="user-pill">Guest</span>
+          <button id="loginTopBtn" class="btn btn-dark" onclick="openAuth('login')" data-i18n="login">登入</button>
+          <button id="registerTopBtn" class="btn btn-primary" onclick="openAuth('register')" data-i18n="register">注册</button>
+          <button id="logoutTopBtn" class="btn btn-red" style="display:none;" onclick="logout()" data-i18n="logout">退出</button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section id="page-home" class="page active">
+          <div class="hero-card">
+            <span class="badge" data-i18n="heroBadge">⚡ 自动出码 · 类型 Z / X · 前端演示</span>
+            <h3 data-i18n="heroTitle">虚拟号码商品市场</h3>
+            <p data-i18n="heroText">
+              商品会显示 12 个号码、类型 Z 或 X、价格。用户登录后可以使用余额购买，订单会保存到用户中心。
             </p>
-            <div class="buttons">
-              <button class="btn btn-secondary" onclick="exportOrders()">导出订单 JSON</button>
-              <button class="btn btn-red" onclick="clearOrders()">清空订单</button>
+          </div>
+
+          <div class="stats">
+            <div class="stat">
+              <span data-i18n="statProducts">商品数量</span>
+              <strong id="statProducts">0</strong>
+            </div>
+            <div class="stat">
+              <span data-i18n="statBalance">我的余额</span>
+              <strong id="statBalance">0</strong>
+            </div>
+            <div class="stat">
+              <span data-i18n="statOrders">订单数量</span>
+              <strong id="statOrders">0</strong>
+            </div>
+            <div class="stat">
+              <span data-i18n="statStatus">状态</span>
+              <strong id="statStatus">游客</strong>
             </div>
           </div>
-        </div>
+
+          <div class="panel">
+            <div class="panel-title">
+              <div>
+                <h3 data-i18n="productList">商品列表</h3>
+                <p data-i18n="productListSub">选择类型或搜索号码。</p>
+              </div>
+            </div>
+
+            <div class="filter-row">
+              <input id="searchInput" class="search-input" type="text" placeholder="搜索号码 / 名称" oninput="renderProducts()" />
+              <select id="typeFilter" class="type-filter" onchange="renderProducts()">
+                <option value="all">全部类型</option>
+                <option value="Z">类型 Z</option>
+                <option value="X">类型 X</option>
+              </select>
+            </div>
+
+            <div id="productGrid" class="product-grid"></div>
+          </div>
+        </section>
+
+        <section id="page-upload" class="page">
+          <div class="panel">
+            <div class="panel-title">
+              <div>
+                <h3 data-i18n="uploadTitle">上传商品</h3>
+                <p data-i18n="uploadSub">演示管理员上传。默认管理员密码：123456</p>
+              </div>
+            </div>
+
+            <div id="adminLocked">
+              <div class="danger" data-i18n="adminWarn">
+                这里是前端演示权限。真实网站必须使用后端管理员账号，不能只靠前端密码。
+              </div>
+              <label data-i18n="adminPassword">管理员密码</label>
+              <input id="adminPassword" type="password" placeholder="123456" />
+              <button class="btn btn-primary" onclick="unlockAdmin()" data-i18n="unlockAdmin">解锁上传</button>
+            </div>
+
+            <div id="adminPanel" style="display:none;">
+              <div class="notice" data-i18n="uploadHint">
+                商品格式：12 个号码、类型 Z / X、价格。你也可以填写商品名称。
+              </div>
+
+              <div class="form-grid">
+                <div>
+                  <label data-i18n="productName">商品名称</label>
+                  <input id="newName" type="text" placeholder="例如：Z 高级号码" />
+                </div>
+
+                <div>
+                  <label data-i18n="productNumber">12 个号码</label>
+                  <input id="newNumber" type="text" maxlength="12" placeholder="例如：908099912345" />
+                </div>
+
+                <div>
+                  <label data-i18n="productType">类型</label>
+                  <select id="newType">
+                    <option value="Z">Z</option>
+                    <option value="X">X</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label data-i18n="productPrice">价格</label>
+                  <input id="newPrice" type="number" min="1" placeholder="例如：999" />
+                </div>
+              </div>
+
+              <div class="btn-row">
+                <button class="btn btn-green" onclick="addProduct()" data-i18n="addProduct">新增商品</button>
+                <button class="btn btn-dark" onclick="fillDemoProduct()" data-i18n="fillDemo">填入示例</button>
+                <button class="btn btn-red" onclick="resetProducts()" data-i18n="resetProducts">重置商品</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="page-recharge" class="page">
+          <div class="panel">
+            <div class="panel-title">
+              <div>
+                <h3 data-i18n="rechargeTitle">充值</h3>
+                <p data-i18n="rechargeSub">演示充值，不连接真实支付。</p>
+              </div>
+            </div>
+
+            <div class="notice" data-i18n="rechargeNotice">
+              这里是模拟余额，只用于测试网店流程。如果你要真实收款，需要接支付平台和后端订单验证。
+            </div>
+
+            <div class="stats">
+              <div class="stat">
+                <span data-i18n="currentUser">当前用户</span>
+                <strong id="rechargeUser">未登录</strong>
+              </div>
+              <div class="stat">
+                <span data-i18n="balance">余额</span>
+                <strong id="rechargeBalance">0</strong>
+              </div>
+              <div class="stat">
+                <span data-i18n="totalOrders">订单</span>
+                <strong id="rechargeOrders">0</strong>
+              </div>
+              <div class="stat">
+                <span data-i18n="accountType">账户</span>
+                <strong id="rechargeStatus">游客</strong>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button class="btn btn-blue" onclick="addBalance(500)">+500</button>
+              <button class="btn btn-blue" onclick="addBalance(1000)">+1000</button>
+              <button class="btn btn-blue" onclick="addBalance(5000)">+5000</button>
+            </div>
+          </div>
+        </section>
+
+        <section id="page-user" class="page">
+          <div class="panel">
+            <div class="panel-title">
+              <div>
+                <h3 data-i18n="userTitle">用户中心</h3>
+                <p data-i18n="userSub">查看账户、余额和购买记录。</p>
+              </div>
+            </div>
+
+            <div class="stats">
+              <div class="stat">
+                <span data-i18n="username">用户名</span>
+                <strong id="userNameDisplay">未登录</strong>
+              </div>
+              <div class="stat">
+                <span data-i18n="balance">余额</span>
+                <strong id="userBalanceDisplay">0</strong>
+              </div>
+              <div class="stat">
+                <span data-i18n="totalOrders">订单</span>
+                <strong id="userOrderCountDisplay">0</strong>
+              </div>
+              <div class="stat">
+                <span data-i18n="joinTime">注册时间</span>
+                <strong id="userCreatedDisplay" style="font-size:16px;">-</strong>
+              </div>
+            </div>
+
+            <div class="panel" style="margin-top:18px;">
+              <div class="panel-title">
+                <div>
+                  <h3 data-i18n="myOrders">我的订单</h3>
+                  <p data-i18n="myOrdersSub">购买后的号码会显示在这里。</p>
+                </div>
+              </div>
+              <div id="orderList" class="orders"></div>
+            </div>
+          </div>
+        </section>
       </div>
-    </section>
+    </main>
+  </div>
 
-    <section id="security">
-      <div class="container">
-        <div class="section-title">
-          <h2>安全与防护说明</h2>
-          <p>前端 HTML 只能做基础提示，真正防 DDoS、防 hack 必须靠服务器和 Cloudflare 等服务。</p>
-        </div>
-
-        <div class="danger">
-          <strong>重要：</strong>这个文件可以放 GitHub Pages 运行，但它只是前端演示。真正商业网店不要把密码、余额、商品号码、订单验证全部放在前端。
-        </div>
-
-        <div class="grid-2">
-          <div class="card">
-            <h3 style="color:#fff;margin-bottom:12px;">这个页面已经做的基础防护</h3>
-            <div class="security-list">
-              <div class="security-item">✅ 输入内容会做简单过滤，避免直接插入危险 HTML。</div>
-              <div class="security-item">✅ 登录失败有简单冷却，减少本机暴力尝试。</div>
-              <div class="security-item">✅ 订单号码不会写死在页面商品区，购买时才随机生成。</div>
-              <div class="security-item">✅ 重要页面有提示：这是虚拟演示，不接真实支付。</div>
-            </div>
-          </div>
-
-          <div class="card">
-            <h3 style="color:#fff;margin-bottom:12px;">真正上线建议</h3>
-            <div class="security-list">
-              <div class="security-item">🛡️ 使用 Cloudflare：开启 DDoS Protection、WAF、Bot Fight Mode。</div>
-              <div class="security-item">🔐 登录必须放后端：密码要 bcrypt/argon2 加密，不能存在 localStorage。</div>
-              <div class="security-item">🧾 商品号码必须放数据库：购买成功后由后端发码，前端不能提前知道全部号码。</div>
-              <div class="security-item">🚫 后端做限流：例如每个 IP 每分钟最多请求多少次。</div>
-              <div class="security-item">📦 定期备份数据库，开启 2FA，保护 GitHub 和 Cloudflare 账户。</div>
-            </div>
-          </div>
-        </div>
+  <div id="authModal" class="modal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3 id="authTitle">登入</h3>
+        <button class="close-btn" onclick="closeAuth()">×</button>
       </div>
-    </section>
-  </main>
 
-  <footer>
-    <div class="container">
-      © 2026 Virtual Code Shop · 虚拟商品号码网店演示版 · 前端 Demo，不接真实支付
+      <div class="auth-tabs">
+        <button id="authLoginTab" class="auth-tab active" onclick="switchAuth('login')" data-i18n="login">登入</button>
+        <button id="authRegisterTab" class="auth-tab" onclick="switchAuth('register')" data-i18n="register">注册</button>
+      </div>
+
+      <div id="loginBox">
+        <label data-i18n="username">用户名</label>
+        <input id="loginUsername" type="text" placeholder="username" />
+        <label data-i18n="password">密码</label>
+        <input id="loginPassword" type="password" placeholder="password" />
+        <button class="btn btn-primary full" onclick="login()" data-i18n="login">登入</button>
+      </div>
+
+      <div id="registerBox" style="display:none;">
+        <label data-i18n="username">用户名</label>
+        <input id="registerUsername" type="text" placeholder="至少 3 个字" />
+        <label data-i18n="password">密码</label>
+        <input id="registerPassword" type="password" placeholder="至少 6 个字" />
+        <label data-i18n="confirmPassword">确认密码</label>
+        <input id="registerPassword2" type="password" placeholder="再次输入密码" />
+        <button class="btn btn-green full" onclick="register()" data-i18n="register">注册</button>
+      </div>
     </div>
-  </footer>
+  </div>
 
   <script>
-    const USERS_KEY = "vshop_users";
-    const SESSION_KEY = "vshop_session";
+    const USERS_KEY = "code_market_users_v2";
+    const SESSION_KEY = "code_market_session_v2";
+    const PRODUCTS_KEY = "code_market_products_v2";
+    const LANG_KEY = "code_market_lang_v2";
+    const ADMIN_KEY = "code_market_admin_unlocked_v2";
+    const OWNER_PASSWORD = "123456";
 
-    const products = [
-      {
-        id: "vip30",
-        icon: "👑",
-        name: "VIP 30天虚拟会员",
-        desc: "适合演示会员类虚拟商品购买流程。",
-        price: 300,
-        prefix: "VIP30"
-      },
-      {
-        id: "coin1000",
-        icon: "🪙",
-        name: "1000 虚拟金币包",
-        desc: "适合游戏网站、积分系统和测试商城。",
-        price: 500,
-        prefix: "COIN"
-      },
-      {
-        id: "skin",
-        icon: "🎨",
-        name: "限定皮肤兑换码",
-        desc: "购买后生成一个虚拟皮肤号码。",
-        price: 800,
-        prefix: "SKIN"
-      },
-      {
-        id: "gift",
-        icon: "🎁",
-        name: "随机礼包号码",
-        desc: "适合活动奖励、抽奖和测试订单。",
-        price: 650,
-        prefix: "GIFT"
-      },
-      {
-        id: "course",
-        icon: "📘",
-        name: "课程访问号码",
-        desc: "模拟线上课程访问码或下载码。",
-        price: 1200,
-        prefix: "COURSE"
-      },
-      {
-        id: "premium",
-        icon: "💎",
-        name: "Premium 虚拟权限",
-        desc: "适合高级账户、功能解锁等虚拟商品。",
-        price: 2000,
-        prefix: "PREM"
-      }
+    const defaultProducts = [
+      { id: "P-Z-001", name: "Z Premium Number", number: "908099912345", type: "Z", price: 999 },
+      { id: "P-X-002", name: "X Lucky Number", number: "778899001122", type: "X", price: 699 },
+      { id: "P-Z-003", name: "Z Classic Number", number: "123456789080", type: "Z", price: 580 },
+      { id: "P-X-004", name: "X Special Number", number: "990088776655", type: "X", price: 880 },
+      { id: "P-Z-005", name: "Z Gold Number", number: "111222333999", type: "Z", price: 1200 },
+      { id: "P-X-006", name: "X Starter Number", number: "456789123000", type: "X", price: 399 }
     ];
 
-    function getUsers() {
-      return JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
-    }
+    const i18n = {
+      zh: {
+        brandSub: "虚拟号码商品店",
+        menuHome: "首页（商品）",
+        menuUpload: "上传商品",
+        menuRecharge: "充值",
+        menuUser: "用户",
+        sideNoteTitle: "演示版本",
+        sideNote: "资料保存在浏览器。真实上线需要后端和数据库。",
+        login: "登入",
+        register: "注册",
+        logout: "退出",
+        pageHome: "首页",
+        pageHomeSub: "显示所有虚拟号码商品",
+        pageUpload: "上传商品",
+        pageUploadSub: "只有管理员可以上传商品",
+        pageRecharge: "充值",
+        pageRechargeSub: "模拟充值余额",
+        pageUser: "用户",
+        pageUserSub: "账户和订单记录",
+        heroBadge: "⚡ 自动出码 · 类型 Z / X · 前端演示",
+        heroTitle: "虚拟号码商品市场",
+        heroText: "商品会显示 12 个号码、类型 Z 或 X、价格。用户登录后可以使用余额购买，订单会保存到用户中心。",
+        statProducts: "商品数量",
+        statBalance: "我的余额",
+        statOrders: "订单数量",
+        statStatus: "状态",
+        guest: "游客",
+        loggedIn: "已登录",
+        productList: "商品列表",
+        productListSub: "选择类型或搜索号码。",
+        buy: "购买",
+        type: "类型",
+        price: "价格",
+        number: "号码",
+        uploadTitle: "上传商品",
+        uploadSub: "演示管理员上传。默认管理员密码：123456",
+        adminWarn: "这里是前端演示权限。真实网站必须使用后端管理员账号，不能只靠前端密码。",
+        adminPassword: "管理员密码",
+        unlockAdmin: "解锁上传",
+        uploadHint: "商品格式：12 个号码、类型 Z / X、价格。你也可以填写商品名称。",
+        productName: "商品名称",
+        productNumber: "12 个号码",
+        productType: "类型",
+        productPrice: "价格",
+        addProduct: "新增商品",
+        fillDemo: "填入示例",
+        resetProducts: "重置商品",
+        rechargeTitle: "充值",
+        rechargeSub: "演示充值，不连接真实支付。",
+        rechargeNotice: "这里是模拟余额，只用于测试网店流程。如果你要真实收款，需要接支付平台和后端订单验证。",
+        currentUser: "当前用户",
+        balance: "余额",
+        totalOrders: "订单",
+        accountType: "账户",
+        userTitle: "用户中心",
+        userSub: "查看账户、余额和购买记录。",
+        username: "用户名",
+        password: "密码",
+        confirmPassword: "确认密码",
+        joinTime: "注册时间",
+        myOrders: "我的订单",
+        myOrdersSub: "购买后的号码会显示在这里。",
+        noOrders: "暂无订单",
+        copied: "已复制",
+        copyNumber: "复制号码",
+        needLogin: "请先登入或注册",
+        insufficient: "余额不足，请先充值",
+        bought: "购买成功",
+        adminUnlocked: "管理员已解锁",
+        wrongAdmin: "管理员密码错误",
+        invalidNumber: "号码必须是 12 位数字",
+        invalidPrice: "请输入正确价格",
+        added: "商品已新增",
+        resetDone: "商品已重置",
+        loginOk: "登入成功",
+        registerOk: "注册成功",
+        logoutOk: "已退出",
+        userExists: "用户名已存在",
+        passMismatch: "两次密码不同",
+        badLogin: "用户名或密码错误",
+        shortUser: "用户名至少 3 个字",
+        shortPass: "密码至少 6 个字"
+      },
+      en: {
+        brandSub: "Virtual Number Store",
+        menuHome: "Home (Products)",
+        menuUpload: "Upload Product",
+        menuRecharge: "Recharge",
+        menuUser: "User",
+        sideNoteTitle: "Demo Version",
+        sideNote: "Data is saved in this browser. Real launch needs backend and database.",
+        login: "Login",
+        register: "Register",
+        logout: "Logout",
+        pageHome: "Home",
+        pageHomeSub: "All virtual number products",
+        pageUpload: "Upload Product",
+        pageUploadSub: "Admin-only product upload",
+        pageRecharge: "Recharge",
+        pageRechargeSub: "Demo balance recharge",
+        pageUser: "User",
+        pageUserSub: "Account and orders",
+        heroBadge: "⚡ Auto Delivery · Type Z / X · Frontend Demo",
+        heroTitle: "Virtual Number Marketplace",
+        heroText: "Products show 12 digits, type Z or X, and price. Logged-in users can buy with balance, and orders are saved in the user center.",
+        statProducts: "Products",
+        statBalance: "My Balance",
+        statOrders: "Orders",
+        statStatus: "Status",
+        guest: "Guest",
+        loggedIn: "Logged In",
+        productList: "Product List",
+        productListSub: "Filter by type or search number.",
+        buy: "Buy",
+        type: "Type",
+        price: "Price",
+        number: "Number",
+        uploadTitle: "Upload Product",
+        uploadSub: "Demo admin upload. Default admin password: 123456",
+        adminWarn: "This is frontend demo permission. A real site must use backend admin accounts, not frontend passwords.",
+        adminPassword: "Admin Password",
+        unlockAdmin: "Unlock Upload",
+        uploadHint: "Product format: 12 digits, type Z / X, price. Product name is optional.",
+        productName: "Product Name",
+        productNumber: "12 Digits",
+        productType: "Type",
+        productPrice: "Price",
+        addProduct: "Add Product",
+        fillDemo: "Fill Example",
+        resetProducts: "Reset Products",
+        rechargeTitle: "Recharge",
+        rechargeSub: "Demo recharge, no real payment.",
+        rechargeNotice: "This is demo balance for testing. Real payment needs payment gateway and backend order verification.",
+        currentUser: "Current User",
+        balance: "Balance",
+        totalOrders: "Orders",
+        accountType: "Account",
+        userTitle: "User Center",
+        userSub: "View account, balance and purchase records.",
+        username: "Username",
+        password: "Password",
+        confirmPassword: "Confirm Password",
+        joinTime: "Join Time",
+        myOrders: "My Orders",
+        myOrdersSub: "Purchased numbers appear here.",
+        noOrders: "No orders yet",
+        copied: "Copied",
+        copyNumber: "Copy Number",
+        needLogin: "Please login or register first",
+        insufficient: "Insufficient balance, please recharge",
+        bought: "Purchase successful",
+        adminUnlocked: "Admin unlocked",
+        wrongAdmin: "Wrong admin password",
+        invalidNumber: "Number must be 12 digits",
+        invalidPrice: "Please enter a valid price",
+        added: "Product added",
+        resetDone: "Products reset",
+        loginOk: "Login successful",
+        registerOk: "Registered successfully",
+        logoutOk: "Logged out",
+        userExists: "Username already exists",
+        passMismatch: "Passwords do not match",
+        badLogin: "Wrong username or password",
+        shortUser: "Username needs at least 3 characters",
+        shortPass: "Password needs at least 6 characters"
+      }
+    };
 
-    function saveUsers(users) {
-      localStorage.setItem(USERS_KEY, JSON.stringify(users));
-    }
+    let currentPage = "home";
+    let currentAuth = "login";
+    let currentLang = localStorage.getItem(LANG_KEY) || "zh";
 
-    function getSession() {
-      return localStorage.getItem(SESSION_KEY) || "";
-    }
-
-    function setSession(username) {
-      localStorage.setItem(SESSION_KEY, username);
-    }
-
-    function getCurrentUser() {
-      const username = getSession();
-      if (!username) return null;
-      const users = getUsers();
-      return users[username] ? { username, ...users[username] } : null;
-    }
-
-    function updateCurrentUser(data) {
-      const username = getSession();
-      if (!username) return;
-      const users = getUsers();
-      users[username] = { ...users[username], ...data };
-      saveUsers(users);
+    function t(key) {
+      return i18n[currentLang][key] || i18n.zh[key] || key;
     }
 
     function safeText(text) {
@@ -823,6 +1265,50 @@
         .join("");
     }
 
+    function getUsers() {
+      return JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
+    }
+
+    function saveUsers(users) {
+      localStorage.setItem(USERS_KEY, JSON.stringify(users));
+    }
+
+    function getProducts() {
+      const saved = localStorage.getItem(PRODUCTS_KEY);
+      if (!saved) {
+        localStorage.setItem(PRODUCTS_KEY, JSON.stringify(defaultProducts));
+        return [...defaultProducts];
+      }
+      return JSON.parse(saved);
+    }
+
+    function saveProducts(products) {
+      localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
+    }
+
+    function getSession() {
+      return localStorage.getItem(SESSION_KEY) || "";
+    }
+
+    function setSession(username) {
+      localStorage.setItem(SESSION_KEY, username);
+    }
+
+    function getCurrentUser() {
+      const username = getSession();
+      const users = getUsers();
+      if (!username || !users[username]) return null;
+      return { username, ...users[username] };
+    }
+
+    function updateCurrentUser(data) {
+      const username = getSession();
+      if (!username) return;
+      const users = getUsers();
+      users[username] = { ...users[username], ...data };
+      saveUsers(users);
+    }
+
     function showToast(message) {
       const toast = document.getElementById("toast");
       toast.textContent = message;
@@ -831,36 +1317,83 @@
       toast.classList.add("show");
     }
 
+    function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem(LANG_KEY, lang);
+      render();
+    }
+
+    function applyLanguage() {
+      document.documentElement.lang = currentLang === "zh" ? "zh-Hans" : "en";
+      document.getElementById("languageSelect").value = currentLang;
+
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.dataset.i18n;
+        el.textContent = t(key);
+      });
+
+      const search = document.getElementById("searchInput");
+      if (search) search.placeholder = currentLang === "zh" ? "搜索号码 / 名称" : "Search number / name";
+
+      document.getElementById("newName").placeholder = currentLang === "zh" ? "例如：Z 高级号码" : "Example: Z Premium Number";
+      document.getElementById("newNumber").placeholder = currentLang === "zh" ? "例如：908099912345" : "Example: 908099912345";
+      document.getElementById("newPrice").placeholder = currentLang === "zh" ? "例如：999" : "Example: 999";
+      document.getElementById("adminPassword").placeholder = OWNER_PASSWORD;
+
+      updatePageTitle();
+      document.getElementById("authTitle").textContent = currentAuth === "login" ? t("login") : t("register");
+    }
+
+    function updatePageTitle() {
+      const titleMap = {
+        home: ["pageHome", "pageHomeSub"],
+        upload: ["pageUpload", "pageUploadSub"],
+        recharge: ["pageRecharge", "pageRechargeSub"],
+        user: ["pageUser", "pageUserSub"]
+      };
+      document.getElementById("pageTitle").textContent = t(titleMap[currentPage][0]);
+      document.getElementById("pageSubtitle").textContent = t(titleMap[currentPage][1]);
+    }
+
+    function goPage(page) {
+      currentPage = page;
+
+      document.querySelectorAll(".page").forEach(el => el.classList.remove("active"));
+      document.getElementById("page-" + page).classList.add("active");
+
+      document.querySelectorAll(".side-btn").forEach(btn => btn.classList.remove("active"));
+      document.querySelector(`[data-page-btn="${page}"]`).classList.add("active");
+
+      updatePageTitle();
+      closeSidebar();
+      render();
+    }
+
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("show");
+    }
+
+    function closeSidebar() {
+      document.getElementById("sidebar").classList.remove("show");
+    }
+
+    function openAuth(type) {
+      currentAuth = type;
+      document.getElementById("authModal").classList.add("show");
+      switchAuth(type);
+    }
+
+    function closeAuth() {
+      document.getElementById("authModal").classList.remove("show");
+    }
+
     function switchAuth(type) {
-      const isLogin = type === "login";
-      document.getElementById("loginBox").style.display = isLogin ? "block" : "none";
-      document.getElementById("registerBox").style.display = isLogin ? "none" : "block";
-      document.getElementById("loginTab").classList.toggle("active", isLogin);
-      document.getElementById("registerTab").classList.toggle("active", !isLogin);
-    }
-
-    function canTryLogin() {
-      const lockUntil = Number(localStorage.getItem("vshop_login_lock_until") || "0");
-      if (Date.now() < lockUntil) {
-        const seconds = Math.ceil((lockUntil - Date.now()) / 1000);
-        showToast(`登录尝试太频繁，请 ${seconds} 秒后再试`);
-        return false;
-      }
-      return true;
-    }
-
-    function recordFailedLogin() {
-      const count = Number(localStorage.getItem("vshop_failed_login") || "0") + 1;
-      localStorage.setItem("vshop_failed_login", String(count));
-      if (count >= 5) {
-        localStorage.setItem("vshop_login_lock_until", String(Date.now() + 30000));
-        localStorage.setItem("vshop_failed_login", "0");
-      }
-    }
-
-    function clearFailedLogin() {
-      localStorage.removeItem("vshop_failed_login");
-      localStorage.removeItem("vshop_login_lock_until");
+      currentAuth = type;
+      document.getElementById("authTitle").textContent = type === "login" ? t("login") : t("register");
+      document.getElementById("loginBox").style.display = type === "login" ? "block" : "none";
+      document.getElementById("registerBox").style.display = type === "register" ? "block" : "none";
+      document.getElementById("authLoginTab").classList.toggle("active", type === "login");
+      document.getElementById("authRegisterTab").classList.toggle("active", type === "register");
     }
 
     async function register() {
@@ -868,34 +1401,14 @@
       const password = document.getElementById("registerPassword").value;
       const password2 = document.getElementById("registerPassword2").value;
 
-      if (username.length < 3) {
-        showToast("用户名至少 3 个字");
-        return;
-      }
-
-      if (!/^[a-zA-Z0-9_\u4e00-\u9fa5]+$/.test(username)) {
-        showToast("用户名只能用文字、数字或下划线");
-        return;
-      }
-
-      if (password.length < 6) {
-        showToast("密码至少 6 个字");
-        return;
-      }
-
-      if (password !== password2) {
-        showToast("两次密码不一样");
-        return;
-      }
+      if (username.length < 3) return showToast(t("shortUser"));
+      if (password.length < 6) return showToast(t("shortPass"));
+      if (password !== password2) return showToast(t("passMismatch"));
 
       const users = getUsers();
-      if (users[username]) {
-        showToast("这个用户名已经存在");
-        return;
-      }
+      if (users[username]) return showToast(t("userExists"));
 
       const passHash = await simpleHash(password + "_demo_salt_" + username);
-
       users[username] = {
         passHash,
         balance: 1000,
@@ -905,49 +1418,38 @@
 
       saveUsers(users);
       setSession(username);
-      showToast("注册成功，已自动登录");
+      showToast(t("registerOk"));
+      closeAuth();
       render();
-      location.hash = "#shop";
     }
 
     async function login() {
-      if (!canTryLogin()) return;
-
       const username = document.getElementById("loginUsername").value.trim();
       const password = document.getElementById("loginPassword").value;
       const users = getUsers();
 
-      if (!users[username]) {
-        recordFailedLogin();
-        showToast("用户名或密码错误");
-        return;
-      }
-
+      if (!users[username]) return showToast(t("badLogin"));
       const passHash = await simpleHash(password + "_demo_salt_" + username);
-      if (users[username].passHash !== passHash) {
-        recordFailedLogin();
-        showToast("用户名或密码错误");
-        return;
-      }
 
-      clearFailedLogin();
+      if (users[username].passHash !== passHash) return showToast(t("badLogin"));
+
       setSession(username);
-      showToast("登录成功");
+      showToast(t("loginOk"));
+      closeAuth();
       render();
-      location.hash = "#shop";
     }
 
     function logout() {
       localStorage.removeItem(SESSION_KEY);
-      showToast("已退出登录");
+      showToast(t("logoutOk"));
       render();
     }
 
     function requireLogin() {
       const user = getCurrentUser();
       if (!user) {
-        showToast("请先登录或注册");
-        location.hash = "#";
+        showToast(t("needLogin"));
+        openAuth("login");
         return null;
       }
       return user;
@@ -956,154 +1458,214 @@
     function addBalance(amount) {
       const user = requireLogin();
       if (!user) return;
-
-      updateCurrentUser({ balance: user.balance + amount });
-      showToast(`模拟充值成功：+${amount}`);
+      updateCurrentUser({ balance: Number(user.balance || 0) + amount });
+      showToast("+" + amount);
       render();
-    }
-
-    function generateCode(prefix) {
-      const part1 = Math.random().toString(36).slice(2, 6).toUpperCase();
-      const part2 = Math.random().toString(36).slice(2, 6).toUpperCase();
-      const part3 = Math.random().toString(36).slice(2, 6).toUpperCase();
-      const num = Math.floor(1000 + Math.random() * 9000);
-      return `${prefix}-${part1}-${part2}-${part3}-${num}`;
     }
 
     function buyProduct(productId) {
       const user = requireLogin();
       if (!user) return;
 
+      const products = getProducts();
       const product = products.find(p => p.id === productId);
-      if (!product) {
-        showToast("商品不存在");
-        return;
-      }
+      if (!product) return;
 
-      if (user.balance < product.price) {
-        showToast("余额不足，请先模拟充值");
-        return;
+      if (Number(user.balance || 0) < Number(product.price)) {
+        return showToast(t("insufficient"));
       }
 
       const order = {
         id: "ORD-" + Date.now(),
-        productName: product.name,
+        name: product.name,
+        number: product.number,
+        type: product.type,
         price: product.price,
-        code: generateCode(product.prefix),
-        createdAt: new Date().toLocaleString(),
-        status: "已发码"
+        createdAt: new Date().toLocaleString()
       };
 
-      const newOrders = [order, ...(user.orders || [])];
+      const orders = [order, ...(user.orders || [])];
       updateCurrentUser({
-        balance: user.balance - product.price,
-        orders: newOrders
+        balance: Number(user.balance) - Number(product.price),
+        orders
       });
 
-      showToast("购买成功，虚拟号码已生成");
-      render();
-      location.hash = "#orders";
+      showToast(t("bought"));
+      goPage("user");
     }
 
-    function copyCode(code) {
-      navigator.clipboard.writeText(code).then(() => {
-        showToast("号码已复制");
+    function copyNumber(number) {
+      navigator.clipboard.writeText(number).then(() => {
+        showToast(t("copied"));
       }).catch(() => {
-        showToast("复制失败，请手动复制");
+        showToast(number);
       });
     }
 
-    function clearOrders() {
-      const user = requireLogin();
-      if (!user) return;
+    function unlockAdmin() {
+      const password = document.getElementById("adminPassword").value;
+      if (password !== OWNER_PASSWORD) {
+        showToast(t("wrongAdmin"));
+        return;
+      }
 
-      if (!confirm("确定要清空当前账户的订单吗？")) return;
-      updateCurrentUser({ orders: [] });
-      showToast("订单已清空");
-      render();
+      localStorage.setItem(ADMIN_KEY, "1");
+      showToast(t("adminUnlocked"));
+      renderAdmin();
     }
 
-    function exportOrders() {
-      const user = requireLogin();
-      if (!user) return;
+    function renderAdmin() {
+      const unlocked = localStorage.getItem(ADMIN_KEY) === "1";
+      document.getElementById("adminLocked").style.display = unlocked ? "none" : "block";
+      document.getElementById("adminPanel").style.display = unlocked ? "block" : "none";
+    }
 
-      const data = {
-        username: user.username,
-        exportedAt: new Date().toLocaleString(),
-        orders: user.orders || []
-      };
+    function addProduct() {
+      const name = document.getElementById("newName").value.trim() || "Virtual Number";
+      const number = document.getElementById("newNumber").value.trim();
+      const type = document.getElementById("newType").value;
+      const price = Number(document.getElementById("newPrice").value);
 
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `orders-${user.username}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      showToast("订单已导出");
+      if (!/^\d{12}$/.test(number)) return showToast(t("invalidNumber"));
+      if (!price || price <= 0) return showToast(t("invalidPrice"));
+
+      const products = getProducts();
+      products.unshift({
+        id: "P-" + type + "-" + Date.now(),
+        name,
+        number,
+        type,
+        price
+      });
+
+      saveProducts(products);
+      document.getElementById("newName").value = "";
+      document.getElementById("newNumber").value = "";
+      document.getElementById("newPrice").value = "";
+      showToast(t("added"));
+      render();
+      goPage("home");
+    }
+
+    function fillDemoProduct() {
+      const type = Math.random() > 0.5 ? "Z" : "X";
+      const number = String(Math.floor(100000000000 + Math.random() * 900000000000));
+      document.getElementById("newName").value = type + " Demo Number";
+      document.getElementById("newNumber").value = number;
+      document.getElementById("newType").value = type;
+      document.getElementById("newPrice").value = Math.floor(300 + Math.random() * 900);
+    }
+
+    function resetProducts() {
+      if (!confirm("Reset products?")) return;
+      saveProducts(defaultProducts);
+      showToast(t("resetDone"));
+      render();
     }
 
     function renderProducts() {
       const grid = document.getElementById("productGrid");
-      grid.innerHTML = products.map(product => `
-        <article class="card product-card">
-          <div class="product-icon">${product.icon}</div>
-          <h3>${safeText(product.name)}</h3>
-          <p>${safeText(product.desc)}</p>
-          <div>
-            <span class="price">${product.price} 虚拟余额</span>
-            <span class="stock">自动发码</span>
+      const products = getProducts();
+      const q = (document.getElementById("searchInput").value || "").trim().toLowerCase();
+      const type = document.getElementById("typeFilter").value;
+
+      const filtered = products.filter(p => {
+        const matchType = type === "all" || p.type === type;
+        const matchQ = !q || p.name.toLowerCase().includes(q) || p.number.includes(q);
+        return matchType && matchQ;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="notice" style="grid-column:1/-1;">No products found.</div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(p => `
+        <article class="product">
+          <div class="product-head">
+            <div class="product-title">
+              <h4>${safeText(p.name)}</h4>
+              <small>ID: ${safeText(p.id)}</small>
+            </div>
+            <div class="type-badge ${p.type === "Z" ? "type-z" : "type-x"}">${safeText(p.type)}</div>
           </div>
-          <button class="btn btn-primary" style="width:100%;" onclick="buyProduct('${product.id}')">
-            购买并出号码
-          </button>
+
+          <div class="number-box">${safeText(p.number)}</div>
+
+          <div class="product-meta">
+            <div class="meta">
+              <span>${t("type")}</span>
+              <strong>${safeText(p.type)}</strong>
+            </div>
+            <div class="meta">
+              <span>${t("price")}</span>
+              <strong>${safeText(p.price)}</strong>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn btn-primary full" onclick="buyProduct('${safeText(p.id)}')">🛒 ${t("buy")}</button>
+          </div>
         </article>
       `).join("");
     }
 
     function renderOrders(user) {
-      const orderList = document.getElementById("orderList");
-
+      const box = document.getElementById("orderList");
       if (!user || !user.orders || user.orders.length === 0) {
-        orderList.innerHTML = `
-          <div class="order">
-            <h4>暂无订单</h4>
-            <p>购买虚拟商品后，号码会显示在这里。</p>
-          </div>
-        `;
+        box.innerHTML = `<div class="order"><h4>${t("noOrders")}</h4></div>`;
         return;
       }
 
-      orderList.innerHTML = user.orders.map(order => `
+      box.innerHTML = user.orders.map(o => `
         <div class="order">
-          <h4>${safeText(order.productName)}</h4>
-          <p>订单号：${safeText(order.id)}</p>
-          <p>价格：${safeText(order.price)} 虚拟余额</p>
-          <p>时间：${safeText(order.createdAt)}</p>
-          <p>状态：${safeText(order.status)}</p>
-          <div class="code-box">${safeText(order.code)}</div>
-          <button class="btn btn-secondary copy-btn" onclick="copyCode('${safeText(order.code)}')">复制号码</button>
+          <h4>${safeText(o.name)}</h4>
+          <p>${t("number")}: <strong>${safeText(o.number)}</strong></p>
+          <p>${t("type")}: ${safeText(o.type)}</p>
+          <p>${t("price")}: ${safeText(o.price)}</p>
+          <p>${safeText(o.createdAt)}</p>
+          <button class="btn btn-dark" onclick="copyNumber('${safeText(o.number)}')">${t("copyNumber")}</button>
         </div>
       `).join("");
     }
 
     function render() {
       const user = getCurrentUser();
+      const products = getProducts();
+      const isLogged = !!user;
 
-      document.getElementById("authPanel").style.display = user ? "none" : "block";
-      document.getElementById("logoutBtn").style.display = user ? "inline-flex" : "none";
-      document.getElementById("userChip").style.display = user ? "inline-block" : "none";
-      document.getElementById("userChip").textContent = user ? user.username : "";
+      document.getElementById("userPill").style.display = isLogged ? "inline-flex" : "none";
+      document.getElementById("userPill").textContent = isLogged ? user.username : "";
+      document.getElementById("loginTopBtn").style.display = isLogged ? "none" : "inline-flex";
+      document.getElementById("registerTopBtn").style.display = isLogged ? "none" : "inline-flex";
+      document.getElementById("logoutTopBtn").style.display = isLogged ? "inline-flex" : "none";
 
-      document.getElementById("currentUserDisplay").textContent = user ? user.username : "未登录";
-      document.getElementById("balanceDisplay").textContent = user ? user.balance : "0";
-      document.getElementById("orderCountDisplay").textContent = user && user.orders ? user.orders.length : "0";
-      document.getElementById("accountStatusDisplay").textContent = user ? "已登录" : "游客";
+      document.getElementById("statProducts").textContent = products.length;
+      document.getElementById("statBalance").textContent = isLogged ? user.balance : "0";
+      document.getElementById("statOrders").textContent = isLogged && user.orders ? user.orders.length : "0";
+      document.getElementById("statStatus").textContent = isLogged ? t("loggedIn") : t("guest");
 
+      document.getElementById("rechargeUser").textContent = isLogged ? user.username : t("guest");
+      document.getElementById("rechargeBalance").textContent = isLogged ? user.balance : "0";
+      document.getElementById("rechargeOrders").textContent = isLogged && user.orders ? user.orders.length : "0";
+      document.getElementById("rechargeStatus").textContent = isLogged ? t("loggedIn") : t("guest");
+
+      document.getElementById("userNameDisplay").textContent = isLogged ? user.username : t("guest");
+      document.getElementById("userBalanceDisplay").textContent = isLogged ? user.balance : "0";
+      document.getElementById("userOrderCountDisplay").textContent = isLogged && user.orders ? user.orders.length : "0";
+      document.getElementById("userCreatedDisplay").textContent = isLogged ? user.createdAt : "-";
+
+      renderProducts();
       renderOrders(user);
+      renderAdmin();
+      applyLanguage();
     }
 
-    renderProducts();
+    document.getElementById("authModal").addEventListener("click", function(e) {
+      if (e.target.id === "authModal") closeAuth();
+    });
+
+    document.getElementById("languageSelect").value = currentLang;
     render();
   </script>
 </body>
