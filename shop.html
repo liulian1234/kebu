@@ -1326,6 +1326,28 @@
                 </div>
 
                 <div>
+                  <label data-i18n="fakeAddressLabel">演示地址（虚拟）</label>
+                  <input id="newFakeAddress" type="text" placeholder="例如：Sector-09 / Node-9080" />
+                </div>
+
+                <div>
+                  <label data-i18n="browserTypeLabel">浏览器类型</label>
+                  <select id="newBrowserType">
+                    <option value="Chrome">Chrome</option>
+                    <option value="Firefox">Firefox</option>
+                    <option value="Edge">Edge</option>
+                    <option value="Safari">Safari</option>
+                    <option value="Opera">Opera</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label data-i18n="browserVersionLabel">浏览器版本</label>
+                  <input id="newBrowserVersion" type="text" placeholder="例如：120.0.6099" />
+                </div>
+
+                <div>
                   <label data-i18n="productType">类型</label>
                   <select id="newType">
                     <option value="Z">Z</option>
@@ -1464,20 +1486,20 @@
   </div>
 
   <script>
-    const USERS_KEY = "code_market_users_v4";
-    const SESSION_KEY = "code_market_session_v4";
-    const PRODUCTS_KEY = "code_market_products_v4";
-    const LANG_KEY = "code_market_lang_v3";
-    const ADMIN_KEY = "code_market_admin_unlocked_v4";
+    const USERS_KEY = "code_market_users_v5";
+    const SESSION_KEY = "code_market_session_v5";
+    const PRODUCTS_KEY = "code_market_products_v5";
+    const LANG_KEY = "code_market_lang_v5";
+    const ADMIN_KEY = "code_market_admin_unlocked_v5";
     const OWNER_PASSWORD = "123456";
 
     const defaultProducts = [
-      { id: "P-Z-001", name: "Z Premium Number", number: "908099912345", secret3: "999", type: "Z", price: 999 },
-      { id: "P-X-002", name: "X Lucky Number", number: "778899001122", secret3: "908", type: "X", price: 699 },
-      { id: "P-Z-003", name: "Z Classic Number", number: "123456789080", secret3: "777", type: "Z", price: 580 },
-      { id: "P-X-004", name: "X Special Number", number: "990088776655", secret3: "555", type: "X", price: 880 },
-      { id: "P-Z-005", name: "Z Gold Number", number: "111222333999", secret3: "333", type: "Z", price: 1200 },
-      { id: "P-X-006", name: "X Starter Number", number: "456789123000", secret3: "000", type: "X", price: 399 }
+      { id: "P-Z-001", name: "Z Premium Number", number: "908099912345", secret3: "999", fakeAddress: "Sector-09 / Node-9080", browserType: "Chrome", browserVersion: "120.0.6099", type: "Z", price: 999 },
+      { id: "P-X-002", name: "X Lucky Number", number: "778899001122", secret3: "908", fakeAddress: "Sector-22 / Node-7788", browserType: "Firefox", browserVersion: "121.0", type: "X", price: 699 },
+      { id: "P-Z-003", name: "Z Classic Number", number: "123456789080", secret3: "777", fakeAddress: "Sector-17 / Node-1234", browserType: "Edge", browserVersion: "120.0.2210", type: "Z", price: 580 },
+      { id: "P-X-004", name: "X Special Number", number: "990088776655", secret3: "555", fakeAddress: "Sector-44 / Node-9900", browserType: "Safari", browserVersion: "17.2", type: "X", price: 880 },
+      { id: "P-Z-005", name: "Z Gold Number", number: "111222333999", secret3: "333", fakeAddress: "Sector-01 / Node-1122", browserType: "Chrome", browserVersion: "121.0.6167", type: "Z", price: 1200 },
+      { id: "P-X-006", name: "X Starter Number", number: "456789123000", secret3: "000", fakeAddress: "Sector-30 / Node-4567", browserType: "Opera", browserVersion: "105.0", type: "X", price: 399 }
     ];
 
     const i18n = {
@@ -1524,6 +1546,9 @@
         productName: "商品名称",
         productNumber: "12 个号码",
         secret3Label: "3 位安全码",
+        fakeAddressLabel: "演示地址（虚拟）",
+        browserTypeLabel: "浏览器类型",
+        browserVersionLabel: "浏览器版本",
         productType: "类型",
         productPrice: "价格",
         addProduct: "新增商品",
@@ -1556,6 +1581,9 @@
         invalidSecret3: "安全码必须是 3 位数字",
         hidden: "已隐藏，仅显示最后 4 位",
         secret3: "安全码",
+        fakeAddress: "演示地址",
+        browserType: "浏览器",
+        browserVersion: "版本",
         invalidPrice: "请输入正确价格",
         added: "商品已新增",
         resetDone: "商品已重置",
@@ -1611,6 +1639,9 @@
         productName: "Product Name",
         productNumber: "12 Digits",
         secret3Label: "3-Digit Security Code",
+        fakeAddressLabel: "Demo Address",
+        browserTypeLabel: "Browser Type",
+        browserVersionLabel: "Browser Version",
         productType: "Type",
         productPrice: "Price",
         addProduct: "Add Product",
@@ -1643,6 +1674,9 @@
         invalidSecret3: "Security code must be 3 digits",
         hidden: "Hidden, only last 4 digits visible",
         secret3: "Security Code",
+        fakeAddress: "Demo Address",
+        browserType: "Browser",
+        browserVersion: "Version",
         invalidPrice: "Please enter a valid price",
         added: "Product added",
         resetDone: "Products reset",
@@ -1757,6 +1791,8 @@
       document.getElementById("newNumber").placeholder = currentLang === "zh" ? "例如：908099912345" : "Example: 908099912345";
       document.getElementById("newPrice").placeholder = currentLang === "zh" ? "例如：999" : "Example: 999";
       document.getElementById("newSecret3").placeholder = currentLang === "zh" ? "例如：999" : "Example: 999";
+      document.getElementById("newFakeAddress").placeholder = currentLang === "zh" ? "例如：Sector-09 / Node-9080" : "Example: Sector-09 / Node-9080";
+      document.getElementById("newBrowserVersion").placeholder = currentLang === "zh" ? "例如：120.0.6099" : "Example: 120.0.6099";
       document.getElementById("adminPassword").placeholder = OWNER_PASSWORD;
 
       updatePageTitle();
@@ -1910,6 +1946,9 @@
         number: product.number,
         type: product.type,
         secret3: product.secret3 || "",
+        fakeAddress: product.fakeAddress || "",
+        browserType: product.browserType || "",
+        browserVersion: product.browserVersion || "",
         price: product.price,
         createdAt: new Date().toLocaleString()
       };
@@ -1960,6 +1999,9 @@
       const number = document.getElementById("newNumber").value.trim();
       const type = document.getElementById("newType").value;
       const secret3 = document.getElementById("newSecret3").value.trim();
+      const fakeAddress = document.getElementById("newFakeAddress").value.trim() || "Sector-00 / Node-0000";
+      const browserType = document.getElementById("newBrowserType").value;
+      const browserVersion = document.getElementById("newBrowserVersion").value.trim() || "120.0.0000";
       const price = Number(document.getElementById("newPrice").value);
 
       if (!/^\d{12}$/.test(number)) return showToast(t("invalidNumber"));
@@ -1972,6 +2014,9 @@
         name,
         number,
         secret3,
+        fakeAddress,
+        browserType,
+        browserVersion,
         type,
         price
       });
@@ -1980,6 +2025,8 @@
       document.getElementById("newName").value = "";
       document.getElementById("newNumber").value = "";
       document.getElementById("newSecret3").value = "";
+      document.getElementById("newFakeAddress").value = "";
+      document.getElementById("newBrowserVersion").value = "";
       document.getElementById("newPrice").value = "";
       showToast(t("added"));
       render();
@@ -1993,6 +2040,9 @@
       document.getElementById("newNumber").value = number;
       document.getElementById("newType").value = type;
       document.getElementById("newSecret3").value = String(Math.floor(100 + Math.random() * 900));
+      document.getElementById("newFakeAddress").value = "Sector-" + String(Math.floor(10 + Math.random() * 90)) + " / Node-" + String(Math.floor(1000 + Math.random() * 9000));
+      document.getElementById("newBrowserType").value = ["Chrome", "Firefox", "Edge", "Safari", "Opera"][Math.floor(Math.random() * 5)];
+      document.getElementById("newBrowserVersion").value = String(Math.floor(100 + Math.random() * 30)) + ".0." + String(Math.floor(1000 + Math.random() * 9000));
       document.getElementById("newPrice").value = Math.floor(300 + Math.random() * 900);
     }
 
@@ -2033,6 +2083,8 @@
           <div class="locked-label">🔒 ${t("hidden")}</div>
           <div class="number-box">${safeText(maskNumber(p.number))}</div>
           <div class="secret-box">${t("secret3")}: ${safeText(maskSecret3(p.secret3 || "999"))}</div>
+          <div class="secret-box">${t("fakeAddress")}: ${safeText(p.fakeAddress || "Sector-00 / Node-0000")}</div>
+          <div class="secret-box">${t("browserType")}: ${safeText(p.browserType || "Chrome")} / ${t("browserVersion")}: ${safeText(p.browserVersion || "120.0")}</div>
 
           <div class="product-meta">
             <div class="meta">
@@ -2065,6 +2117,9 @@
           <div class="revealed-label">✅ REVEALED AFTER PURCHASE</div>
           <p>${t("number")}: <strong>${safeText(o.number)}</strong></p>
           <p>${t("secret3")}: <strong>${safeText(o.secret3 || "")}</strong></p>
+          <p>${t("fakeAddress")}: <strong>${safeText(o.fakeAddress || "")}</strong></p>
+          <p>${t("browserType")}: <strong>${safeText(o.browserType || "")}</strong></p>
+          <p>${t("browserVersion")}: <strong>${safeText(o.browserVersion || "")}</strong></p>
           <p>${t("type")}: ${safeText(o.type)}</p>
           <p>${t("price")}: ${safeText(o.price)}</p>
           <p>${safeText(o.createdAt)}</p>
