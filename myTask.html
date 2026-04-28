@@ -87,7 +87,7 @@
           <div class="hero-total">
             <span>每月固定壓力</span>
             <strong id="heroMonthlyPressure">SGD 0</strong>
-            <small>固定開銷 + 年費月均 + 長期付款</small>
+            <small>固定開銷 + 貸款 / 分期 + 強制存款 + 年費月均</small>
           </div>
         </section>
 
@@ -154,7 +154,7 @@
           <article class="stat">
             <span>Total 固定開銷</span>
             <strong id="fixedTotal">SGD 0</strong>
-            <p>依照統計月份計算</p>
+            <p>包含貸款 / 分期和強制存款</p>
           </article>
 
           <article class="stat">
@@ -314,14 +314,14 @@
             <h2>長期需要付款的東西，全部放這裡。</h2>
             <p>
               貸款、分期、存款目標都可以記錄。
-              車貸會被固定鎖住，避免不小心改掉。
+              貸款 / 分期會自動加入固定開銷；存款目標如果填每月強制存款，也會自動加入固定開銷。
             </p>
           </div>
 
           <div class="hero-total">
             <span>建議每月可存</span>
             <strong id="suggestedSaving">SGD 0</strong>
-            <small>收入 - 固定開銷 - 年費月均 - 長期付款</small>
+            <small>收入 - 固定開銷 - 貸款 / 分期 - 強制存款 - 年費月均</small>
           </div>
         </section>
 
@@ -329,7 +329,7 @@
           <div class="panel-head">
             <div>
               <h3>新增長期項目</h3>
-              <p>可以新增存款目標，也可以新增貸款或長期付款。</p>
+              <p>可以新增存款目標，也可以新增貸款或長期付款。填了每月金額後會自動加入固定開銷。</p>
             </div>
           </div>
 
@@ -347,7 +347,7 @@
               <input
                 id="planName"
                 type="text"
-                placeholder="例如：10萬存款 / 電腦分期"
+                placeholder="例如：10萬存款 / Shopee loan / 電腦分期"
               />
             </div>
 
@@ -374,13 +374,13 @@
             </div>
 
             <div class="field">
-              <label>每月付款（貸款才填）</label>
+              <label>每月付款 / 強制存款（SGD）</label>
               <input
                 id="planMonthly"
                 type="number"
                 min="0"
                 step="0.01"
-                placeholder="例如：334"
+                placeholder="貸款填每月還款；存款填每月強制存款"
               />
             </div>
 
@@ -398,7 +398,7 @@
             <div class="panel-head">
               <div>
                 <h3>存款目標</h3>
-                <p>根據你的收入和開銷計算每月應存。</p>
+                <p>填每月強制存款後，會自動加入固定開銷。</p>
               </div>
             </div>
 
@@ -409,7 +409,7 @@
             <div class="panel-head">
               <div>
                 <h3>貸款 / 長期付款</h3>
-                <p>例如車貸、分期、長期固定付款。</p>
+                <p>例如車貸、Shopee loan、分期、長期固定付款。</p>
               </div>
             </div>
 
@@ -516,6 +516,6 @@
     </main>
   </div>
 
-  <script src="./js/myTask.js?v=1005" defer></script>
+  <script src="./js/myTask.js?v=1006" defer></script>
 </body>
 </html>
