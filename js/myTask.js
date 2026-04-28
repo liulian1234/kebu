@@ -1,6 +1,7 @@
 /* ==========================================================
-   MyTask Pro JS - Stable Copy Version v1004
+   MyTask Pro JS - Stable Copy Version v1005
    文件位置：js/myTask.js
+   功能：自訂固定開銷可刪除，系統固定開銷鎖定
    ========================================================== */
 
 const STORAGE_KEY = "mytask_pro_clean_v2";
@@ -9,32 +10,24 @@ const FIXED_START_DATE = "2026-05-01";
 
 const $ = (id) => document.getElementById(id);
 
-/* =========================
-   Safe DOM Tools
-========================= */
-
 function on(id, event, handler) {
   const el = $(id);
-  if (!el) return;
-  el.addEventListener(event, handler);
+  if (el) el.addEventListener(event, handler);
 }
 
 function setText(id, value) {
   const el = $(id);
-  if (!el) return;
-  el.textContent = value;
+  if (el) el.textContent = value;
 }
 
 function setHTML(id, value) {
   const el = $(id);
-  if (!el) return;
-  el.innerHTML = value;
+  if (el) el.innerHTML = value;
 }
 
 function setValue(id, value) {
   const el = $(id);
-  if (!el) return;
-  el.value = value;
+  if (el) el.value = value;
 }
 
 function getValue(id) {
@@ -44,8 +37,7 @@ function getValue(id) {
 
 function setWidth(id, value) {
   const el = $(id);
-  if (!el) return;
-  el.style.width = value;
+  if (el) el.style.width = value;
 }
 
 function ensureMount(id, parentId, className = "") {
@@ -61,10 +53,6 @@ function ensureMount(id, parentId, className = "") {
   parent.appendChild(el);
   return el;
 }
-
-/* =========================
-   Basic Tools
-========================= */
 
 function uid() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -102,6 +90,7 @@ function getMonthList(startMonth, endMonth) {
   while (year < endYear || (year === endYear && month <= endMonthNumber)) {
     result.push(`${year}-${String(month).padStart(2, "0")}`);
     month++;
+
     if (month > 12) {
       year++;
       month = 1;
@@ -192,10 +181,6 @@ function isExpenseActiveInMonth(expense, month) {
   return compareMonth(startMonth, month) <= 0;
 }
 
-/* =========================
-   System Fixed Data
-========================= */
-
 function systemFixedExpenses() {
   const today = todayISO();
 
@@ -260,12 +245,12 @@ function systemFixedExpenses() {
 
 function isSystemFixedExpense(expense) {
   const names = ["房租", "孝敬費（老爸）", "Wifi", "地鐵", "吃飯"];
-  return Boolean(expense.systemLocked || expense.locked || names.includes(String(expense.name || "")));
+  return Boolean(
+    expense.systemLocked ||
+    expense.locked ||
+    names.includes(String(expense.name || ""))
+  );
 }
-
-/* =========================
-   Default State
-========================= */
 
 function defaultState() {
   const today = todayISO();
@@ -347,10 +332,6 @@ function defaultState() {
   };
 }
 
-/* =========================
-   Load / Save / Repair
-========================= */
-
 let state = loadState();
 
 function loadState() {
@@ -409,6 +390,7 @@ function normalizeData() {
   if (!state.profile) state.profile = {};
 
   if (!state.profile.reportMonth) state.profile.reportMonth = thisMonthISO();
+
   if (!state.profile.forecastMonth) {
     state.profile.forecastMonth = nextMonthISO(state.profile.reportMonth);
   }
@@ -452,14 +434,12 @@ function normalizeData() {
     }));
 
   if (!Array.isArray(state.tasks)) state.tasks = [];
-
   state.tasks = state.tasks.map((task) => ({
     ...task,
     createdAt: task.createdAt || todayISO()
   }));
 
   if (!Array.isArray(state.plans)) state.plans = [];
-
   state.plans = state.plans.map((plan) => ({
     ...plan,
     createdAt: plan.createdAt || todayISO()
@@ -511,20 +491,20 @@ function repairSystemData() {
   saveState();
 }
 
-/* =========================
-   Expense Status / Records
-========================= */
-
 function expenseIsArchived(expense) {
   return Boolean(expense.historyAt);
 }
 
 function activeExpensesByType(type) {
-  return state.expenses.filter((expense) => expense.type === type && !expenseIsArchived(expense));
+  return state.expenses.filter((expense) => {
+    return expense.type === type && !expenseIsArchived(expense);
+  });
 }
 
 function archivedExpensesByType(type) {
-  return state.expenses.filter((expense) => expense.type === type && expenseIsArchived(expense));
+  return state.expenses.filter((expense) => {
+    return expense.type === type && expenseIsArchived(expense);
+  });
 }
 
 function getExpenseFlowStatus(expense) {
@@ -573,10 +553,6 @@ function getFixedStatus(expenseId, month) {
   return record ? record.status : "open";
 }
 
-/* =========================
-   Calculations
-========================= */
-
 function fixedExpensesForMonth(month) {
   return state.expenses.filter((expense) => {
     return expense.type === "fixed" &&
@@ -593,20 +569,20 @@ function oneTimeExpensesActive() {
   return activeExpensesByType("oneTime");
 }
 
-function oneTimeOpenList() {
-  return oneTimeExpensesActive().filter((expense) => getExpenseFlowStatus(expense) === "open");
-}
-
-function oneTimeCheckedList() {
-  return oneTimeExpensesActive().filter((expense) => getExpenseFlowStatus(expense) === "checked");
-}
-
 function annualOpenList() {
   return annualExpensesActive().filter((expense) => getExpenseFlowStatus(expense) === "open");
 }
 
 function annualCheckedList() {
   return annualExpensesActive().filter((expense) => getExpenseFlowStatus(expense) === "checked");
+}
+
+function oneTimeOpenList() {
+  return oneTimeExpensesActive().filter((expense) => getExpenseFlowStatus(expense) === "open");
+}
+
+function oneTimeCheckedList() {
+  return oneTimeExpensesActive().filter((expense) => getExpenseFlowStatus(expense) === "checked");
 }
 
 function oneTimeHistoryList() {
@@ -694,7 +670,10 @@ function monthlyPressure(month) {
 }
 
 function suggestedSaving() {
-  return Math.max(0, Number(state.profile.monthlyIncome || 0) - monthlyPressure(selectedReportMonth()));
+  return Math.max(
+    0,
+    Number(state.profile.monthlyIncome || 0) - monthlyPressure(selectedReportMonth())
+  );
 }
 
 function forecastSummary(month) {
@@ -743,10 +722,6 @@ function playerTitle() {
   return "Beginner";
 }
 
-/* =========================
-   Page / Theme / Forms
-========================= */
-
 const pageInfo = {
   expenses: ["開銷首頁", "主頁負責顯示、添加、追蹤與查看開銷歷史。"],
   tasks: ["任務 RPG", "完成任務就獲得 XP，讓大腦有一點獎勵感。"],
@@ -755,8 +730,13 @@ const pageInfo = {
 };
 
 function showPage(page) {
-  document.querySelectorAll(".page").forEach((el) => el.classList.remove("active"));
-  document.querySelectorAll(".menu-btn").forEach((el) => el.classList.remove("active"));
+  document.querySelectorAll(".page").forEach((el) => {
+    el.classList.remove("active");
+  });
+
+  document.querySelectorAll(".menu-btn").forEach((el) => {
+    el.classList.remove("active");
+  });
 
   const pageEl = $(`page-${page}`);
   const btnEl = document.querySelector(`[data-page="${page}"]`);
@@ -991,10 +971,6 @@ document.addEventListener("change", (event) => {
   }
 });
 
-/* =========================
-   App Actions
-========================= */
-
 window.App = {
   deleteExpense(id) {
     const target = state.expenses.find((expense) => expense.id === id);
@@ -1010,6 +986,10 @@ window.App = {
     if (!confirm("確定刪除這筆開銷嗎？")) return;
 
     state.expenses = state.expenses.filter((expense) => expense.id !== id);
+
+    state.fixedMonthlyRecords = state.fixedMonthlyRecords.filter((record) => {
+      return record.expenseId !== id;
+    });
 
     saveState();
     render();
@@ -1153,10 +1133,6 @@ window.App = {
   }
 };
 
-/* =========================
-   Import / Export / Reset
-========================= */
-
 on("exportBtn", "click", () => {
   const blob = new Blob([JSON.stringify(state, null, 2)], {
     type: "application/json"
@@ -1205,10 +1181,6 @@ on("resetBtn", "click", () => {
   repairSystemData();
   render();
 });
-
-/* =========================
-   HTML Components
-========================= */
 
 function empty(text) {
   return `<div class="empty">${text}</div>`;
@@ -1314,6 +1286,7 @@ function fixedExpenseCard(item, month) {
   const checked = status === "checked";
   const done = status === "done";
   const strikeStyle = checked || done ? 'style="text-decoration:line-through;opacity:.75;"' : "";
+  const systemFixed = isSystemFixedExpense(item);
 
   let badge = "";
   let actions = "";
@@ -1331,6 +1304,10 @@ function fixedExpenseCard(item, month) {
     badge = statusBadge("已完成", "green");
     actions = `<button class="mini-btn" onclick="App.undoFixed('${item.id}','${month}')">還原一步</button>`;
   }
+
+  const fixedButton = systemFixed
+    ? `<button class="mini-btn" type="button" disabled>🔒 系統固定</button>`
+    : `<button class="mini-btn red" onclick="App.deleteExpense('${item.id}')">刪除</button>`;
 
   return `
     <article class="list-card ${checked || done ? "checked" : ""}">
@@ -1351,7 +1328,7 @@ function fixedExpenseCard(item, month) {
 
       <div class="list-actions">
         ${actions}
-        <button class="mini-btn" type="button" disabled>🔒 固定</button>
+        ${fixedButton}
       </div>
     </article>
   `;
@@ -1540,10 +1517,6 @@ function countChart(label, value, max, colorClass = "") {
     </div>
   `;
 }
-
-/* =========================
-   Render Sections
-========================= */
 
 function renderFixedSection() {
   const month = selectedReportMonth();
@@ -1753,7 +1726,10 @@ function renderTasks() {
 
   const sorted = [...state.tasks].sort((a, b) => Number(a.done) - Number(b.done));
 
-  setHTML("taskList", sorted.length ? sorted.map(taskCard).join("") : empty("還沒有任務，右上角新增一個。"));
+  setHTML(
+    "taskList",
+    sorted.length ? sorted.map(taskCard).join("") : empty("還沒有任務，右上角新增一個。")
+  );
 }
 
 function renderPlans() {
@@ -1864,10 +1840,6 @@ function renderProfile() {
   `);
 }
 
-/* =========================
-   Main Render / Init
-========================= */
-
 let isRendering = false;
 
 function render() {
@@ -1891,4 +1863,4 @@ repairSystemData();
 saveState();
 render();
 
-console.log("MyTask JS loaded v1004");
+console.log("MyTask JS loaded v1005");
