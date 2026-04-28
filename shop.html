@@ -8,6 +8,8 @@
   <meta name="description" content="科技风虚拟号码商品网店演示版，支持中文英文切换、登录注册、商品展示、管理员上传商品、充值和用户中心。" />
 
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap');
+
     :root {
       --bg: #050b16;
       --bg2: #081427;
@@ -39,7 +41,7 @@
 
     body {
       min-height: 100vh;
-      font-family: Arial, "Microsoft YaHei", sans-serif;
+      font-family: "Rajdhani", "Microsoft YaHei", Arial, sans-serif;
       color: var(--text);
       background:
         radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.12), transparent 22%),
@@ -1089,6 +1091,77 @@
     .product-title small::before {
       content: "NODE ";
       color: rgba(52, 211, 153, 0.7);
+    }
+
+
+
+    /* ===== Black-Tech Font System ===== */
+    .brand h1,
+    .page-title-text h2,
+    .hero-card h3,
+    .panel-title h3,
+    .product-title h4,
+    .modal-head h3,
+    .stat strong,
+    .type-badge,
+    .btn,
+    .side-btn {
+      font-family: "Orbitron", "Rajdhani", "Microsoft YaHei", sans-serif;
+      letter-spacing: 0.6px;
+    }
+
+    .brand p,
+    .page-title-text p,
+    .panel-title p,
+    .side-card,
+    .meta span,
+    .stat span,
+    .product-title small {
+      font-family: "Rajdhani", "Microsoft YaHei", Arial, sans-serif;
+      letter-spacing: 0.35px;
+    }
+
+    .number-box,
+    .secret-box,
+    .order p strong,
+    input,
+    select {
+      font-family: "Share Tech Mono", "Rajdhani", Consolas, "Courier New", monospace;
+    }
+
+    .hero-card h3 {
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      text-shadow:
+        0 0 10px rgba(34, 197, 94, 0.18),
+        0 0 22px rgba(56, 189, 248, 0.10);
+    }
+
+    .brand h1 {
+      text-transform: uppercase;
+      letter-spacing: 1.4px;
+    }
+
+    .side-btn,
+    .btn {
+      text-transform: uppercase;
+    }
+
+    .stat strong {
+      color: #dfffee;
+      text-shadow: 0 0 14px rgba(34, 197, 94, 0.18);
+    }
+
+    .number-box {
+      text-shadow: 0 0 10px rgba(34, 197, 94, 0.28);
+    }
+
+    .secret-box {
+      text-shadow: 0 0 10px rgba(56, 189, 248, 0.22);
+    }
+
+    body {
+      font-size: 16px;
     }
 
   </style>
