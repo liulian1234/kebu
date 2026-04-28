@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Virtual Code Shop | 虚拟商品号码网店</title>
+  <meta name="description" content="虚拟商品号码网店演示版，支持注册、登录、虚拟商品购买、自动生成虚拟号码和订单记录。" />
+
+  <!--
+    重要说明：
+    这是 GitHub Pages 可运行的前端演示版。
+    登录、注册、余额、订单都会保存在浏览器 localStorage。
+    如果你要真实上线卖商品，需要后端数据库、真实支付系统、HTTPS、Cloudflare 防护、服务器验证和订单管理。
+  -->
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: Arial, "Microsoft YaHei", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(59, 130, 246, 0.22), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(250, 204, 21, 0.14), transparent 28%),
+        #020617;
+      color: #e5e7eb;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(1160px, 94%);
+      margin: auto;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: rgba(2, 6, 23, 0.86);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+    }
+
+    .nav {
+      min-height: 72px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 0;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: 900;
+      color: #facc15;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+      color: #cbd5e1;
+      font-size: 14px;
+    }
+
+    .nav-links a:hover {
+      color: #facc15;
+    }
+
+    .user-chip {
+      display: none;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(250, 204, 21, 0.28);
+      color: #fde68a;
+      font-weight: 800;
+    }
+
+    .hero {
+      padding: 76px 0 48px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(250, 204, 21, 0.1);
+      border: 1px solid rgba(250, 204, 21, 0.32);
+      color: #fde68a;
+      font-size: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      color: #fff;
+      font-size: clamp(36px, 6vw, 64px);
+      line-height: 1.08;
+      margin-bottom: 16px;
+    }
+
+    .hero p {
+      color: #cbd5e1;
+      font-size: 18px;
+      margin-bottom: 24px;
+      max-width: 680px;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: none;
+      cursor: pointer;
+      padding: 12px 18px;
+      border-radius: 13px;
+      font-weight: 900;
+      font-size: 15px;
+      transition: 0.18s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: #facc15;
+      color: #111827;
+    }
+
+    .btn-secondary {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      color: #e5e7eb;
+    }
+
+    .btn-green {
+      background: #22c55e;
+      color: #052e16;
+    }
+
+    .btn-blue {
+      background: #38bdf8;
+      color: #082f49;
+    }
+
+    .btn-red {
+      background: #ef4444;
+      color: #fff;
+    }
+
+    .btn-small {
+      padding: 8px 11px;
+      font-size: 13px;
+      border-radius: 10px;
+    }
+
+    .panel,
+    .card {
+      background: rgba(15, 23, 42, 0.86);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: 0 22px 60px rgba(0, 0, 0, 0.22);
+    }
+
+    .panel {
+      animation: fadeUp 0.8s ease both;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(22px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .login-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .tab {
+      padding: 11px;
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      background: rgba(2, 6, 23, 0.55);
+      color: #cbd5e1;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .tab.active {
+      background: #facc15;
+      color: #111827;
+    }
+
+    label {
+      color: #e5e7eb;
+      font-size: 14px;
+      font-weight: 800;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      background: #020617;
+      color: #fff;
+      outline: none;
+      font-size: 15px;
+      margin-bottom: 12px;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: #facc15;
+    }
+
+    .hint {
+      color: #94a3b8;
+      font-size: 13px;
+      margin-top: -6px;
+      margin-bottom: 12px;
+    }
+
+    section {
+      padding: 46px 0;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .section-title h2 {
+      color: #fff;
+      font-size: clamp(26px, 4vw, 42px);
+      margin-bottom: 8px;
+    }
+
+    .section-title p {
+      color: #94a3b8;
+      max-width: 780px;
+      margin: auto;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+
+    .product-card {
+      position: relative;
+      overflow: hidden;
+      transition: 0.18s ease;
+    }
+
+    .product-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(250, 204, 21, 0.4);
+      box-shadow: 0 20px 55px rgba(0, 0, 0, 0.28);
+    }
+
+    .product-icon {
+      font-size: 42px;
+      margin-bottom: 10px;
+    }
+
+    .product-card h3 {
+      color: #fff;
+      margin-bottom: 8px;
+      font-size: 22px;
+    }
+
+    .product-card p {
+      color: #cbd5e1;
+      font-size: 15px;
+      margin-bottom: 12px;
+    }
+
+    .price {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(250, 204, 21, 0.1);
+      border: 1px solid rgba(250, 204, 21, 0.28);
+      color: #fde68a;
+      font-weight: 900;
+      margin-bottom: 14px;
+    }
+
+    .stock {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.1);
+      color: #bbf7d0;
+      border: 1px solid rgba(34, 197, 94, 0.25);
+      font-size: 13px;
+      margin-left: 6px;
+    }
+
+    .wallet {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .stat {
+      background: rgba(2, 6, 23, 0.55);
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .stat span {
+      color: #94a3b8;
+      display: block;
+      font-size: 13px;
+    }
+
+    .stat strong {
+      color: #fff;
+      display: block;
+      font-size: 26px;
+      margin-top: 4px;
+    }
+
+    .notice {
+      background: rgba(250, 204, 21, 0.1);
+      border: 1px solid rgba(250, 204, 21, 0.32);
+      color: #fde68a;
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+
+    .danger {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(248, 113, 113, 0.32);
+      color: #fecaca;
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+
+    .order-list {
+      display: grid;
+      gap: 12px;
+      max-height: 420px;
+      overflow: auto;
+    }
+
+    .order {
+      background: rgba(2, 6, 23, 0.55);
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      border-radius: 16px;
+      padding: 14px;
+      animation: orderIn 0.35s ease both;
+    }
+
+    @keyframes orderIn {
+      from {
+        opacity: 0;
+        transform: translateX(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .order h4 {
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .order p {
+      color: #cbd5e1;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    .code-box {
+      background: #020617;
+      border: 1px dashed rgba(250, 204, 21, 0.4);
+      color: #fde68a;
+      border-radius: 12px;
+      padding: 10px;
+      font-family: Consolas, monospace;
+      word-break: break-all;
+      margin-top: 8px;
+    }
+
+    .security-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .security-item {
+      background: rgba(2, 6, 23, 0.55);
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      border-radius: 16px;
+      padding: 14px;
+      color: #dbeafe;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 26px;
+      z-index: 100;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(15, 23, 42, 0.96);
+      color: #fff;
+      border: 1px solid rgba(250, 204, 21, 0.35);
+      border-radius: 999px;
+      padding: 12px 18px;
+      opacity: 0;
+      pointer-events: none;
+      box-shadow: 0 16px 45px rgba(0,0,0,0.35);
+    }
+
+    .toast.show {
+      animation: toastIn 2.2s ease both;
+    }
+
+    @keyframes toastIn {
+      0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+      }
+      15%, 80% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+      100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+      }
+    }
+
+    .copy-btn {
+      margin-top: 8px;
+      width: 100%;
+    }
+
+    footer {
+      padding: 28px 0;
+      border-top: 1px solid rgba(148, 163, 184, 0.18);
+      color: #94a3b8;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .hero-grid,
+      .grid-3,
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .wallet {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .nav {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .wallet {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="toast" class="toast"></div>
+
+  <header>
+    <div class="container nav">
+      <a href="#" class="logo">🛒 Virtual Code Shop</a>
+      <nav class="nav-links">
+        <a href="#shop">商品</a>
+        <a href="#wallet">钱包</a>
+        <a href="#orders">订单</a>
+        <a href="#security">安全</a>
+        <span id="userChip" class="user-chip">Guest</span>
+        <button id="logoutBtn" class="btn btn-red btn-small" style="display:none;" onclick="logout()">退出</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <span class="badge">虚拟商品号码 · 自动出码 · 网店演示版</span>
+          <h1>虚拟商品号码网店</h1>
+          <p>
+            这个网站可以模拟正常网店流程：用户注册、登录、选择虚拟商品、使用虚拟余额购买，然后系统自动生成虚拟商品号码。
+            适合 GitHub Pages 前端演示。
+          </p>
+          <div class="buttons">
+            <a class="btn btn-primary" href="#shop">开始购买</a>
+            <a class="btn btn-secondary" href="#security">查看安全说明</a>
+          </div>
+        </div>
+
+        <div class="panel" id="authPanel">
+          <div class="login-tabs">
+            <button class="tab active" id="loginTab" onclick="switchAuth('login')">登录</button>
+            <button class="tab" id="registerTab" onclick="switchAuth('register')">注册</button>
+          </div>
+
+          <div id="loginBox">
+            <label>用户名</label>
+            <input id="loginUsername" type="text" placeholder="输入用户名" autocomplete="username" />
+
+            <label>密码</label>
+            <input id="loginPassword" type="password" placeholder="输入密码" autocomplete="current-password" />
+
+            <button class="btn btn-primary" style="width:100%;" onclick="login()">登录</button>
+            <p class="hint" style="margin-top:12px;">演示账号可自己注册。资料只保存在当前浏览器。</p>
+          </div>
+
+          <div id="registerBox" style="display:none;">
+            <label>用户名</label>
+            <input id="registerUsername" type="text" placeholder="至少 3 个字" autocomplete="username" />
+
+            <label>密码</label>
+            <input id="registerPassword" type="password" placeholder="至少 6 个字" autocomplete="new-password" />
+
+            <label>确认密码</label>
+            <input id="registerPassword2" type="password" placeholder="再次输入密码" autocomplete="new-password" />
+
+            <button class="btn btn-green" style="width:100%;" onclick="register()">注册账户</button>
+            <p class="hint" style="margin-top:12px;">注册后会获得 1000 虚拟余额。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="wallet">
+      <div class="container">
+        <div class="section-title">
+          <h2>我的账户</h2>
+          <p>这是演示钱包，不连接真实支付。真实网店不能用前端 localStorage 管钱。</p>
+        </div>
+
+        <div class="wallet">
+          <div class="stat">
+            <span>当前用户</span>
+            <strong id="currentUserDisplay">未登录</strong>
+          </div>
+          <div class="stat">
+            <span>虚拟余额</span>
+            <strong id="balanceDisplay">0</strong>
+          </div>
+          <div class="stat">
+            <span>订单数量</span>
+            <strong id="orderCountDisplay">0</strong>
+          </div>
+          <div class="stat">
+            <span>账户状态</span>
+            <strong id="accountStatusDisplay">游客</strong>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:18px;">
+          <h3 style="color:#fff;margin-bottom:8px;">模拟充值</h3>
+          <p style="color:#cbd5e1;margin-bottom:12px;">只用于测试网店流程，不接真实支付。</p>
+          <div class="buttons">
+            <button class="btn btn-blue" onclick="addBalance(500)">+500 虚拟余额</button>
+            <button class="btn btn-blue" onclick="addBalance(1000)">+1000 虚拟余额</button>
+            <button class="btn btn-blue" onclick="addBalance(5000)">+5000 虚拟余额</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="shop">
+      <div class="container">
+        <div class="section-title">
+          <h2>虚拟商品</h2>
+          <p>购买后会自动生成一串虚拟商品号码，显示在订单记录里。</p>
+        </div>
+
+        <div class="notice">
+          <strong>说明：</strong>这里的商品号码是演示随机生成，不代表真实充值卡、真实兑换码或真实平台序列号。
+        </div>
+
+        <div class="grid-3" id="productGrid"></div>
+      </div>
+    </section>
+
+    <section id="orders">
+      <div class="container">
+        <div class="section-title">
+          <h2>我的订单</h2>
+          <p>购买成功后，虚拟商品号码会显示在这里。</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3 style="color:#fff;margin-bottom:12px;">订单记录</h3>
+            <div id="orderList" class="order-list"></div>
+          </div>
+
+          <div class="card">
+            <h3 style="color:#fff;margin-bottom:12px;">订单管理</h3>
+            <p style="color:#cbd5e1;margin-bottom:14px;">
+              你可以导出订单作为本机备份，或者清空本机订单资料。
+            </p>
+            <div class="buttons">
+              <button class="btn btn-secondary" onclick="exportOrders()">导出订单 JSON</button>
+              <button class="btn btn-red" onclick="clearOrders()">清空订单</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="security">
+      <div class="container">
+        <div class="section-title">
+          <h2>安全与防护说明</h2>
+          <p>前端 HTML 只能做基础提示，真正防 DDoS、防 hack 必须靠服务器和 Cloudflare 等服务。</p>
+        </div>
+
+        <div class="danger">
+          <strong>重要：</strong>这个文件可以放 GitHub Pages 运行，但它只是前端演示。真正商业网店不要把密码、余额、商品号码、订单验证全部放在前端。
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3 style="color:#fff;margin-bottom:12px;">这个页面已经做的基础防护</h3>
+            <div class="security-list">
+              <div class="security-item">✅ 输入内容会做简单过滤，避免直接插入危险 HTML。</div>
+              <div class="security-item">✅ 登录失败有简单冷却，减少本机暴力尝试。</div>
+              <div class="security-item">✅ 订单号码不会写死在页面商品区，购买时才随机生成。</div>
+              <div class="security-item">✅ 重要页面有提示：这是虚拟演示，不接真实支付。</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 style="color:#fff;margin-bottom:12px;">真正上线建议</h3>
+            <div class="security-list">
+              <div class="security-item">🛡️ 使用 Cloudflare：开启 DDoS Protection、WAF、Bot Fight Mode。</div>
+              <div class="security-item">🔐 登录必须放后端：密码要 bcrypt/argon2 加密，不能存在 localStorage。</div>
+              <div class="security-item">🧾 商品号码必须放数据库：购买成功后由后端发码，前端不能提前知道全部号码。</div>
+              <div class="security-item">🚫 后端做限流：例如每个 IP 每分钟最多请求多少次。</div>
+              <div class="security-item">📦 定期备份数据库，开启 2FA，保护 GitHub 和 Cloudflare 账户。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      © 2026 Virtual Code Shop · 虚拟商品号码网店演示版 · 前端 Demo，不接真实支付
+    </div>
+  </footer>
+
+  <script>
+    const USERS_KEY = "vshop_users";
+    const SESSION_KEY = "vshop_session";
+
+    const products = [
+      {
+        id: "vip30",
+        icon: "👑",
+        name: "VIP 30天虚拟会员",
+        desc: "适合演示会员类虚拟商品购买流程。",
+        price: 300,
+        prefix: "VIP30"
+      },
+      {
+        id: "coin1000",
+        icon: "🪙",
+        name: "1000 虚拟金币包",
+        desc: "适合游戏网站、积分系统和测试商城。",
+        price: 500,
+        prefix: "COIN"
+      },
+      {
+        id: "skin",
+        icon: "🎨",
+        name: "限定皮肤兑换码",
+        desc: "购买后生成一个虚拟皮肤号码。",
+        price: 800,
+        prefix: "SKIN"
+      },
+      {
+        id: "gift",
+        icon: "🎁",
+        name: "随机礼包号码",
+        desc: "适合活动奖励、抽奖和测试订单。",
+        price: 650,
+        prefix: "GIFT"
+      },
+      {
+        id: "course",
+        icon: "📘",
+        name: "课程访问号码",
+        desc: "模拟线上课程访问码或下载码。",
+        price: 1200,
+        prefix: "COURSE"
+      },
+      {
+        id: "premium",
+        icon: "💎",
+        name: "Premium 虚拟权限",
+        desc: "适合高级账户、功能解锁等虚拟商品。",
+        price: 2000,
+        prefix: "PREM"
+      }
+    ];
+
+    function getUsers() {
+      return JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
+    }
+
+    function saveUsers(users) {
+      localStorage.setItem(USERS_KEY, JSON.stringify(users));
+    }
+
+    function getSession() {
+      return localStorage.getItem(SESSION_KEY) || "";
+    }
+
+    function setSession(username) {
+      localStorage.setItem(SESSION_KEY, username);
+    }
+
+    function getCurrentUser() {
+      const username = getSession();
+      if (!username) return null;
+      const users = getUsers();
+      return users[username] ? { username, ...users[username] } : null;
+    }
+
+    function updateCurrentUser(data) {
+      const username = getSession();
+      if (!username) return;
+      const users = getUsers();
+      users[username] = { ...users[username], ...data };
+      saveUsers(users);
+    }
+
+    function safeText(text) {
+      return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    async function simpleHash(text) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(text);
+      const buffer = await crypto.subtle.digest("SHA-256", data);
+      return Array.from(new Uint8Array(buffer))
+        .map(byte => byte.toString(16).padStart(2, "0"))
+        .join("");
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.remove("show");
+      void toast.offsetWidth;
+      toast.classList.add("show");
+    }
+
+    function switchAuth(type) {
+      const isLogin = type === "login";
+      document.getElementById("loginBox").style.display = isLogin ? "block" : "none";
+      document.getElementById("registerBox").style.display = isLogin ? "none" : "block";
+      document.getElementById("loginTab").classList.toggle("active", isLogin);
+      document.getElementById("registerTab").classList.toggle("active", !isLogin);
+    }
+
+    function canTryLogin() {
+      const lockUntil = Number(localStorage.getItem("vshop_login_lock_until") || "0");
+      if (Date.now() < lockUntil) {
+        const seconds = Math.ceil((lockUntil - Date.now()) / 1000);
+        showToast(`登录尝试太频繁，请 ${seconds} 秒后再试`);
+        return false;
+      }
+      return true;
+    }
+
+    function recordFailedLogin() {
+      const count = Number(localStorage.getItem("vshop_failed_login") || "0") + 1;
+      localStorage.setItem("vshop_failed_login", String(count));
+      if (count >= 5) {
+        localStorage.setItem("vshop_login_lock_until", String(Date.now() + 30000));
+        localStorage.setItem("vshop_failed_login", "0");
+      }
+    }
+
+    function clearFailedLogin() {
+      localStorage.removeItem("vshop_failed_login");
+      localStorage.removeItem("vshop_login_lock_until");
+    }
+
+    async function register() {
+      const username = document.getElementById("registerUsername").value.trim();
+      const password = document.getElementById("registerPassword").value;
+      const password2 = document.getElementById("registerPassword2").value;
+
+      if (username.length < 3) {
+        showToast("用户名至少 3 个字");
+        return;
+      }
+
+      if (!/^[a-zA-Z0-9_\u4e00-\u9fa5]+$/.test(username)) {
+        showToast("用户名只能用文字、数字或下划线");
+        return;
+      }
+
+      if (password.length < 6) {
+        showToast("密码至少 6 个字");
+        return;
+      }
+
+      if (password !== password2) {
+        showToast("两次密码不一样");
+        return;
+      }
+
+      const users = getUsers();
+      if (users[username]) {
+        showToast("这个用户名已经存在");
+        return;
+      }
+
+      const passHash = await simpleHash(password + "_demo_salt_" + username);
+
+      users[username] = {
+        passHash,
+        balance: 1000,
+        orders: [],
+        createdAt: new Date().toLocaleString()
+      };
+
+      saveUsers(users);
+      setSession(username);
+      showToast("注册成功，已自动登录");
+      render();
+      location.hash = "#shop";
+    }
+
+    async function login() {
+      if (!canTryLogin()) return;
+
+      const username = document.getElementById("loginUsername").value.trim();
+      const password = document.getElementById("loginPassword").value;
+      const users = getUsers();
+
+      if (!users[username]) {
+        recordFailedLogin();
+        showToast("用户名或密码错误");
+        return;
+      }
+
+      const passHash = await simpleHash(password + "_demo_salt_" + username);
+      if (users[username].passHash !== passHash) {
+        recordFailedLogin();
+        showToast("用户名或密码错误");
+        return;
+      }
+
+      clearFailedLogin();
+      setSession(username);
+      showToast("登录成功");
+      render();
+      location.hash = "#shop";
+    }
+
+    function logout() {
+      localStorage.removeItem(SESSION_KEY);
+      showToast("已退出登录");
+      render();
+    }
+
+    function requireLogin() {
+      const user = getCurrentUser();
+      if (!user) {
+        showToast("请先登录或注册");
+        location.hash = "#";
+        return null;
+      }
+      return user;
+    }
+
+    function addBalance(amount) {
+      const user = requireLogin();
+      if (!user) return;
+
+      updateCurrentUser({ balance: user.balance + amount });
+      showToast(`模拟充值成功：+${amount}`);
+      render();
+    }
+
+    function generateCode(prefix) {
+      const part1 = Math.random().toString(36).slice(2, 6).toUpperCase();
+      const part2 = Math.random().toString(36).slice(2, 6).toUpperCase();
+      const part3 = Math.random().toString(36).slice(2, 6).toUpperCase();
+      const num = Math.floor(1000 + Math.random() * 9000);
+      return `${prefix}-${part1}-${part2}-${part3}-${num}`;
+    }
+
+    function buyProduct(productId) {
+      const user = requireLogin();
+      if (!user) return;
+
+      const product = products.find(p => p.id === productId);
+      if (!product) {
+        showToast("商品不存在");
+        return;
+      }
+
+      if (user.balance < product.price) {
+        showToast("余额不足，请先模拟充值");
+        return;
+      }
+
+      const order = {
+        id: "ORD-" + Date.now(),
+        productName: product.name,
+        price: product.price,
+        code: generateCode(product.prefix),
+        createdAt: new Date().toLocaleString(),
+        status: "已发码"
+      };
+
+      const newOrders = [order, ...(user.orders || [])];
+      updateCurrentUser({
+        balance: user.balance - product.price,
+        orders: newOrders
+      });
+
+      showToast("购买成功，虚拟号码已生成");
+      render();
+      location.hash = "#orders";
+    }
+
+    function copyCode(code) {
+      navigator.clipboard.writeText(code).then(() => {
+        showToast("号码已复制");
+      }).catch(() => {
+        showToast("复制失败，请手动复制");
+      });
+    }
+
+    function clearOrders() {
+      const user = requireLogin();
+      if (!user) return;
+
+      if (!confirm("确定要清空当前账户的订单吗？")) return;
+      updateCurrentUser({ orders: [] });
+      showToast("订单已清空");
+      render();
+    }
+
+    function exportOrders() {
+      const user = requireLogin();
+      if (!user) return;
+
+      const data = {
+        username: user.username,
+        exportedAt: new Date().toLocaleString(),
+        orders: user.orders || []
+      };
+
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `orders-${user.username}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("订单已导出");
+    }
+
+    function renderProducts() {
+      const grid = document.getElementById("productGrid");
+      grid.innerHTML = products.map(product => `
+        <article class="card product-card">
+          <div class="product-icon">${product.icon}</div>
+          <h3>${safeText(product.name)}</h3>
+          <p>${safeText(product.desc)}</p>
+          <div>
+            <span class="price">${product.price} 虚拟余额</span>
+            <span class="stock">自动发码</span>
+          </div>
+          <button class="btn btn-primary" style="width:100%;" onclick="buyProduct('${product.id}')">
+            购买并出号码
+          </button>
+        </article>
+      `).join("");
+    }
+
+    function renderOrders(user) {
+      const orderList = document.getElementById("orderList");
+
+      if (!user || !user.orders || user.orders.length === 0) {
+        orderList.innerHTML = `
+          <div class="order">
+            <h4>暂无订单</h4>
+            <p>购买虚拟商品后，号码会显示在这里。</p>
+          </div>
+        `;
+        return;
+      }
+
+      orderList.innerHTML = user.orders.map(order => `
+        <div class="order">
+          <h4>${safeText(order.productName)}</h4>
+          <p>订单号：${safeText(order.id)}</p>
+          <p>价格：${safeText(order.price)} 虚拟余额</p>
+          <p>时间：${safeText(order.createdAt)}</p>
+          <p>状态：${safeText(order.status)}</p>
+          <div class="code-box">${safeText(order.code)}</div>
+          <button class="btn btn-secondary copy-btn" onclick="copyCode('${safeText(order.code)}')">复制号码</button>
+        </div>
+      `).join("");
+    }
+
+    function render() {
+      const user = getCurrentUser();
+
+      document.getElementById("authPanel").style.display = user ? "none" : "block";
+      document.getElementById("logoutBtn").style.display = user ? "inline-flex" : "none";
+      document.getElementById("userChip").style.display = user ? "inline-block" : "none";
+      document.getElementById("userChip").textContent = user ? user.username : "";
+
+      document.getElementById("currentUserDisplay").textContent = user ? user.username : "未登录";
+      document.getElementById("balanceDisplay").textContent = user ? user.balance : "0";
+      document.getElementById("orderCountDisplay").textContent = user && user.orders ? user.orders.length : "0";
+      document.getElementById("accountStatusDisplay").textContent = user ? "已登录" : "游客";
+
+      renderOrders(user);
+    }
+
+    renderProducts();
+    render();
+  </script>
+</body>
+</html>
