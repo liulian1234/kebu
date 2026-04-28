@@ -53,7 +53,7 @@
     <main class="main">
       <header class="topbar">
         <div class="title-row">
-          <button class="icon-btn mobile-only" id="mobileMenuBtn">☰</button>
+          <button class="icon-btn mobile-only" id="mobileMenuBtn" type="button">☰</button>
           <div>
             <h1 id="pageTitle">開銷首頁</h1>
             <p id="pageDesc">主頁只負責顯示與添加開銷，乾淨、直接、好記錄。</p>
@@ -61,7 +61,8 @@
         </div>
 
         <div class="top-actions">
-          <button class="btn ghost" id="exportBtn">匯出</button>
+          <button class="btn ghost" id="themeToggle" type="button">🌙 黑暗</button>
+          <button class="btn ghost" id="exportBtn" type="button">匯出</button>
           <label class="btn ghost" for="importFile">匯入</label>
           <input id="importFile" type="file" accept="application/json" hidden />
         </div>
@@ -203,7 +204,7 @@
               <h3>任務列表</h3>
               <p>完成任務後按「完成 +XP」，會自動增加分數。</p>
             </div>
-            <button class="btn primary" id="openTaskFormBtn">＋ 增加任務</button>
+            <button class="btn primary" id="openTaskFormBtn" type="button">＋ 增加任務</button>
           </div>
 
           <form class="smart-form task-form hidden" id="taskForm">
@@ -349,7 +350,7 @@
               <h3>我的資料</h3>
               <p>填寫收入和基本資料後，統計才會更準。</p>
             </div>
-            <button class="btn danger" id="resetBtn">重置全部資料</button>
+            <button class="btn danger" id="resetBtn" type="button">重置全部資料</button>
           </div>
 
           <form class="profile-form" id="profileForm">
@@ -410,6 +411,6 @@
     </main>
   </div>
 
-  <script src="js/myTask.js"></script>
+  <script src="./js/myTask.js?v=40" defer></script>
 </body>
 </html>
