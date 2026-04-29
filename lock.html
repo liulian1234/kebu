@@ -784,14 +784,14 @@
 
     .record-card {
       display: grid;
-      grid-template-columns: 190px minmax(0, 1fr);
-      gap: 28px;
+      grid-template-columns: 240px minmax(0, 1fr);
+      gap: 32px;
       align-items: start;
-      padding: 26px;
-      border-radius: 20px;
-      background: linear-gradient(180deg, rgba(31, 38, 49, 0.96), rgba(15, 19, 25, 0.96));
+      padding: 30px;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(29, 36, 47, 0.98), rgba(13, 17, 23, 0.98));
       border: 1px solid rgba(224, 184, 90, 0.18);
-      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.30);
+      box-shadow: 0 20px 64px rgba(0, 0, 0, 0.32);
     }
 
     .record-card:hover {
@@ -801,13 +801,14 @@
     }
 
     .record-media {
-      position: sticky;
-      top: 130px;
+      display: grid;
+      gap: 12px;
+      align-content: start;
     }
 
     .record-card-img {
-      width: 190px;
-      height: 190px;
+      width: 240px;
+      height: 240px;
       border-radius: 18px;
       object-fit: cover;
       background: #07090c;
@@ -816,8 +817,8 @@
     }
 
     .no-photo-box {
-      width: 190px;
-      height: 190px;
+      width: 240px;
+      height: 240px;
       border-radius: 18px;
       display: grid;
       place-items: center;
@@ -825,36 +826,40 @@
       color: #b8c1cc;
       background: #080b0f;
       border: 1px dashed rgba(224, 184, 90, 0.30);
-      font-size: 18px;
+      font-size: 22px;
       font-weight: 900;
+    }
+
+    .record-thumb-note {
+      font-size: 14px;
+      color: var(--muted);
+      text-align: center;
     }
 
     .record-content {
       min-width: 0;
+      display: grid;
+      gap: 16px;
     }
 
     .record-head {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      padding-bottom: 16px;
-      margin-bottom: 14px;
+      display: grid;
+      gap: 10px;
+      padding-bottom: 18px;
       border-bottom: 1px solid rgba(148, 163, 184, 0.14);
     }
 
     .record-title {
       display: grid;
-      gap: 7px;
+      gap: 10px;
       min-width: 0;
     }
 
     .record-title h3 {
-      font-size: clamp(26px, 2.5vw, 36px);
-      line-height: 1.16;
+      font-size: clamp(30px, 2.8vw, 40px);
+      line-height: 1.14;
       color: #fff;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.6px;
     }
 
     .record-subline {
@@ -864,17 +869,32 @@
       align-items: center;
     }
 
+    .record-summary {
+      color: #dbe4ef;
+      font-size: 18px;
+      line-height: 1.7;
+      background: rgba(224, 184, 90, 0.07);
+      border: 1px solid rgba(224, 184, 90, 0.14);
+      border-radius: 16px;
+      padding: 14px 16px;
+    }
+
     .field-list {
       display: grid;
-      gap: 11px;
+      gap: 0;
+      background: rgba(8, 11, 15, 0.34);
+      border: 1px solid rgba(148, 163, 184, 0.10);
+      border-radius: 18px;
+      overflow: hidden;
     }
 
     .field-row {
       display: grid;
-      grid-template-columns: 190px minmax(0, 1fr);
-      gap: 16px;
-      padding: 12px 0;
+      grid-template-columns: 210px minmax(0, 1fr);
+      gap: 18px;
+      padding: 16px 18px;
       border-bottom: 1px solid rgba(148, 163, 184, 0.10);
+      align-items: start;
     }
 
     .field-row:last-child {
@@ -883,15 +903,15 @@
 
     .field-label {
       color: #ffe3a1;
-      font-size: 18px;
+      font-size: 19px;
       font-weight: 950;
       letter-spacing: 0.2px;
     }
 
     .field-value {
       color: #e8edf5;
-      font-size: 20px;
-      line-height: 1.7;
+      font-size: 19px;
+      line-height: 1.8;
       overflow-wrap: anywhere;
       white-space: pre-wrap;
     }
@@ -904,7 +924,7 @@
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      margin-top: 18px;
+      margin-top: 2px;
       padding-top: 18px;
       border-top: 1px solid rgba(148, 163, 184, 0.14);
     }
@@ -954,9 +974,19 @@
     @media (max-width: 900px) {
       .record-card {
         grid-template-columns: 1fr;
+        padding: 20px;
       }
       .record-media {
-        position: static;
+        justify-items: center;
+      }
+      .record-card-img,
+      .no-photo-box {
+        width: min(100%, 280px);
+        height: min(100vw - 120px, 280px);
+      }
+      .field-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
       }
       .record-card-img,
       .no-photo-box {
@@ -1720,48 +1750,38 @@
         ? `<img class="record-card-img" src="${item.photo}" alt="${escapeHtml(item.name || '圖片')}">`
         : `<div class="no-photo-box">無圖片</div>`;
 
-      const typeSupplier = [
-        item.type ? `<span class="tag">${escapeHtml(item.type)}</span>` : "",
-        item.supplier ? `<span class="tag tag-muted">供應商：${escapeHtml(item.supplier)}</span>` : ""
-      ].filter(Boolean).join(" ") || `<span class="field-value empty">未填寫</span>`;
+      const typeSupplierText = [
+        item.type || "",
+        item.supplier ? `供應商：${item.supplier}` : ""
+      ].filter(Boolean).join("｜") || "未填寫";
 
       const itemLink = item.itemLink
-        ? `<a class="link-pill" href="${safeUrl(item.itemLink)}" target="_blank" rel="noopener">🔗 物品鏈接</a>`
+        ? `<a class="link-pill" href="${safeUrl(item.itemLink)}" target="_blank" rel="noopener">🔗 查看物品鏈接</a>`
         : `<span class="field-value empty">未填寫</span>`;
 
-      const toolBlock = (item.openTools || item.toolLink || item.toolPhoto)
-        ? `<div class="tool-mini">
-            ${item.toolPhoto ? `<img src="${item.toolPhoto}" alt="工具圖片">` : `<div class="no-photo-box" style="width:82px;height:62px;font-size:13px;border-radius:11px;">工具圖</div>`}
-            <div>
-              ${item.openTools ? `<p>${escapeHtml(compact(item.openTools, 160))}</p>` : `<p class="muted">未填寫工具說明</p>`}
-              ${item.toolLink ? `<a class="link-pill" style="margin-top:8px;" href="${safeUrl(item.toolLink)}" target="_blank" rel="noopener">🛠️ 工具鏈接</a>` : ""}
-            </div>
-          </div>`
-        : "";
+      const introSummary = item.intro || item.buying || item.scene || "這筆資料尚未填寫介紹。";
 
       return `
         <article class="record-card">
-          <div class="record-media">${imageHtml}</div>
+          <div class="record-media">
+            ${imageHtml}
+            <div class="record-thumb-note">圖片</div>
+          </div>
           <div class="record-content">
             <div class="record-head">
               <div class="record-title">
                 <h3>${escapeHtml(item.name || "未命名")}</h3>
                 <div class="record-subline">
-                  ${renderStars(item.rating)}
+                  ${item.rating ? renderStars(item.rating) : `<span class="tag tag-muted">未評估</span>`}
                   ${item.createdAt ? `<span class="tag tag-muted">${escapeHtml(item.createdAt)}</span>` : ""}
                 </div>
               </div>
-              <div class="action-row">
-                <button class="btn btn-secondary btn-small" type="button" onclick="viewItem('${item.id}')">詳情</button>
-                <button class="btn btn-secondary btn-small" type="button" onclick="openEditModal('${item.id}')">編輯</button>
-                <button class="btn btn-danger btn-small" type="button" onclick="deleteItem('${item.id}')">刪除</button>
-              </div>
+              <div class="record-summary">${escapeHtml(compact(introSummary, 180))}</div>
             </div>
 
             <div class="field-list">
-              ${infoRow("圖片", item.photo ? "已上傳 / 已預載示意圖" : "未填寫")}
               ${infoRow("名字", item.name || "未填寫")}
-              ${rawInfoRow("類型 / 供應商", typeSupplier)}
+              ${infoRow("類型（供應商）", typeSupplierText)}
               ${infoRow("大約價格", item.price || "未填寫")}
               ${infoRow("常見場景 / 地點", item.scene || "未填寫")}
               ${infoRow("選購重點", item.buying || "未填寫")}
@@ -1770,7 +1790,12 @@
               ${rawInfoRow("安全性 1 至 5 星", item.rating ? renderStars(item.rating, false) : `<span class="field-value empty">未評估</span>`)}
               ${rawInfoRow("物品鏈接", itemLink)}
               ${infoRow("介紹", item.intro || "未填寫")}
-              ${toolBlock ? rawInfoRow("合法工具資料", toolBlock) : ""}
+            </div>
+
+            <div class="record-actions">
+              <button class="btn btn-secondary btn-small" type="button" onclick="viewItem('${item.id}')">詳情</button>
+              <button class="btn btn-secondary btn-small" type="button" onclick="openEditModal('${item.id}')">編輯</button>
+              <button class="btn btn-danger btn-small" type="button" onclick="deleteItem('${item.id}')">刪除</button>
             </div>
           </div>
         </article>
