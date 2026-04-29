@@ -772,7 +772,204 @@
     }
 
 
-    .mobile-menu-btn { display: none; }
+
+
+    /* ================================
+       大卡片閱讀版：圖片左邊，資料右邊垂直排列
+       ================================ */
+    .record-list {
+      display: grid;
+      gap: 24px;
+    }
+
+    .record-card {
+      display: grid;
+      grid-template-columns: 190px minmax(0, 1fr);
+      gap: 28px;
+      align-items: start;
+      padding: 26px;
+      border-radius: 20px;
+      background: linear-gradient(180deg, rgba(31, 38, 49, 0.96), rgba(15, 19, 25, 0.96));
+      border: 1px solid rgba(224, 184, 90, 0.18);
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.30);
+    }
+
+    .record-card:hover {
+      border-color: rgba(224, 184, 90, 0.36);
+      transform: translateY(-2px);
+      transition: 0.16s ease;
+    }
+
+    .record-media {
+      position: sticky;
+      top: 130px;
+    }
+
+    .record-card-img {
+      width: 190px;
+      height: 190px;
+      border-radius: 18px;
+      object-fit: cover;
+      background: #07090c;
+      border: 1px solid rgba(224, 184, 90, 0.22);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03), 0 12px 32px rgba(0,0,0,0.22);
+    }
+
+    .no-photo-box {
+      width: 190px;
+      height: 190px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: #b8c1cc;
+      background: #080b0f;
+      border: 1px dashed rgba(224, 184, 90, 0.30);
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .record-content {
+      min-width: 0;
+    }
+
+    .record-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding-bottom: 16px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+    }
+
+    .record-title {
+      display: grid;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .record-title h3 {
+      font-size: clamp(26px, 2.5vw, 36px);
+      line-height: 1.16;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+
+    .record-subline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .field-list {
+      display: grid;
+      gap: 11px;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 190px minmax(0, 1fr);
+      gap: 16px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.10);
+    }
+
+    .field-row:last-child {
+      border-bottom: none;
+    }
+
+    .field-label {
+      color: #ffe3a1;
+      font-size: 18px;
+      font-weight: 950;
+      letter-spacing: 0.2px;
+    }
+
+    .field-value {
+      color: #e8edf5;
+      font-size: 20px;
+      line-height: 1.7;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+
+    .field-value.empty {
+      color: #7f8a99;
+    }
+
+    .record-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(148, 163, 184, 0.14);
+    }
+
+    .link-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(96, 165, 250, 0.10);
+      border: 1px solid rgba(96, 165, 250, 0.28);
+      color: #bfdbfe;
+      font-weight: 900;
+      text-decoration: none;
+    }
+
+    .tool-mini {
+      display: grid;
+      grid-template-columns: 82px minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(11, 13, 16, 0.42);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      margin-top: 8px;
+    }
+
+    .tool-mini img {
+      width: 82px;
+      height: 62px;
+      border-radius: 11px;
+      object-fit: cover;
+      background: #07090c;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+    }
+
+    .tool-mini p {
+      color: #d8dee8;
+      font-size: 17px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    @media (max-width: 900px) {
+      .record-card {
+        grid-template-columns: 1fr;
+      }
+      .record-media {
+        position: static;
+      }
+      .record-card-img,
+      .no-photo-box {
+        width: 100%;
+        height: 230px;
+      }
+      .field-row {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+    }
+
+        .mobile-menu-btn { display: none; }
 
     @media (max-width: 1100px) {
       .app { grid-template-columns: 1fr; }
@@ -917,30 +1114,7 @@
             <button class="btn btn-secondary" type="button" onclick="exportCurrentCSV()">匯出 CSV</button>
           </div>
 
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>圖片</th>
-                  <th>名字</th>
-                  <th>類型 / 供應商</th>
-                  <th>大約價格</th>
-                  <th>常見場景 / 地點</th>
-                  <th>選購重點</th>
-                  <th>優點</th>
-                  <th>缺點</th>
-                  <th>安全性</th>
-                  <th>物品鏈接</th>
-                  <th>介紹</th>
-                  <th>合法開啟 / 維修 / 保養工具</th>
-                  <th>工具鏈接</th>
-                  <th>工具圖片</th>
-                  <th>操作</th>
-                </tr>
-              </thead>
-              <tbody id="recordBody"></tbody>
-            </table>
-          </div>
+          <div id="recordCards" class="record-list"></div>
 
           <div id="emptyState" class="empty-state" style="display:none;">
             <div class="big">📁</div>
@@ -1528,41 +1702,98 @@
       const records = getFilteredRecords();
       updateStats(all);
 
-      const body = document.getElementById("recordBody");
+      const cards = document.getElementById("recordCards");
       const emptyState = document.getElementById("emptyState");
 
       if (records.length === 0) {
-        body.innerHTML = "";
+        cards.innerHTML = "";
         emptyState.style.display = "block";
         return;
       }
 
       emptyState.style.display = "none";
-      body.innerHTML = records.map(item => `
-        <tr>
-          <td>${item.photo ? `<img class="record-img" src="${item.photo}" alt="${escapeHtml(item.name || '圖片')}">` : `<span class="tag tag-muted">無圖片</span>`}</td>
-          <td><strong>${escapeHtml(item.name || "未命名")}</strong><br><span class="muted">${escapeHtml(item.createdAt || "")}</span></td>
-          <td>${item.type ? `<span class="tag">${escapeHtml(item.type)}</span>` : "-"}<br>${item.supplier ? `<span class="muted">供應商：${escapeHtml(item.supplier)}</span>` : ""}</td>
-          <td>${escapeHtml(item.price || "-")}</td>
-          <td>${escapeHtml(compact(item.scene, 72)) || "-"}</td>
-          <td>${escapeHtml(compact(item.buying, 72)) || "-"}</td>
-          <td>${escapeHtml(compact(item.pros, 72)) || "-"}</td>
-          <td>${escapeHtml(compact(item.cons, 72)) || "-"}</td>
-          <td>${renderStars(item.rating)}</td>
-          <td>${renderLink(item.itemLink, "物品鏈接")}</td>
-          <td>${escapeHtml(compact(item.intro, 90)) || "-"}</td>
-          <td>${escapeHtml(compact(item.openTools, 85)) || "-"}</td>
-          <td>${renderLink(item.toolLink, "工具鏈接")}</td>
-          <td>${item.toolPhoto ? `<img class="record-img" src="${item.toolPhoto}" alt="工具圖片">` : `<span class="tag tag-muted">無圖片</span>`}</td>
-          <td>
-            <div class="action-row">
-              <button class="btn btn-secondary btn-small" type="button" onclick="viewItem('${item.id}')">詳情</button>
-              <button class="btn btn-secondary btn-small" type="button" onclick="openEditModal('${item.id}')">編輯</button>
-              <button class="btn btn-danger btn-small" type="button" onclick="deleteItem('${item.id}')">刪除</button>
+      cards.innerHTML = records.map(item => renderRecordCard(item)).join("");
+    }
+
+    function renderRecordCard(item) {
+      const imageHtml = item.photo
+        ? `<img class="record-card-img" src="${item.photo}" alt="${escapeHtml(item.name || '圖片')}">`
+        : `<div class="no-photo-box">無圖片</div>`;
+
+      const typeSupplier = [
+        item.type ? `<span class="tag">${escapeHtml(item.type)}</span>` : "",
+        item.supplier ? `<span class="tag tag-muted">供應商：${escapeHtml(item.supplier)}</span>` : ""
+      ].filter(Boolean).join(" ") || `<span class="field-value empty">未填寫</span>`;
+
+      const itemLink = item.itemLink
+        ? `<a class="link-pill" href="${safeUrl(item.itemLink)}" target="_blank" rel="noopener">🔗 物品鏈接</a>`
+        : `<span class="field-value empty">未填寫</span>`;
+
+      const toolBlock = (item.openTools || item.toolLink || item.toolPhoto)
+        ? `<div class="tool-mini">
+            ${item.toolPhoto ? `<img src="${item.toolPhoto}" alt="工具圖片">` : `<div class="no-photo-box" style="width:82px;height:62px;font-size:13px;border-radius:11px;">工具圖</div>`}
+            <div>
+              ${item.openTools ? `<p>${escapeHtml(compact(item.openTools, 160))}</p>` : `<p class="muted">未填寫工具說明</p>`}
+              ${item.toolLink ? `<a class="link-pill" style="margin-top:8px;" href="${safeUrl(item.toolLink)}" target="_blank" rel="noopener">🛠️ 工具鏈接</a>` : ""}
             </div>
-          </td>
-        </tr>
-      `).join("");
+          </div>`
+        : "";
+
+      return `
+        <article class="record-card">
+          <div class="record-media">${imageHtml}</div>
+          <div class="record-content">
+            <div class="record-head">
+              <div class="record-title">
+                <h3>${escapeHtml(item.name || "未命名")}</h3>
+                <div class="record-subline">
+                  ${renderStars(item.rating)}
+                  ${item.createdAt ? `<span class="tag tag-muted">${escapeHtml(item.createdAt)}</span>` : ""}
+                </div>
+              </div>
+              <div class="action-row">
+                <button class="btn btn-secondary btn-small" type="button" onclick="viewItem('${item.id}')">詳情</button>
+                <button class="btn btn-secondary btn-small" type="button" onclick="openEditModal('${item.id}')">編輯</button>
+                <button class="btn btn-danger btn-small" type="button" onclick="deleteItem('${item.id}')">刪除</button>
+              </div>
+            </div>
+
+            <div class="field-list">
+              ${infoRow("圖片", item.photo ? "已上傳 / 已預載示意圖" : "未填寫")}
+              ${infoRow("名字", item.name || "未填寫")}
+              ${rawInfoRow("類型 / 供應商", typeSupplier)}
+              ${infoRow("大約價格", item.price || "未填寫")}
+              ${infoRow("常見場景 / 地點", item.scene || "未填寫")}
+              ${infoRow("選購重點", item.buying || "未填寫")}
+              ${infoRow("優點", item.pros || "未填寫")}
+              ${infoRow("缺點", item.cons || "未填寫")}
+              ${rawInfoRow("安全性 1 至 5 星", item.rating ? renderStars(item.rating, false) : `<span class="field-value empty">未評估</span>`)}
+              ${rawInfoRow("物品鏈接", itemLink)}
+              ${infoRow("介紹", item.intro || "未填寫")}
+              ${toolBlock ? rawInfoRow("合法工具資料", toolBlock) : ""}
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function infoRow(label, value) {
+      const isEmpty = !value || value === "未填寫";
+      return `
+        <div class="field-row">
+          <div class="field-label">${escapeHtml(label)}</div>
+          <div class="field-value ${isEmpty ? "empty" : ""}">${escapeHtml(value || "未填寫")}</div>
+        </div>
+      `;
+    }
+
+    function rawInfoRow(label, html) {
+      return `
+        <div class="field-row">
+          <div class="field-label">${escapeHtml(label)}</div>
+          <div class="field-value">${html}</div>
+        </div>
+      `;
     }
 
     function updateStats(records) {
