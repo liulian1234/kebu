@@ -1,555 +1,422 @@
 <!DOCTYPE html>
-<html lang="zh-Hans">
+<html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <title>锁具安全档案馆 | Lock Security Archive</title>
-  <meta name="description" content="专业锁具安全科普、锁头资料记录、合法保养工具参考与本机数据浏览系统。" />
+  <title>鎖具資料庫目錄 | Lock Archive Directory</title>
+  <meta name="description" content="左側目錄式鎖具資料管理系統：鎖芯、電子鎖、鎖頭、掛鎖、大門鎖、古老絕版鎖頭資料記錄。" />
 
   <style>
     :root {
-      --bg: #0b0d10;
-      --bg-2: #11151a;
-      --panel: #161b22;
-      --panel-2: #1d232b;
-      --panel-3: #242b35;
-      --line: rgba(218, 165, 32, 0.24);
-      --line-soft: rgba(148, 163, 184, 0.18);
-      --text: #f3f4f6;
-      --muted: #a9b0bb;
-      --brass: #c89b3c;
+      --bg: #07090c;
+      --bg2: #0c1016;
+      --side: #0b0e13;
+      --panel: #121820;
+      --panel2: #17202a;
+      --panel3: #202b38;
+      --line: rgba(224, 184, 90, 0.22);
+      --line2: rgba(148, 163, 184, 0.16);
+      --text: #f5f6f8;
+      --muted: #aab3c0;
       --gold: #e0b85a;
-      --brass-dark: #8a6b2f;
+      --brass: #c89b3c;
       --steel: #9aa4b2;
       --danger: #ef4444;
       --safe: #22c55e;
-      --radius: 10px;
-      --shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
+      --radius: 16px;
+      --shadow: 0 18px 70px rgba(0, 0, 0, 0.35);
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
     body {
       min-height: 100vh;
       font-family: "Segoe UI", Arial, "Microsoft YaHei", sans-serif;
-      background:
-        radial-gradient(circle at 12% 8%, rgba(224, 184, 90, 0.13), transparent 26%),
-        radial-gradient(circle at 88% 18%, rgba(154, 164, 178, 0.10), transparent 24%),
-        linear-gradient(180deg, #07090c 0%, #0e1218 42%, #090b0f 100%);
       color: var(--text);
-      line-height: 1.7;
+      background:
+        radial-gradient(circle at 12% 4%, rgba(224, 184, 90, 0.13), transparent 28%),
+        radial-gradient(circle at 82% 18%, rgba(154, 164, 178, 0.10), transparent 26%),
+        linear-gradient(180deg, #06070a 0%, #0b1016 52%, #06070a 100%);
+      line-height: 1.65;
     }
 
     body::before {
       content: "";
       position: fixed;
       inset: 0;
+      z-index: -1;
       pointer-events: none;
       background-image:
-        linear-gradient(rgba(224, 184, 90, 0.045) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(224, 184, 90, 0.035) 1px, transparent 1px);
-      background-size: 42px 42px;
-      mask-image: radial-gradient(circle at center, rgba(0,0,0,0.9), transparent 82%);
-      z-index: -1;
+        linear-gradient(rgba(224, 184, 90, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(224, 184, 90, 0.03) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: radial-gradient(circle at center, rgba(0,0,0,0.85), transparent 82%);
     }
 
-    a {
-      color: inherit;
-      text-decoration: none;
+    a { color: inherit; text-decoration: none; }
+    button, input, textarea, select { font-family: inherit; }
+    button { cursor: pointer; }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 292px 1fr;
     }
 
-    button,
-    input,
-    textarea,
-    select {
-      font-family: inherit;
-    }
-
-    .container {
-      width: min(1180px, 92%);
-      margin: auto;
-    }
-
-    header {
+    .sidebar {
       position: sticky;
       top: 0;
-      z-index: 30;
-      background: rgba(11, 13, 16, 0.88);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(224, 184, 90, 0.18);
+      height: 100vh;
+      overflow-y: auto;
+      background: rgba(11, 14, 19, 0.94);
+      border-right: 1px solid var(--line);
+      box-shadow: 18px 0 60px rgba(0,0,0,0.28);
+      padding: 18px 14px;
+      backdrop-filter: blur(18px);
     }
 
-    .nav {
-      min-height: 76px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      padding: 12px 0;
-    }
-
-    .logo {
+    .brand {
       display: flex;
       align-items: center;
       gap: 12px;
-      font-weight: 900;
-      color: #fff;
-      letter-spacing: 0.3px;
+      padding: 10px 10px 18px;
+      border-bottom: 1px solid rgba(224, 184, 90, 0.16);
+      margin-bottom: 16px;
     }
 
-    .logo-mark {
-      width: 46px;
-      height: 46px;
-      border-radius: 9px;
+    .brand-mark {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
       display: grid;
       place-items: center;
-      background: linear-gradient(145deg, #e0b85a, #8a6b2f);
-      color: #121212;
-      font-size: 25px;
-      box-shadow: 0 0 24px rgba(224, 184, 90, 0.18);
+      background: linear-gradient(145deg, var(--gold), #8a6b2f);
+      color: #141414;
+      font-size: 26px;
+      box-shadow: 0 0 30px rgba(224, 184, 90, 0.18);
+      flex: 0 0 auto;
     }
 
-    .logo strong {
-      display: block;
-      font-size: 19px;
-      line-height: 1.1;
-    }
+    .brand strong { display: block; color: #fff; font-size: 17px; line-height: 1.15; }
+    .brand span { display: block; color: var(--muted); font-size: 11px; letter-spacing: 1.2px; margin-top: 4px; text-transform: uppercase; }
 
-    .logo span {
-      display: block;
-      color: var(--muted);
-      font-size: 12px;
-      letter-spacing: 1.2px;
-      text-transform: uppercase;
-      margin-top: 3px;
-    }
-
-    .nav-links {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 8px;
-    }
-
-    .nav-links a {
-      padding: 9px 11px;
-      border-radius: 8px;
-      color: #d6dce5;
-      font-size: 14px;
-      font-weight: 750;
-      border: 1px solid transparent;
-    }
-
-    .nav-links a:hover {
-      color: #fff;
-      border-color: rgba(224, 184, 90, 0.32);
-      background: rgba(224, 184, 90, 0.08);
-    }
-
-    .hero {
-      padding: 76px 0 62px;
-      border-bottom: 1px solid rgba(224, 184, 90, 0.12);
-    }
-
-    .hero-grid {
-      display: grid;
-      grid-template-columns: 1.12fr 0.88fr;
-      gap: 28px;
-      align-items: center;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 13px;
-      border: 1px solid rgba(224, 184, 90, 0.32);
-      background: rgba(224, 184, 90, 0.09);
+    .menu-title {
       color: #ffdf8a;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 800;
+      font-weight: 900;
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 8px 12px;
+    }
+
+    .menu {
+      display: grid;
+      gap: 8px;
       margin-bottom: 18px;
     }
 
-    h1 {
-      font-size: clamp(38px, 6vw, 68px);
-      line-height: 1.05;
-      letter-spacing: -1.4px;
+    .menu button {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-align: left;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #d7dee9;
+      border-radius: 12px;
+      padding: 12px 12px;
+      transition: 0.16s ease;
+    }
+
+    .menu button:hover,
+    .menu button.active {
+      border-color: rgba(224, 184, 90, 0.28);
+      background: rgba(224, 184, 90, 0.08);
       color: #fff;
-      margin-bottom: 18px;
     }
 
-    .hero p {
-      max-width: 720px;
-      color: #c8d0da;
-      font-size: 18px;
-      margin-bottom: 26px;
+    .menu .ico {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background: rgba(224, 184, 90, 0.10);
+      flex: 0 0 auto;
     }
 
-    .buttons {
+    .menu .menu-text strong { display: block; font-size: 14px; line-height: 1.2; }
+    .menu .menu-text span { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
+
+    .sidebar-note {
+      border: 1px solid rgba(224, 184, 90, 0.18);
+      background: rgba(224, 184, 90, 0.07);
+      color: #ffe7ad;
+      padding: 13px;
+      border-radius: 13px;
+      font-size: 12px;
+    }
+
+    .main {
+      min-width: 0;
+      padding: 22px;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 18px;
+      margin-bottom: 22px;
+      border: 1px solid rgba(224, 184, 90, 0.16);
+      background: rgba(12, 16, 22, 0.88);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .topbar h1 {
+      font-size: clamp(23px, 3.6vw, 38px);
+      letter-spacing: -0.7px;
+      color: #fff;
+      line-height: 1.12;
+    }
+
+    .topbar p { color: var(--muted); margin-top: 5px; font-size: 14px; }
+
+    .top-actions {
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
+      justify-content: flex-end;
+      gap: 10px;
     }
 
     .btn {
       border: none;
-      border-radius: 9px;
-      padding: 12px 16px;
+      border-radius: 11px;
+      padding: 11px 14px;
       font-size: 14px;
       font-weight: 900;
-      cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
       transition: 0.16s ease;
+      white-space: nowrap;
     }
 
-    .btn:hover {
-      transform: translateY(-2px);
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary { background: linear-gradient(135deg, var(--gold), var(--brass)); color: #141414; box-shadow: 0 14px 28px rgba(224, 184, 90, 0.14); }
+    .btn-secondary { background: rgba(154, 164, 178, 0.10); color: #e5e7eb; border: 1px solid rgba(154, 164, 178, 0.24); }
+    .btn-secondary:hover { border-color: var(--gold); color: #ffe29a; background: rgba(224, 184, 90, 0.08); }
+    .btn-danger { background: rgba(239, 68, 68, 0.12); color: #fecaca; border: 1px solid rgba(239, 68, 68, 0.34); }
+    .btn-small { padding: 8px 10px; border-radius: 9px; font-size: 12px; }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+      gap: 22px;
+      align-items: stretch;
     }
 
-    .btn-primary {
-      background: linear-gradient(135deg, var(--gold), var(--brass));
-      color: #121212;
-      box-shadow: 0 14px 28px rgba(224, 184, 90, 0.14);
-    }
-
-    .btn-secondary {
-      background: transparent;
-      color: #e5e7eb;
-      border: 1px solid rgba(224, 184, 90, 0.28);
-    }
-
-    .btn-secondary:hover {
-      border-color: var(--gold);
-      color: #ffe29a;
-      background: rgba(224, 184, 90, 0.08);
-    }
-
-    .btn-danger {
-      background: rgba(239, 68, 68, 0.12);
-      color: #fecaca;
-      border: 1px solid rgba(239, 68, 68, 0.35);
-    }
-
-    .btn-steel {
-      background: rgba(154, 164, 178, 0.12);
-      color: #e5e7eb;
-      border: 1px solid rgba(154, 164, 178, 0.26);
-    }
-
-    .hero-card,
-    .card,
-    .form-box,
-    .records-panel,
-    .contact-box,
-    details {
-      background: linear-gradient(180deg, rgba(29, 35, 43, 0.92), rgba(17, 21, 26, 0.92));
+    .panel, .card, .records-panel, .modal-box, .empty-state {
+      background: linear-gradient(180deg, rgba(29, 35, 43, 0.94), rgba(17, 21, 26, 0.94));
       border: 1px solid rgba(224, 184, 90, 0.16);
-      box-shadow: var(--shadow);
       border-radius: var(--radius);
+      box-shadow: var(--shadow);
     }
 
-    .hero-card {
-      padding: 26px;
-      position: relative;
-      overflow: hidden;
+    .panel { padding: 28px; overflow: hidden; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border: 1px solid rgba(224, 184, 90, 0.32);
+      background: rgba(224, 184, 90, 0.09);
+      color: #ffdf8a;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+      margin-bottom: 16px;
     }
 
-    .hero-card::after {
-      content: "";
-      position: absolute;
-      inset: auto -60px -80px auto;
-      width: 210px;
-      height: 210px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(224,184,90,0.18), transparent 72%);
-      pointer-events: none;
+    .home-title {
+      font-size: clamp(34px, 5vw, 64px);
+      line-height: 1.05;
+      letter-spacing: -1.4px;
+      margin-bottom: 16px;
     }
 
-    .lock-icon {
-      width: 100px;
-      height: 100px;
-      border-radius: 18px;
+    .lead { color: #cbd5e1; font-size: 17px; max-width: 850px; }
+
+    .illustration {
+      min-height: 360px;
       display: grid;
       place-items: center;
-      background:
-        linear-gradient(145deg, rgba(224, 184, 90, 0.20), rgba(154, 164, 178, 0.08)),
-        #11151a;
-      border: 1px solid rgba(224, 184, 90, 0.22);
-      font-size: 54px;
-      margin-bottom: 18px;
+      position: relative;
     }
 
-    .hero-card li {
-      list-style: none;
-      padding: 11px 0;
-      color: #cbd5e1;
-      border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    .illustration::after {
+      content: "";
+      position: absolute;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(224,184,90,0.15), transparent 70%);
+      filter: blur(1px);
+      z-index: 0;
     }
 
-    section {
-      padding: 70px 0;
-    }
+    .illustration svg { width: min(330px, 100%); position: relative; z-index: 1; }
 
-    .section-title {
-      text-align: center;
-      margin-bottom: 36px;
-    }
-
-    .section-title h2 {
-      color: #fff;
-      font-size: clamp(28px, 4vw, 44px);
-      line-height: 1.14;
-      margin-bottom: 10px;
-    }
-
-    .section-title p {
-      color: var(--muted);
-      max-width: 760px;
-      margin: auto;
-    }
-
-    .grid-3 {
+    .grid-cards {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
-    }
-
-    .two-col {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 22px;
-      align-items: start;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 22px;
     }
 
     .card {
-      padding: 22px;
+      padding: 20px;
       transition: 0.16s ease;
+      min-height: 160px;
     }
 
-    .card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(224, 184, 90, 0.38);
-    }
-
+    .card:hover { transform: translateY(-3px); border-color: rgba(224, 184, 90, 0.34); }
     .card .icon {
       width: 48px;
       height: 48px;
-      border-radius: 8px;
       display: grid;
       place-items: center;
-      font-size: 25px;
+      border-radius: 12px;
       background: rgba(224, 184, 90, 0.09);
-      border: 1px solid rgba(224, 184, 90, 0.16);
-      margin-bottom: 14px;
+      border: 1px solid rgba(224, 184, 90, 0.18);
+      font-size: 24px;
+      margin-bottom: 12px;
     }
-
-    .card h3 {
-      color: #fff;
-      font-size: 20px;
-      margin-bottom: 8px;
-    }
-
-    .card p,
-    .card li {
-      color: #c4ccd7;
-      font-size: 15px;
-    }
-
-    .highlight {
-      background: linear-gradient(135deg, rgba(224, 184, 90, 0.10), rgba(154, 164, 178, 0.06));
-      border-top: 1px solid rgba(224, 184, 90, 0.12);
-      border-bottom: 1px solid rgba(224, 184, 90, 0.12);
-    }
+    .card h3 { color: #fff; margin-bottom: 6px; font-size: 19px; }
+    .card p { color: #c4ccd7; font-size: 14px; }
+    .card .count { color: #ffe29a; font-weight: 900; margin-top: 12px; }
 
     .notice {
-      background: rgba(224, 184, 90, 0.09);
+      margin-top: 18px;
+      padding: 15px;
+      border-radius: 13px;
       border: 1px solid rgba(224, 184, 90, 0.22);
-      border-radius: 9px;
-      padding: 16px;
-      color: #ffe3a1;
+      background: rgba(224, 184, 90, 0.08);
+      color: #ffe7ad;
     }
 
-    .danger {
-      background: rgba(239, 68, 68, 0.10);
-      border-color: rgba(239, 68, 68, 0.25);
+    .danger-notice {
+      border-color: rgba(239, 68, 68, 0.28);
+      background: rgba(239, 68, 68, 0.09);
       color: #fecaca;
     }
 
-    .checklist {
+    .records-panel { padding: 18px; }
+
+    .category-hero {
       display: grid;
-      gap: 12px;
-    }
-
-    .check-item {
-      background: rgba(11, 13, 16, 0.42);
-      border: 1px solid rgba(148, 163, 184, 0.14);
-      border-left: 3px solid var(--brass);
-      padding: 14px;
-      border-radius: 8px;
-      color: #d8dee8;
-    }
-
-    .form-box {
-      padding: 24px;
-      margin-bottom: 22px;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-    }
-
-    .full {
-      grid-column: 1 / -1;
-    }
-
-    label {
-      display: block;
-      color: #f3f4f6;
-      font-weight: 800;
-      margin-bottom: 7px;
-      font-size: 14px;
-    }
-
-    input,
-    textarea,
-    select {
-      width: 100%;
-      padding: 12px 13px;
-      border-radius: 8px;
-      border: 1px solid rgba(154, 164, 178, 0.24);
-      background: #0b0d10;
-      color: #fff;
-      outline: none;
-      font-size: 15px;
-    }
-
-    textarea {
-      min-height: 96px;
-      resize: vertical;
-    }
-
-    input:focus,
-    textarea:focus,
-    select:focus {
-      border-color: var(--gold);
-      box-shadow: 0 0 0 3px rgba(224, 184, 90, 0.10);
-    }
-
-    .small-note {
-      color: var(--muted);
-      font-size: 13px;
-      margin-top: 6px;
-    }
-
-    .upload-preview {
-      width: 100%;
-      max-height: 260px;
-      object-fit: cover;
-      border-radius: 8px;
-      border: 1px solid rgba(224, 184, 90, 0.20);
-      display: none;
-      margin-top: 12px;
-      background: #07090c;
-    }
-
-    .record-tools {
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr 0.8fr;
-      gap: 12px;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 16px;
       margin-bottom: 18px;
-      align-items: end;
     }
+
+    .category-summary {
+      padding: 22px;
+      background: linear-gradient(135deg, rgba(224, 184, 90, 0.10), rgba(154, 164, 178, 0.06));
+      border: 1px solid rgba(224, 184, 90, 0.18);
+      border-radius: var(--radius);
+    }
+
+    .category-summary h2 { font-size: 26px; color: #fff; margin-bottom: 8px; }
+    .category-summary p { color: #cbd5e1; }
 
     .stats {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 12px;
-      margin-bottom: 18px;
     }
 
     .stat {
       background: rgba(11, 13, 16, 0.52);
       border: 1px solid rgba(148, 163, 184, 0.14);
-      border-radius: 8px;
+      border-radius: 13px;
       padding: 15px;
     }
+    .stat span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 5px; }
+    .stat strong { color: #fff; font-size: 24px; }
 
-    .stat span {
-      display: block;
-      color: var(--muted);
-      font-size: 12px;
-      margin-bottom: 3px;
+    .tools-row {
+      display: grid;
+      grid-template-columns: 1.4fr 0.7fr 0.7fr 0.7fr;
+      gap: 12px;
+      margin-bottom: 16px;
+      align-items: end;
     }
 
-    .stat strong {
+    label { display: block; color: #f3f4f6; font-weight: 850; margin-bottom: 7px; font-size: 13px; }
+    input, textarea, select {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(154, 164, 178, 0.24);
+      background: #090c11;
       color: #fff;
-      font-size: 26px;
+      outline: none;
+      font-size: 14px;
     }
+    textarea { min-height: 86px; resize: vertical; }
+    input:focus, textarea:focus, select:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(224, 184, 90, 0.10); }
 
-    .records-panel {
-      padding: 22px;
-    }
-
-    .record-table-wrap {
+    .table-wrap {
+      width: 100%;
       overflow: auto;
       border: 1px solid rgba(148, 163, 184, 0.14);
-      border-radius: 8px;
-      background: #0b0d10;
+      border-radius: 13px;
+      background: #080b0f;
     }
 
     table {
       width: 100%;
-      min-width: 1080px;
+      min-width: 1640px;
       border-collapse: collapse;
     }
-
-    th,
-    td {
-      padding: 12px 11px;
-      border-bottom: 1px solid rgba(148, 163, 184, 0.13);
+    th, td {
+      padding: 12px 10px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.12);
       text-align: left;
       vertical-align: top;
-      font-size: 14px;
+      font-size: 13px;
     }
-
     th {
-      background: rgba(224, 184, 90, 0.11);
+      position: sticky;
+      top: 0;
+      background: rgba(224, 184, 90, 0.12);
       color: #ffe3a1;
-      font-size: 12px;
-      letter-spacing: 0.5px;
       text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 11px;
+      z-index: 1;
     }
+    td { color: #d8dee8; }
+    tbody tr:hover td { background: rgba(224, 184, 90, 0.04); }
 
-    td {
-      color: #d4dbe6;
-    }
-
-    tbody tr:hover td {
-      background: rgba(224, 184, 90, 0.04);
-    }
-
-    .mini-img {
-      width: 56px;
-      height: 42px;
+    .record-img {
+      width: 68px;
+      height: 50px;
+      border-radius: 9px;
       object-fit: cover;
-      border-radius: 6px;
       background: #11151a;
       border: 1px solid rgba(148, 163, 184, 0.18);
     }
@@ -559,85 +426,27 @@
       align-items: center;
       gap: 5px;
       padding: 4px 8px;
-      background: rgba(224, 184, 90, 0.10);
-      border: 1px solid rgba(224, 184, 90, 0.18);
-      color: #ffe3a1;
       border-radius: 999px;
       font-size: 12px;
-      font-weight: 800;
-    }
-
-    .level-tag {
-      color: #dbeafe;
-      border-color: rgba(154, 164, 178, 0.22);
-      background: rgba(154, 164, 178, 0.10);
-    }
-
-    .action-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .tool-link {
-      display: block;
-      padding: 11px 12px;
-      border-radius: 8px;
-      background: rgba(11, 13, 16, 0.52);
-      border: 1px solid rgba(148, 163, 184, 0.16);
-      margin-top: 9px;
-      color: #dbeafe;
-    }
-
-    .tool-link:hover {
-      border-color: var(--gold);
+      font-weight: 850;
+      background: rgba(224, 184, 90, 0.10);
       color: #ffe3a1;
+      border: 1px solid rgba(224, 184, 90, 0.18);
     }
+    .tag-muted { background: rgba(154, 164, 178, 0.10); color: #dbeafe; border-color: rgba(154, 164, 178, 0.22); }
+    .stars { color: #ffd36b; letter-spacing: 1px; white-space: nowrap; }
+    .muted { color: var(--muted); }
+    .link { color: #b9d6ff; text-decoration: underline; text-underline-offset: 3px; }
 
-    .faq {
-      max-width: 860px;
-      margin: auto;
-      display: grid;
-      gap: 12px;
-    }
+    .action-row { display: flex; flex-wrap: wrap; gap: 8px; }
 
-    details {
-      padding: 18px 20px;
-    }
-
-    summary {
-      cursor: pointer;
-      color: #fff;
-      font-weight: 900;
-    }
-
-    details p {
-      color: #cbd5e1;
-      margin-top: 12px;
-    }
-
-    .contact-box {
-      padding: 30px;
+    .empty-state {
+      padding: 36px;
       text-align: center;
-    }
-
-    .contact-box h2 {
-      color: #fff;
-      margin-bottom: 10px;
-    }
-
-    .contact-box p {
       color: #cbd5e1;
-      margin-bottom: 18px;
+      margin-top: 14px;
     }
-
-    footer {
-      padding: 28px 0;
-      color: var(--muted);
-      border-top: 1px solid rgba(224, 184, 90, 0.14);
-      text-align: center;
-      font-size: 14px;
-    }
+    .empty-state .big { font-size: 54px; margin-bottom: 8px; }
 
     .modal {
       position: fixed;
@@ -645,1016 +454,868 @@
       display: none;
       align-items: center;
       justify-content: center;
+      padding: 18px;
       background: rgba(0, 0, 0, 0.72);
       z-index: 80;
-      padding: 18px;
     }
-
-    .modal.show {
-      display: flex;
-    }
-
+    .modal.show { display: flex; }
     .modal-box {
-      width: min(760px, 100%);
-      max-height: 88vh;
+      width: min(980px, 100%);
+      max-height: 90vh;
       overflow: auto;
-      background: #11151a;
-      border: 1px solid rgba(224, 184, 90, 0.22);
-      border-radius: 10px;
-      box-shadow: var(--shadow);
       padding: 22px;
     }
-
     .modal-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-      margin-bottom: 14px;
-    }
-
-    .modal-head h3 {
-      color: #fff;
-      font-size: 24px;
-    }
-
-    .close {
-      width: 38px;
-      height: 38px;
-      border-radius: 8px;
-      border: 1px solid rgba(154, 164, 178, 0.25);
-      background: #0b0d10;
-      color: #fff;
-      cursor: pointer;
-      font-size: 20px;
-    }
-
-    .detail-img {
-      width: 100%;
-      max-height: 330px;
-      object-fit: contain;
-      background: #07090c;
-      border: 1px solid rgba(148, 163, 184, 0.16);
-      border-radius: 8px;
-      margin-bottom: 14px;
-    }
-
-    .detail-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-    }
-
-    .detail-box {
-      background: rgba(11, 13, 16, 0.52);
-      border: 1px solid rgba(148, 163, 184, 0.12);
-      border-radius: 8px;
-      padding: 12px;
-    }
-
-    .detail-box span {
-      color: var(--muted);
-      font-size: 12px;
-      display: block;
-      margin-bottom: 4px;
-    }
-
-    .detail-box strong,
-    .detail-box p {
-      color: #fff;
-    }
-
-
-
-    .cylinder-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 18px;
-    }
-
-    .cylinder-card {
-      padding: 22px;
-      background: linear-gradient(180deg, rgba(29, 35, 43, 0.92), rgba(17, 21, 26, 0.92));
-      border: 1px solid rgba(224, 184, 90, 0.16);
-      box-shadow: var(--shadow);
-      border-radius: var(--radius);
-      overflow: hidden;
-      transition: 0.16s ease;
-    }
-
-    .cylinder-card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(224, 184, 90, 0.38);
-    }
-
-    .cylinder-head {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       gap: 14px;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(224, 184, 90, 0.16);
     }
-
-    .cylinder-head h3 {
+    .modal-head h2, .modal-head h3 { color: #fff; line-height: 1.2; }
+    .modal-head p { color: var(--muted); font-size: 14px; margin-top: 4px; }
+    .close {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: #090c11;
       color: #fff;
-      font-size: 21px;
-      line-height: 1.28;
+      border: 1px solid rgba(154, 164, 178, 0.28);
+      font-size: 22px;
+      flex: 0 0 auto;
     }
 
-    .cylinder-head span {
-      display: block;
-      color: var(--muted);
-      font-size: 13px;
-      margin-top: 3px;
-    }
-
-    .diagram {
-      width: 100%;
-      min-height: 150px;
-      margin: 12px 0 15px;
-      border-radius: 10px;
-      background:
-        radial-gradient(circle at 18% 20%, rgba(224,184,90,0.12), transparent 26%),
-        linear-gradient(135deg, rgba(11, 13, 16, 0.84), rgba(36, 43, 53, 0.64));
-      border: 1px solid rgba(148, 163, 184, 0.14);
+    .form-grid {
       display: grid;
-      place-items: center;
-      padding: 10px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
     }
+    .full { grid-column: 1 / -1; }
+    .small-note { color: var(--muted); font-size: 12px; margin-top: 5px; }
 
-    .diagram svg {
+    .preview {
       width: 100%;
-      max-width: 420px;
-      height: 140px;
+      max-height: 210px;
+      object-fit: contain;
+      border-radius: 11px;
+      border: 1px solid rgba(224, 184, 90, 0.18);
+      background: #07090c;
+      display: none;
+      margin-top: 10px;
     }
 
-    .cylinder-card p {
-      color: #c4ccd7;
-      font-size: 15px;
-      margin-bottom: 12px;
+    .detail-main-img {
+      width: 100%;
+      max-height: 340px;
+      object-fit: contain;
+      border-radius: 14px;
+      border: 1px solid rgba(224, 184, 90, 0.18);
+      background: #07090c;
+      margin-bottom: 16px;
     }
 
-    .info-list {
+    .detail-grid {
       display: grid;
-      gap: 8px;
-      margin-top: 12px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
     }
-
-    .info-list div {
-      background: rgba(11, 13, 16, 0.42);
-      border: 1px solid rgba(148, 163, 184, 0.12);
-      border-radius: 8px;
-      padding: 10px 11px;
-      color: #d8dee8;
-      font-size: 14px;
+    .detail-box {
+      background: rgba(11, 13, 16, 0.52);
+      border: 1px solid rgba(148, 163, 184, 0.13);
+      border-radius: 13px;
+      padding: 13px;
     }
+    .detail-box span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 4px; }
+    .detail-box strong, .detail-box p { color: #fff; white-space: pre-wrap; }
 
-    .info-list strong {
-      color: #ffe3a1;
-    }
+    .mobile-menu-btn { display: none; }
 
-    .source-box {
-      margin-top: 26px;
-      padding: 18px;
-      border-radius: 10px;
-      border: 1px solid rgba(224, 184, 90, 0.20);
-      background: rgba(224, 184, 90, 0.07);
-      color: #dbeafe;
-    }
-
-    .source-box a {
-      color: #ffe3a1;
-      font-weight: 850;
-      border-bottom: 1px dashed rgba(224, 184, 90, 0.6);
-    }
-
-    @media (max-width: 900px) {
-      .hero-grid,
-      .two-col,
-      .grid-3,
-      .cylinder-grid,
-      .form-grid,
-      .record-tools,
-      .stats,
-      .detail-grid {
-        grid-template-columns: 1fr;
+    @media (max-width: 1100px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar {
+        position: fixed;
+        inset: 0 auto 0 0;
+        width: min(320px, 88vw);
+        transform: translateX(-110%);
+        transition: 0.2s ease;
+        z-index: 70;
       }
+      .sidebar.open { transform: translateX(0); }
+      .mobile-menu-btn { display: inline-flex; }
+      .main { padding: 14px; }
+      .topbar { align-items: flex-start; }
+      .hero, .category-hero, .tools-row, .grid-cards { grid-template-columns: 1fr; }
+    }
 
-      .nav {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-
-      .nav-links {
-        justify-content: flex-start;
-      }
-
-      .hero {
-        padding-top: 50px;
-      }
+    @media (max-width: 720px) {
+      .topbar { flex-direction: column; }
+      .top-actions { justify-content: flex-start; width: 100%; }
+      .stats, .form-grid, .detail-grid { grid-template-columns: 1fr; }
+      .btn { width: 100%; }
+      .action-row .btn { width: auto; }
+      .panel { padding: 20px; }
     }
   </style>
 </head>
 
 <body>
-  <header>
-    <div class="container nav">
-      <a class="logo" href="#home">
-        <span class="logo-mark">🔐</span>
+  <div class="app">
+    <aside id="sidebar" class="sidebar">
+      <a class="brand" href="#" onclick="setPage('home')">
+        <span class="brand-mark">🔐</span>
         <span>
-          <strong>锁具安全档案馆</strong>
-          <span>LOCK SECURITY ARCHIVE</span>
+          <strong>鎖具資料庫</strong>
+          <span>LOCK DIRECTORY</span>
         </span>
       </a>
 
-      <nav class="nav-links">
-        <a href="#types">锁头类型</a>
-        <a href="#cylinders">锁芯类型</a>
-        <a href="#safety">安全评估</a>
-        <a href="#care">保养建议</a>
-        <a href="#library">新增资料</a>
-        <a href="#records">记录数据</a>
-        <a href="#tools">合法工具</a>
-        <a href="#faq">常见问题</a>
-      </nav>
-    </div>
-  </header>
+      <div class="menu-title">目錄</div>
+      <div id="sideMenu" class="menu"></div>
 
-  <main id="home">
-    <section class="hero">
-      <div class="container hero-grid">
+      <div class="sidebar-note">
+        所有資料保存在目前瀏覽器 localStorage。換電腦或清除瀏覽器資料後可能消失，重要資料請定期匯出 JSON 備份。
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
         <div>
-          <span class="badge">合法科普 · 锁具档案 · 安全维护</span>
-          <h1>专业记录锁具资料，建立你的安全知识库</h1>
-          <p>
-            这个页面用于记录锁头照片、名称、来源、类型、等级、优缺点与合法保养工具。
-            所有数据默认保存在当前浏览器，适合做锁具科普、收藏管理、维修保养和安全评估。
-          </p>
-
-          <div class="buttons">
-            <a class="btn btn-primary" href="#library">＋ 新增锁头记录</a>
-            <a class="btn btn-secondary" href="#records">📂 浏览记录数据</a>
-            <a class="btn btn-secondary" href="#types">开始学习</a>
-          </div>
+          <button class="btn btn-secondary mobile-menu-btn" type="button" onclick="toggleSidebar()">☰ 目錄</button>
+          <h1 id="pageTitle">首頁</h1>
+          <p id="pageDesc">總覽所有鎖具分類與資料數量。</p>
         </div>
-
-        <div class="hero-card">
-          <div class="lock-icon">🛡️</div>
-          <ul>
-            <li>✅ 以锁具资料库为核心重新设计</li>
-            <li>✅ 黑钢、黄铜、金属锁头色调</li>
-            <li>✅ 新增「记录数据」独立目录</li>
-            <li>✅ 新增锁芯类型百科与 SVG 示意图</li>
-            <li>✅ 支持搜索、筛选、详情、导出与删除</li>
-          </ul>
-        </div>
+        <div id="topActions" class="top-actions"></div>
       </div>
-    </section>
 
-    <section id="types">
-      <div class="container">
-        <div class="section-title">
-          <h2>常见锁头类型</h2>
-          <p>不同锁具适合不同场景。选择锁具时应同时考虑锁芯、门体、门框和安装质量。</p>
-        </div>
-
-        <div class="grid-3">
-          <div class="card">
-            <div class="icon">🚪</div>
-            <h3>弹子锁</h3>
-            <p>常见于住宅门、房间门与普通挂锁。安全性取决于锁芯结构、加工精度和防护设计。</p>
+      <section id="homePage" class="page active">
+        <div class="hero">
+          <div class="panel">
+            <span class="badge">左側目錄 · 右側資料 · 本機保存</span>
+            <h2 class="home-title">建立你的鎖具知識庫與收藏資料庫</h2>
+            <p class="lead">
+              這個新版把資料分成六大目錄：鎖芯、電子鎖、鎖頭、掛鎖、大門鎖、古老絕版鎖頭。每個目錄右上角都有「新增」按鈕，資料格式統一，方便你記錄圖片、價格、場景、優缺點、安全星級、物品連結與合法授權工具資料。
+            </p>
+            <div class="notice danger-notice">
+              注意：工具欄位只適合記錄「合法擁有者、授權維修、保養與安全評估」用途。本頁不提供非法開鎖、繞過門鎖或入侵他人財物的操作教學。
+            </div>
           </div>
 
-          <div class="card">
-            <div class="icon">🔑</div>
-            <h3>叶片锁</h3>
-            <p>常见于抽屉、柜子、机车或部分门锁。适合轻中度防护场景。</p>
-          </div>
-
-          <div class="card">
-            <div class="icon">🏠</div>
-            <h3>智能锁</h3>
-            <p>支持密码、指纹、卡片或手机开门。要关注电池、应急钥匙、系统安全和售后。</p>
-          </div>
-
-          <div class="card">
-            <div class="icon">⛓️</div>
-            <h3>挂锁</h3>
-            <p>用于铁门、仓库、工具箱等。建议选择防剪、防撬、防锈设计，并搭配坚固锁扣。</p>
-          </div>
-
-          <div class="card">
-            <div class="icon">🧰</div>
-            <h3>机械密码锁</h3>
-            <p>无需钥匙，适合储物柜或短期管理。密码应定期更换，避免弱密码。</p>
-          </div>
-
-          <div class="card">
-            <div class="icon">🏢</div>
-            <h3>商业门锁</h3>
-            <p>适合店铺、办公室和仓库。通常需要更高等级锁芯和门禁系统配合。</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-
-    <section id="cylinders" class="highlight">
-      <div class="container">
-        <div class="section-title">
-          <h2>锁芯类型百科</h2>
-          <p>这里用简单示意图解释常见锁芯结构。内容只做合法科普、选购和维护参考，不涉及非法开启方法。</p>
-        </div>
-
-        <div class="cylinder-grid">
-
-          <div class="cylinder-card">
-            <div class="cylinder-head">
-              <div>
-                <h3>弹子锁芯</h3>
-                <span>Pin Tumbler Cylinder</span>
-              </div>
-              <span class="tag">最常见</span>
-            </div>
-            <div class="diagram" aria-label="弹子锁芯结构示意图">
-              <svg viewBox="0 0 420 150" role="img">
-      <rect x="44" y="62" width="332" height="46" rx="10" fill="#151a21" stroke="#d7a84c" stroke-width="3"/>
-      <rect x="86" y="78" width="210" height="16" rx="8" fill="#e0b85a" opacity="0.92"/>
-      <g fill="#9aa4b2" stroke="#f5d37b" stroke-width="2">
-        <rect x="105" y="30" width="16" height="48" rx="5"/>
-        <rect x="158" y="24" width="16" height="54" rx="5"/>
-        <rect x="211" y="34" width="16" height="44" rx="5"/>
-        <rect x="264" y="20" width="16" height="58" rx="5"/>
-      </g>
-      <line x1="66" y1="78" x2="354" y2="78" stroke="#22c55e" stroke-width="2" stroke-dasharray="6 5"/>
-      <text x="210" y="132" text-anchor="middle" fill="#cbd5e1" font-size="14">弹子到达剪切线，锁芯才可转动</text>
-    </svg>
-            </div>
-            <p>住宅门锁、房门锁、普通挂锁常用。安全性取决于锁芯精度、防钻片、防拔结构、钥匙控制和安装质量。</p>
-            <div class="info-list">
-              <div><strong>常见场景：</strong>家门、房门、挂锁、商铺门。</div>
-              <div><strong>选购重点：</strong>防钻、防撬、防断钥匙、锁芯等级。</div>
-            </div>
-          </div>
-          <div class="cylinder-card">
-            <div class="cylinder-head">
-              <div>
-                <h3>叶片锁芯</h3>
-                <span>Wafer Tumbler Lock</span>
-              </div>
-              <span class="tag">轻中防护</span>
-            </div>
-            <div class="diagram" aria-label="叶片锁芯结构示意图">
-              <svg viewBox="0 0 420 150" role="img">
-      <rect x="48" y="50" width="324" height="56" rx="12" fill="#151a21" stroke="#d7a84c" stroke-width="3"/>
-      <rect x="92" y="69" width="214" height="18" rx="9" fill="#e0b85a" opacity="0.9"/>
-      <g fill="#cbd5e1" stroke="#f5d37b" stroke-width="2">
-        <rect x="116" y="44" width="10" height="68" rx="3" transform="rotate(-8 121 78)"/>
-        <rect x="164" y="42" width="10" height="72" rx="3" transform="rotate(7 169 78)"/>
-        <rect x="212" y="44" width="10" height="68" rx="3" transform="rotate(-5 217 78)"/>
-        <rect x="260" y="42" width="10" height="72" rx="3" transform="rotate(6 265 78)"/>
-      </g>
-      <text x="210" y="132" text-anchor="middle" fill="#cbd5e1" font-size="14">薄片/叶片对齐后才能转动</text>
-    </svg>
-            </div>
-            <p>内部使用薄片/叶片，体积小、成本低。常见于抽屉、文件柜、信箱和部分车辆锁具。</p>
-            <div class="info-list">
-              <div><strong>常见场景：</strong>抽屉、信箱、文件柜、车锁。</div>
-              <div><strong>选购重点：</strong>适合轻防护，重要位置建议升级。</div>
-            </div>
-          </div>
-          <div class="cylinder-card">
-            <div class="cylinder-head">
-              <div>
-                <h3>碟片锁芯</h3>
-                <span>Disc Detainer Lock</span>
-              </div>
-              <span class="tag">户外常见</span>
-            </div>
-            <div class="diagram" aria-label="碟片锁芯结构示意图">
-              <svg viewBox="0 0 420 150" role="img">
-      <rect x="46" y="42" width="328" height="74" rx="15" fill="#151a21" stroke="#d7a84c" stroke-width="3"/>
-      <g fill="#26313d" stroke="#e0b85a" stroke-width="3">
-        <circle cx="110" cy="79" r="25"/><circle cx="160" cy="79" r="25"/><circle cx="210" cy="79" r="25"/><circle cx="260" cy="79" r="25"/><circle cx="310" cy="79" r="25"/>
-      </g>
-      <g stroke="#cbd5e1" stroke-width="5" stroke-linecap="round">
-        <line x1="110" y1="79" x2="126" y2="64"/><line x1="160" y1="79" x2="176" y2="79"/><line x1="210" y1="79" x2="224" y2="94"/><line x1="260" y1="79" x2="260" y2="59"/><line x1="310" y1="79" x2="294" y2="64"/>
-      </g>
-      <text x="210" y="134" text-anchor="middle" fill="#cbd5e1" font-size="14">圆盘旋转到正确角度后解锁</text>
-    </svg>
-            </div>
-            <p>内部是一片片圆盘，需要转到正确角度。常见于脚车锁、高安全挂锁和户外锁。</p>
-            <div class="info-list">
-              <div><strong>常见场景：</strong>脚车锁、户外挂锁、仓库锁。</div>
-              <div><strong>选购重点：</strong>锁梁硬度、防锈、锁体厚度。</div>
-            </div>
-          </div>
-          <div class="cylinder-card">
-            <div class="cylinder-head">
-              <div>
-                <h3>槓桿锁</h3>
-                <span>Lever Tumbler Lock</span>
-              </div>
-              <span class="tag">老式门锁</span>
-            </div>
-            <div class="diagram" aria-label="槓桿锁结构示意图">
-              <svg viewBox="0 0 420 150" role="img">
-      <rect x="50" y="38" width="320" height="80" rx="12" fill="#151a21" stroke="#d7a84c" stroke-width="3"/>
-      <rect x="252" y="72" width="82" height="16" rx="8" fill="#9aa4b2"/>
-      <g stroke="#e0b85a" stroke-width="8" stroke-linecap="round">
-        <line x1="90" y1="88" x2="196" y2="62"/><line x1="92" y1="74" x2="200" y2="82"/><line x1="93" y1="60" x2="198" y2="101"/>
-      </g>
-      <circle cx="95" cy="87" r="16" fill="#26313d" stroke="#cbd5e1" stroke-width="3"/>
-      <text x="210" y="134" text-anchor="middle" fill="#cbd5e1" font-size="14">多片槓桿抬到正确高度，锁舌才会移动</text>
-    </svg>
-            </div>
-            <p>通过钥匙抬起多片槓桿控制锁舌。常见于老式门锁、部分保险箱或大型锁具。</p>
-            <div class="info-list">
-              <div><strong>常见场景：</strong>老式木门、铁门、保险柜类结构。</div>
-              <div><strong>选购重点：</strong>槓桿数量、锁体强度、安装质量。</div>
-            </div>
-          </div>
-          <div class="cylinder-card">
-            <div class="cylinder-head">
-              <div>
-                <h3>管状锁芯</h3>
-                <span>Tubular Lock</span>
-              </div>
-              <span class="tag">圆孔钥匙</span>
-            </div>
-            <div class="diagram" aria-label="管状锁芯结构示意图">
-              <svg viewBox="0 0 420 150" role="img">
-      <circle cx="210" cy="72" r="48" fill="#151a21" stroke="#d7a84c" stroke-width="4"/>
-      <circle cx="210" cy="72" r="20" fill="#26313d" stroke="#9aa4b2" stroke-width="3"/>
-      <g fill="#e0b85a">
-        <circle cx="210" cy="28" r="6"/><circle cx="241" cy="41" r="6"/><circle cx="254" cy="72" r="6"/><circle cx="241" cy="103" r="6"/>
-        <circle cx="210" cy="116" r="6"/><circle cx="179" cy="103" r="6"/><circle cx="166" cy="72" r="6"/><circle cx="179" cy="41" r="6"/>
-      </g>
-      <text x="210" y="136" text-anchor="middle" fill="#cbd5e1" font-size="14">圆形钥匙孔，弹子环绕中心排列</text>
-    </svg>
-            </div>
-            <p>圆形钥匙孔，弹子围绕中心排列。常见于设备箱、售卖机、机柜和电脑锁。</p>
-            <div class="info-list">
-              <div><strong>常见场景：</strong>设备柜、售卖机、电脑锁、机柜。</div>
-              <div><strong>选购重点：</strong>品牌、材质、钥匙控制、安装位置。</div>
-            </div>
-          </div>
-          <div class="cylinder-card">
-            <div class="cylinder-head">
-              <div>
-                <h3>凹点锁芯</h3>
-                <span>Dimple Lock</span>
-              </div>
-              <span class="tag">钥匙有小孔</span>
-            </div>
-            <div class="diagram" aria-label="凹点锁芯结构示意图">
-              <svg viewBox="0 0 420 150" role="img">
-      <rect x="64" y="55" width="292" height="48" rx="12" fill="#151a21" stroke="#d7a84c" stroke-width="3"/>
-      <rect x="105" y="70" width="210" height="18" rx="9" fill="#e0b85a" opacity="0.92"/>
-      <g fill="#26313d" stroke="#cbd5e1" stroke-width="2">
-        <circle cx="138" cy="79" r="6"/><circle cx="176" cy="79" r="6"/><circle cx="214" cy="79" r="6"/><circle cx="252" cy="79" r="6"/><circle cx="290" cy="79" r="6"/>
-        <circle cx="157" cy="67" r="5"/><circle cx="233" cy="91" r="5"/>
-      </g>
-      <text x="210" y="132" text-anchor="middle" fill="#cbd5e1" font-size="14">钥匙表面有凹点，可配合多方向弹子</text>
-    </svg>
-            </div>
-            <p>钥匙表面有一排或多排小凹点，常见于较新款门锁。不要只看钥匙外观，要看认证和结构。</p>
-            <div class="info-list">
-              <div><strong>常见场景：</strong>住宅门、办公门、中高端锁芯。</div>
-              <div><strong>选购重点：</strong>认证、防钻、防拔、专利钥匙控制。</div>
-            </div>
-          </div>
-          <div class="cylinder-card">
-            <div class="cylinder-head">
-              <div>
-                <h3>擋片锁</h3>
-                <span>Warded Lock</span>
-              </div>
-              <span class="tag">传统结构</span>
-            </div>
-            <div class="diagram" aria-label="擋片锁结构示意图">
-              <svg viewBox="0 0 420 150" role="img">
-      <rect x="62" y="42" width="296" height="74" rx="14" fill="#151a21" stroke="#d7a84c" stroke-width="3"/>
-      <path d="M112 94 C150 48, 190 48, 225 92 S290 112, 326 58" fill="none" stroke="#e0b85a" stroke-width="10" stroke-linecap="round"/>
-      <g fill="#26313d" stroke="#cbd5e1" stroke-width="3">
-        <rect x="130" y="54" width="18" height="50" rx="4"/><rect x="196" y="48" width="18" height="56" rx="4"/><rect x="262" y="58" width="18" height="46" rx="4"/>
-      </g>
-      <text x="210" y="134" text-anchor="middle" fill="#cbd5e1" font-size="14">内部固定挡片限制钥匙形状</text>
-    </svg>
-            </div>
-            <p>靠内部固定挡片限制钥匙形状。常见于老式挂锁、装饰锁和小箱柜，通常不适合高价值防护。</p>
-            <div class="info-list">
-              <div><strong>常见场景：</strong>老式挂锁、装饰锁、小箱柜。</div>
-              <div><strong>选购重点：</strong>只适合基础管理，不适合真正防盗。</div>
-            </div>
-          </div>
-          <div class="cylinder-card">
-            <div class="cylinder-head">
-              <div>
-                <h3>智能 / 电子锁芯</h3>
-                <span>Smart / Electronic Lock</span>
-              </div>
-              <span class="tag">便利型</span>
-            </div>
-            <div class="diagram" aria-label="智能 / 电子锁芯结构示意图">
-              <svg viewBox="0 0 420 150" role="img">
-      <rect x="82" y="30" width="120" height="92" rx="14" fill="#151a21" stroke="#d7a84c" stroke-width="3"/>
-      <rect x="110" y="48" width="64" height="28" rx="7" fill="#26313d" stroke="#9aa4b2" stroke-width="2"/>
-      <g fill="#e0b85a">
-        <circle cx="116" cy="92" r="5"/><circle cx="142" cy="92" r="5"/><circle cx="168" cy="92" r="5"/>
-        <circle cx="116" cy="108" r="5"/><circle cx="142" cy="108" r="5"/><circle cx="168" cy="108" r="5"/>
-      </g>
-      <rect x="230" y="56" width="116" height="42" rx="10" fill="#26313d" stroke="#cbd5e1" stroke-width="3"/>
-      <path d="M218 77h-16M346 77h20" stroke="#cbd5e1" stroke-width="7" stroke-linecap="round"/>
-      <path d="M274 49 q14 -20 28 0" fill="none" stroke="#22c55e" stroke-width="4" stroke-linecap="round"/>
-      <text x="210" y="137" text-anchor="middle" fill="#cbd5e1" font-size="14">由电机、密码、指纹、卡片或手机控制锁舌</text>
-    </svg>
-            </div>
-            <p>重点不只是锁芯，还包括电池、应急钥匙、系统安全、售后和安装质量。</p>
-            <div class="info-list">
-              <div><strong>常见场景：</strong>住宅门、公寓、办公室、民宿。</div>
-              <div><strong>选购重点：</strong>备用开门方式、低电提醒、售后和兼容性。</div>
-            </div>
+          <div class="panel illustration" aria-label="鎖具資料庫示意圖">
+            <svg viewBox="0 0 360 360" role="img" aria-label="Lock archive illustration">
+              <defs>
+                <linearGradient id="g1" x1="0" x2="1" y1="0" y2="1">
+                  <stop offset="0" stop-color="#e0b85a" />
+                  <stop offset="1" stop-color="#8a6b2f" />
+                </linearGradient>
+                <linearGradient id="g2" x1="0" x2="1" y1="0" y2="1">
+                  <stop offset="0" stop-color="#263445" />
+                  <stop offset="1" stop-color="#111820" />
+                </linearGradient>
+              </defs>
+              <rect x="58" y="120" width="244" height="170" rx="28" fill="url(#g2)" stroke="#e0b85a" stroke-opacity=".35" />
+              <path d="M112 120V92c0-42 30-72 68-72s68 30 68 72v28" fill="none" stroke="url(#g1)" stroke-width="26" stroke-linecap="round" />
+              <circle cx="180" cy="198" r="30" fill="url(#g1)" />
+              <path d="M180 222v34" stroke="#111" stroke-width="14" stroke-linecap="round" />
+              <rect x="90" y="302" width="180" height="18" rx="9" fill="#e0b85a" opacity=".4" />
+              <circle cx="83" cy="83" r="8" fill="#e0b85a" opacity=".65" />
+              <circle cx="288" cy="86" r="6" fill="#9aa4b2" opacity=".7" />
+              <circle cx="302" cy="262" r="7" fill="#e0b85a" opacity=".5" />
+            </svg>
           </div>
         </div>
 
-        <div class="source-box">
-          <strong>学习关键词：</strong>
-          Pin Tumbler、Wafer Lock、Disc Detainer、Lever Lock、Warded Lock、Tubular Lock、Dimple Lock、Smart Lock。
-          你也可以在资料记录里把「锁具类型」选得更细，方便以后分类搜索。
-        </div>
-      </div>
-    </section>
+        <div id="homeCards" class="grid-cards"></div>
+      </section>
 
-    <section id="safety" class="highlight">
-      <div class="container two-col">
-        <div>
-          <div class="section-title" style="text-align:left;margin-bottom:22px;">
-            <h2>如何判断锁具安全？</h2>
-            <p style="margin:0;">锁具安全不是只看价格，而是看整体防护：锁芯、门体、门框、安装质量和使用习惯。</p>
+      <section id="categoryPage" class="page">
+        <div class="category-hero">
+          <div class="category-summary">
+            <span id="categoryBadge" class="badge">資料目錄</span>
+            <h2 id="categoryHeading">目錄</h2>
+            <p id="categoryIntro">記錄資料。</p>
+            <div class="notice">新增時所有欄位都不是必填；有資料就填，沒有可以留空。</div>
           </div>
 
-          <div class="checklist">
-            <div class="check-item">✅ 锁芯是否具备防钻、防撬、防破坏设计</div>
-            <div class="check-item">✅ 门框与锁舌位置是否牢固</div>
-            <div class="check-item">✅ 是否配合门链、监控、报警器等额外防护</div>
-            <div class="check-item">✅ 是否定期检查松动、锈蚀、卡顿问题</div>
-          </div>
-        </div>
-
-        <div class="notice danger">
-          <h3>重要提醒</h3>
-          <p>
-            本页面不提供非法开锁、破解、绕过门锁、复制钥匙滥用等教学。
-            所有内容仅限于合法拥有者的安全维护、选购建议与防盗科普。
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <section id="care">
-      <div class="container">
-        <div class="section-title">
-          <h2>锁具日常保养</h2>
-          <p>很多锁不是坏掉，而是长期缺乏保养导致卡顿、氧化或零件磨损。</p>
-        </div>
-
-        <div class="grid-3">
-          <div class="card">
-            <div class="icon">🧽</div>
-            <h3>保持干净</h3>
-            <p>避免灰尘、沙粒进入钥匙孔。户外锁具尽量减少雨水直淋。</p>
-          </div>
-
-          <div class="card">
-            <div class="icon">🛢️</div>
-            <h3>正确润滑</h3>
-            <p>锁芯卡顿时使用适合锁具的润滑产品，避免随意倒入食用油或黏性油。</p>
-          </div>
-
-          <div class="card">
-            <div class="icon">🔍</div>
-            <h3>定期检查</h3>
-            <p>检查门锁螺丝、锁舌、门缝和钥匙磨损。发现异常应尽早处理。</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="library" class="highlight">
-      <div class="container">
-        <div class="section-title">
-          <h2>新增锁头资料</h2>
-          <p>上传照片并填写资料。没有填写的项目会自动隐藏。资料会保存在浏览器本机。</p>
-        </div>
-
-        <div class="form-box">
-          <div class="form-grid">
-            <div>
-              <label for="lockPhoto">锁头照片</label>
-              <input type="file" id="lockPhoto" accept="image/*" />
-              <img id="photoPreview" class="upload-preview" alt="锁头照片预览" />
-              <p class="small-note">照片只会保存在当前浏览器，不会自动上传到服务器。</p>
-            </div>
-
-            <div>
-              <label for="lockName">锁头名字</label>
-              <input type="text" id="lockName" placeholder="例如：黄铜挂锁、房门锁、智能门锁" />
-
-              <label for="lockOrigin" style="margin-top:14px;">来源 / 使用场景</label>
-              <input type="text" id="lockOrigin" placeholder="例如：家用、店铺、仓库、收藏品" />
-            </div>
-
-            <div>
-              <label for="lockCategory">锁具类型</label>
-              <select id="lockCategory">
-                <option value="">请选择</option>
-                <option>弹子锁芯</option>
-                <option>叶片锁芯</option>
-                <option>碟片锁芯</option>
-                <option>槓桿锁</option>
-                <option>擋片锁</option>
-                <option>管状锁芯</option>
-                <option>凹点锁芯</option>
-                <option>滑片锁芯</option>
-                <option>磁性锁芯</option>
-                <option>智能 / 电子锁芯</option>
-                <option>挂锁</option>
-                <option>机械密码锁</option>
-                <option>商业门锁</option>
-                <option>其他</option>
-              </select>
-            </div>
-
-            <div>
-              <label for="lockLevel">安全等级 / 风险等级</label>
-              <select id="lockLevel">
-                <option value="">请选择</option>
-                <option>低风险</option>
-                <option>中等</option>
-                <option>较高</option>
-                <option>高防护</option>
-                <option>待评估</option>
-              </select>
-            </div>
-
-            <div class="full">
-              <label for="lockFeatures">特点</label>
-              <textarea id="lockFeatures" placeholder="例如：防锈、体积小、适合户外、钥匙手感顺滑"></textarea>
-            </div>
-
-            <div class="full">
-              <label for="lockWeakness">缺点 / 风险说明</label>
-              <textarea id="lockWeakness" placeholder="例如：长期户外容易生锈、锁扣较薄、不适合高价值物品"></textarea>
-            </div>
-
-            <div class="full">
-              <label for="lockTools">适用的合法维修 / 保养工具</label>
-              <textarea id="lockTools" placeholder="例如：锁芯润滑剂、除锈剂、螺丝刀、软布、门缝测量尺"></textarea>
-              <p class="small-note">建议只写保养、安装、检查工具，不填写非法开启工具或绕过步骤。</p>
-            </div>
-
-            <div class="full">
-              <label for="lockNotes">备注</label>
-              <textarea id="lockNotes" placeholder="例如：购买时间、品牌、位置、维修记录等"></textarea>
-            </div>
-
-            <div class="full">
-              <button class="btn btn-primary" type="button" onclick="addLock()">加入资料库</button>
-              <button class="btn btn-secondary" type="button" onclick="resetForm()">清空表单</button>
-              <a class="btn btn-secondary" href="#records">浏览记录数据</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="records">
-      <div class="container">
-        <div class="section-title">
-          <h2>记录数据</h2>
-          <p>这里是专门浏览已记录锁头资料的目录。你可以搜索、筛选、查看详情、导出或删除数据。</p>
-        </div>
-
-        <div class="records-panel">
           <div class="stats">
             <div class="stat">
-              <span>总记录</span>
+              <span>目前記錄</span>
               <strong id="statTotal">0</strong>
             </div>
             <div class="stat">
-              <span>有照片</span>
+              <span>有圖片</span>
               <strong id="statPhotos">0</strong>
             </div>
             <div class="stat">
-              <span>类型数量</span>
-              <strong id="statTypes">0</strong>
-            </div>
-            <div class="stat">
-              <span>最近记录</span>
-              <strong id="statLatest" style="font-size:15px;">-</strong>
+              <span>平均安全性</span>
+              <strong id="statAvg">-</strong>
             </div>
           </div>
+        </div>
 
-          <div class="record-tools">
+        <div class="records-panel">
+          <div class="tools-row">
             <div>
-              <label for="recordSearch">搜索记录</label>
-              <input id="recordSearch" type="text" placeholder="搜索名字、来源、特点、备注..." oninput="renderLocks()" />
+              <label for="searchInput">搜尋</label>
+              <input id="searchInput" type="text" placeholder="搜尋名字、類型、供應商、場景、介紹..." oninput="renderCategory()" />
             </div>
-
             <div>
-              <label for="recordCategory">按类型筛选</label>
-              <select id="recordCategory" onchange="renderLocks()">
-                <option value="">全部类型</option>
-                <option>弹子锁芯</option>
-                <option>叶片锁芯</option>
-                <option>碟片锁芯</option>
-                <option>槓桿锁</option>
-                <option>擋片锁</option>
-                <option>管状锁芯</option>
-                <option>凹点锁芯</option>
-                <option>滑片锁芯</option>
-                <option>磁性锁芯</option>
-                <option>智能 / 电子锁芯</option>
-                <option>挂锁</option>
-                <option>机械密码锁</option>
-                <option>商业门锁</option>
-                <option>其他</option>
+              <label for="ratingFilter">安全性篩選</label>
+              <select id="ratingFilter" onchange="renderCategory()">
+                <option value="">全部星級</option>
+                <option value="5">5 星</option>
+                <option value="4">4 星</option>
+                <option value="3">3 星</option>
+                <option value="2">2 星</option>
+                <option value="1">1 星</option>
               </select>
             </div>
-
-            <div>
-              <label for="recordLevel">按等级筛选</label>
-              <select id="recordLevel" onchange="renderLocks()">
-                <option value="">全部等级</option>
-                <option>低风险</option>
-                <option>中等</option>
-                <option>较高</option>
-                <option>高防护</option>
-                <option>待评估</option>
-              </select>
-            </div>
+            <button class="btn btn-secondary" type="button" onclick="exportCurrentJSON()">匯出 JSON</button>
+            <button class="btn btn-secondary" type="button" onclick="exportCurrentCSV()">匯出 CSV</button>
           </div>
 
-          <div class="action-row" style="margin-bottom:16px;">
-            <button class="btn btn-secondary" type="button" onclick="exportJSON()">导出 JSON</button>
-            <button class="btn btn-secondary" type="button" onclick="exportCSV()">导出 CSV</button>
-            <button class="btn btn-danger" type="button" onclick="clearLocks()">清空全部记录</button>
-          </div>
-
-          <div class="record-table-wrap">
+          <div class="table-wrap">
             <table>
               <thead>
                 <tr>
-                  <th>照片</th>
+                  <th>圖片</th>
                   <th>名字</th>
-                  <th>类型</th>
-                  <th>等级</th>
-                  <th>来源</th>
-                  <th>特点</th>
-                  <th>缺点 / 风险</th>
-                  <th>工具</th>
-                  <th>记录时间</th>
+                  <th>類型 / 供應商</th>
+                  <th>大約價格</th>
+                  <th>常見場景 / 地點</th>
+                  <th>選購重點</th>
+                  <th>優點</th>
+                  <th>缺點</th>
+                  <th>安全性</th>
+                  <th>物品鏈接</th>
+                  <th>介紹</th>
+                  <th>合法授權 / 維修工具</th>
+                  <th>工具鏈接</th>
+                  <th>工具圖片</th>
                   <th>操作</th>
                 </tr>
               </thead>
-              <tbody id="recordTableBody"></tbody>
+              <tbody id="recordBody"></tbody>
             </table>
           </div>
+
+          <div id="emptyState" class="empty-state" style="display:none;">
+            <div class="big">📁</div>
+            <h3>這個目錄目前沒有資料</h3>
+            <p>按右上角「新增」開始記錄。</p>
+          </div>
         </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="itemModal" class="modal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div>
+          <h2 id="modalTitle">新增資料</h2>
+          <p>所有欄位都不是必填；有資料就填，沒有可以留空。</p>
+        </div>
+        <button class="close" type="button" onclick="closeItemModal()">×</button>
       </div>
-    </section>
 
-    <section id="tools" class="highlight">
-      <div class="container">
-        <div class="section-title">
-          <h2>合法工具购买参考</h2>
-          <p>这里适合放锁具保养、安装、检查和防护相关工具。请勿用于未授权进入或绕过安全设施。</p>
+      <form id="itemForm" onsubmit="saveItem(event)">
+        <div class="form-grid">
+          <div>
+            <label for="photoInput">圖片</label>
+            <input id="photoInput" type="file" accept="image/*" />
+            <img id="photoPreview" class="preview" alt="物品圖片預覽" />
+            <p class="small-note">圖片會保存到目前瀏覽器，不會自動上傳。</p>
+          </div>
+
+          <div>
+            <label for="toolPhotoInput">工具圖片</label>
+            <input id="toolPhotoInput" type="file" accept="image/*" />
+            <img id="toolPhotoPreview" class="preview" alt="工具圖片預覽" />
+            <p class="small-note">工具欄位僅限合法授權、維修或保養記錄。</p>
+          </div>
+
+          <div>
+            <label for="nameInput">名字</label>
+            <input id="nameInput" type="text" placeholder="例如：黃銅掛鎖、指紋門鎖、彈子鎖芯" />
+          </div>
+
+          <div>
+            <label for="typeInput">類型</label>
+            <input id="typeInput" type="text" placeholder="例如：彈子鎖芯 / 電子密碼鎖 / 防剪掛鎖" />
+          </div>
+
+          <div>
+            <label for="supplierInput">供應商 / 品牌（有就寫）</label>
+            <input id="supplierInput" type="text" placeholder="例如：品牌名、Shopee 店鋪、五金店" />
+          </div>
+
+          <div>
+            <label for="priceInput">大約價格</label>
+            <input id="priceInput" type="text" placeholder="例如：RM 25、SGD 60、約 100-150" />
+          </div>
+
+          <div>
+            <label for="sceneInput">常見場景 / 地點</label>
+            <textarea id="sceneInput" placeholder="例如：家門、倉庫、鐵門、辦公室、抽屜、收藏展示"></textarea>
+          </div>
+
+          <div>
+            <label for="buyingInput">選購重點</label>
+            <textarea id="buyingInput" placeholder="例如：防鏽、防剪、鎖體厚度、售後、電池、應急鑰匙"></textarea>
+          </div>
+
+          <div>
+            <label for="prosInput">優點</label>
+            <textarea id="prosInput" placeholder="例如：耐用、便宜、容易安裝、適合戶外、方便管理"></textarea>
+          </div>
+
+          <div>
+            <label for="consInput">缺點</label>
+            <textarea id="consInput" placeholder="例如：容易生鏽、重量大、需要電池、價格高、安裝麻煩"></textarea>
+          </div>
+
+          <div>
+            <label for="ratingInput">安全性 1 至 5 星</label>
+            <select id="ratingInput">
+              <option value="">未評估</option>
+              <option value="1">1 星</option>
+              <option value="2">2 星</option>
+              <option value="3">3 星</option>
+              <option value="4">4 星</option>
+              <option value="5">5 星</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="itemLinkInput">物品鏈接</label>
+            <input id="itemLinkInput" type="url" placeholder="https://..." />
+          </div>
+
+          <div class="full">
+            <label for="introInput">介紹</label>
+            <textarea id="introInput" placeholder="簡單介紹用途、材質、尺寸、背景、收藏價值或你的評價"></textarea>
+          </div>
+
+          <div class="full">
+            <label for="openToolsInput">可以被那些工具開啟 / 維修 / 保養</label>
+            <textarea id="openToolsInput" placeholder="只記錄合法授權用途，例如：原廠鑰匙、授權維修工具、安裝工具、保養工具。請勿填寫非法繞過或入侵教學。"></textarea>
+          </div>
+
+          <div class="full">
+            <label for="toolLinkInput">工具鏈接</label>
+            <input id="toolLinkInput" type="url" placeholder="https://..." />
+            <p class="small-note">建議放保養、安裝、授權維修、官方工具或一般五金工具連結。</p>
+          </div>
+
+          <div class="full action-row" style="margin-top:8px;">
+            <button class="btn btn-primary" type="submit">保存資料</button>
+            <button class="btn btn-secondary" type="button" onclick="resetForm()">清空表單</button>
+            <button class="btn btn-secondary" type="button" onclick="closeItemModal()">取消</button>
+          </div>
         </div>
-
-        <div class="grid-3">
-          <div class="card">
-            <div class="icon">🛢️</div>
-            <h3>锁芯润滑剂</h3>
-            <p>用于改善钥匙卡顿、锁芯干涩等问题。建议选择适合锁具的产品。</p>
-            <a class="tool-link" href="https://shopee.com.my/search?keyword=lock%20lubricant" target="_blank" rel="noopener">Shopee 搜索</a>
-            <a class="tool-link" href="https://www.lazada.com.my/catalog/?q=lock%20lubricant" target="_blank" rel="noopener">Lazada 搜索</a>
-          </div>
-
-          <div class="card">
-            <div class="icon">🧴</div>
-            <h3>除锈与清洁用品</h3>
-            <p>适合户外挂锁、铁门锁和长期暴露在潮湿环境的锁具维护。</p>
-            <a class="tool-link" href="https://shopee.com.my/search?keyword=rust%20remover" target="_blank" rel="noopener">Shopee 搜索</a>
-            <a class="tool-link" href="https://www.lazada.com.my/catalog/?q=rust%20remover" target="_blank" rel="noopener">Lazada 搜索</a>
-          </div>
-
-          <div class="card">
-            <div class="icon">🔩</div>
-            <h3>安装工具</h3>
-            <p>例如螺丝刀、卷尺、水平尺和门缝测量工具，适合检查锁体安装是否牢固。</p>
-            <a class="tool-link" href="https://shopee.com.my/search?keyword=screwdriver%20set" target="_blank" rel="noopener">Shopee 搜索</a>
-            <a class="tool-link" href="https://www.lazada.com.my/catalog/?q=screwdriver%20set" target="_blank" rel="noopener">Lazada 搜索</a>
-          </div>
-
-          <div class="card">
-            <div class="icon">🛡️</div>
-            <h3>门锁防护配件</h3>
-            <p>门链、防撬片、加强锁扣板和门框加固件，可提升整体门锁防护能力。</p>
-            <a class="tool-link" href="https://shopee.com.my/search?keyword=door%20security%20lock" target="_blank" rel="noopener">Shopee 搜索</a>
-            <a class="tool-link" href="https://www.lazada.com.my/catalog/?q=door%20security%20lock" target="_blank" rel="noopener">Lazada 搜索</a>
-          </div>
-
-          <div class="card">
-            <div class="icon">📹</div>
-            <h3>辅助安全设备</h3>
-            <p>门铃摄像头、感应灯和门窗报警器适合搭配门锁使用，提升预警能力。</p>
-            <a class="tool-link" href="https://shopee.com.my/search?keyword=door%20alarm" target="_blank" rel="noopener">Shopee 搜索</a>
-            <a class="tool-link" href="https://www.lazada.com.my/catalog/?q=door%20alarm" target="_blank" rel="noopener">Lazada 搜索</a>
-          </div>
-
-          <div class="card">
-            <div class="icon">📞</div>
-            <h3>专业服务</h3>
-            <p>遇到门锁故障、换锁芯或安全检查，建议找合法锁匠或门锁安装服务。</p>
-            <a class="tool-link" href="#contact">联系咨询</a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="faq">
-      <div class="container">
-        <div class="section-title">
-          <h2>常见问题</h2>
-          <p>锁具使用与安全维护的常见疑问。</p>
-        </div>
-
-        <div class="faq">
-          <details>
-            <summary>钥匙插进去很卡，是不是锁坏了？</summary>
-            <p>不一定。可能是钥匙磨损、锁芯有灰尘、门体下沉或锁舌位置偏移。建议先检查钥匙和门缝，再找专业人员处理。</p>
-          </details>
-
-          <details>
-            <summary>智能锁一定比机械锁安全吗？</summary>
-            <p>不一定。智能锁方便，但也要看品牌、结构、应急机制、系统安全和安装质量。</p>
-          </details>
-
-          <details>
-            <summary>这个资料库的数据会上传到服务器吗？</summary>
-            <p>不会。当前版本使用浏览器 localStorage，本机保存。本地数据可能因清除浏览器缓存而消失，重要资料建议导出备份。</p>
-          </details>
-
-          <details>
-            <summary>门锁安全最容易被忽略的地方是什么？</summary>
-            <p>门框、锁扣板、螺丝长度和安装质量。很多时候不是锁芯太弱，而是门框和锁扣承受不了外力。</p>
-          </details>
-        </div>
-      </div>
-    </section>
-
-    <section id="contact" class="highlight">
-      <div class="container">
-        <div class="contact-box">
-          <h2>需要锁具科普或安全检查？</h2>
-          <p>你可以把这里改成你的 WhatsApp、Facebook、Instagram、邮箱或服务范围。</p>
-          <a class="btn btn-primary" href="https://wa.me/60123456789" target="_blank" rel="noopener">WhatsApp 联系我</a>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <div class="container">
-      © 2026 锁具安全档案馆 · 内容仅供合法安全教育与维护记录使用
+      </form>
     </div>
-  </footer>
+  </div>
 
   <div id="detailModal" class="modal">
     <div class="modal-box">
       <div class="modal-head">
-        <h3 id="detailTitle">锁头详情</h3>
-        <button class="close" onclick="closeDetail()">×</button>
+        <div>
+          <h3 id="detailTitle">詳情</h3>
+          <p id="detailSubtitle">資料內容</p>
+        </div>
+        <button class="close" type="button" onclick="closeDetailModal()">×</button>
       </div>
       <div id="detailContent"></div>
     </div>
   </div>
 
   <script>
+    const STORAGE_KEY = "lockDirectoryArchiveV2";
+
+    const CATEGORIES = [
+      {
+        key: "cylinders",
+        icon: "🧩",
+        title: "鎖芯目錄",
+        subtitle: "內部鎖芯",
+        desc: "記錄各種各樣內部鎖芯，例如彈子、葉片、碟片、管狀、凹點、滑片等。"
+      },
+      {
+        key: "electronic",
+        icon: "🔋",
+        title: "電子鎖目錄",
+        subtitle: "電子鎖 / 智能鎖",
+        desc: "記錄各種各樣的電子鎖，例如指紋鎖、密碼鎖、卡片鎖、藍牙鎖、WiFi 智能門鎖。"
+      },
+      {
+        key: "lockheads",
+        icon: "🔐",
+        title: "鎖頭目錄",
+        subtitle: "一般鎖頭",
+        desc: "記錄各種各樣的鎖頭，適合普通門鎖、箱包鎖、抽屜鎖、櫃鎖等資料。"
+      },
+      {
+        key: "padlocks",
+        icon: "⛓️",
+        title: "掛鎖目錄",
+        subtitle: "掛鎖 / 鏈鎖",
+        desc: "記錄各種各樣的掛鎖，例如黃銅掛鎖、防剪掛鎖、戶外防水掛鎖、鏈條鎖。"
+      },
+      {
+        key: "gateLocks",
+        icon: "🚪",
+        title: "大門鎖目錄",
+        subtitle: "大門 / 鐵門 / 門禁",
+        desc: "記錄各種各樣大門鎖，例如防盜門鎖、鐵門鎖、插芯鎖、門禁鎖與門框配件。"
+      },
+      {
+        key: "antique",
+        icon: "🏺",
+        title: "古老絕版鎖頭目錄",
+        subtitle: "古老 / 絕版 / 收藏",
+        desc: "記錄各種各樣古老、絕版、現在已經買不到的鎖頭，適合收藏、歷史與展示用途。"
+      }
+    ];
+
+    let currentPage = "home";
+    let currentCategory = CATEGORIES[0].key;
+    let editingId = null;
     let currentPhoto = "";
-    const STORAGE_KEY = "lockArchiveProV1";
+    let currentToolPhoto = "";
 
-    const photoInput = document.getElementById("lockPhoto");
-    const photoPreview = document.getElementById("photoPreview");
+    const fields = [
+      "name", "type", "supplier", "price", "scene", "buying", "pros", "cons",
+      "rating", "itemLink", "intro", "openTools", "toolLink"
+    ];
 
-    photoInput.addEventListener("change", function () {
-      const file = this.files[0];
+    function init() {
+      renderSideMenu();
+      renderHomeCards();
+      setupImageInputs();
+      setPage("home");
+      document.getElementById("itemModal").addEventListener("click", (event) => {
+        if (event.target.id === "itemModal") closeItemModal();
+      });
+      document.getElementById("detailModal").addEventListener("click", (event) => {
+        if (event.target.id === "detailModal") closeDetailModal();
+      });
+    }
+
+    function defaultStore() {
+      return CATEGORIES.reduce((acc, cat) => {
+        acc[cat.key] = [];
+        return acc;
+      }, {});
+    }
+
+    function loadStore() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      let store = raw ? JSON.parse(raw) : defaultStore();
+      CATEGORIES.forEach(cat => {
+        if (!Array.isArray(store[cat.key])) store[cat.key] = [];
+      });
+      return store;
+    }
+
+    function saveStore(store) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+      renderHomeCards();
+    }
+
+    function getCategory(key = currentCategory) {
+      return CATEGORIES.find(cat => cat.key === key) || CATEGORIES[0];
+    }
+
+    function renderSideMenu() {
+      const menu = document.getElementById("sideMenu");
+      menu.innerHTML = `
+        <button type="button" data-page="home" onclick="setPage('home')">
+          <span class="ico">🏠</span>
+          <span class="menu-text"><strong>首頁</strong><span>總覽與說明</span></span>
+        </button>
+        ${CATEGORIES.map(cat => `
+          <button type="button" data-cat="${cat.key}" onclick="setCategory('${cat.key}')">
+            <span class="ico">${cat.icon}</span>
+            <span class="menu-text"><strong>${escapeHtml(cat.title)}</strong><span>${escapeHtml(cat.subtitle)}</span></span>
+          </button>
+        `).join("")}
+      `;
+    }
+
+    function updateMenuActive() {
+      document.querySelectorAll("#sideMenu button").forEach(btn => btn.classList.remove("active"));
+      if (currentPage === "home") {
+        document.querySelector("#sideMenu button[data-page='home']")?.classList.add("active");
+      } else {
+        document.querySelector(`#sideMenu button[data-cat='${currentCategory}']`)?.classList.add("active");
+      }
+    }
+
+    function setPage(page) {
+      currentPage = page;
+      document.getElementById("homePage").classList.toggle("active", page === "home");
+      document.getElementById("categoryPage").classList.toggle("active", page !== "home");
+
+      if (page === "home") {
+        document.getElementById("pageTitle").textContent = "首頁";
+        document.getElementById("pageDesc").textContent = "左邊是目錄，右邊顯示對應資料。";
+        document.getElementById("topActions").innerHTML = `
+          <button class="btn btn-primary" type="button" onclick="setCategory('cylinders')">開始記錄</button>
+        `;
+      }
+
+      updateMenuActive();
+      closeSidebarOnMobile();
+    }
+
+    function setCategory(key) {
+      currentPage = "category";
+      currentCategory = key;
+      const cat = getCategory(key);
+
+      document.getElementById("homePage").classList.remove("active");
+      document.getElementById("categoryPage").classList.add("active");
+      document.getElementById("pageTitle").textContent = cat.title;
+      document.getElementById("pageDesc").textContent = cat.desc;
+      document.getElementById("categoryBadge").textContent = cat.subtitle;
+      document.getElementById("categoryHeading").textContent = cat.title;
+      document.getElementById("categoryIntro").textContent = cat.desc;
+      document.getElementById("searchInput").value = "";
+      document.getElementById("ratingFilter").value = "";
+      document.getElementById("topActions").innerHTML = `
+        <button class="btn btn-primary" type="button" onclick="openAddModal()">＋ 新增</button>
+        <button class="btn btn-danger" type="button" onclick="clearCurrentCategory()">清空此目錄</button>
+      `;
+      renderCategory();
+      updateMenuActive();
+      closeSidebarOnMobile();
+    }
+
+    function renderHomeCards() {
+      const store = loadStore();
+      const cards = document.getElementById("homeCards");
+      cards.innerHTML = CATEGORIES.map(cat => {
+        const count = store[cat.key]?.length || 0;
+        return `
+          <button class="card" type="button" onclick="setCategory('${cat.key}')" style="text-align:left;">
+            <div class="icon">${cat.icon}</div>
+            <h3>${escapeHtml(cat.title)}</h3>
+            <p>${escapeHtml(cat.desc)}</p>
+            <div class="count">目前 ${count} 筆記錄</div>
+          </button>
+        `;
+      }).join("");
+    }
+
+    function setupImageInputs() {
+      document.getElementById("photoInput").addEventListener("change", function () {
+        readImage(this.files[0], (dataUrl) => {
+          currentPhoto = dataUrl;
+          const img = document.getElementById("photoPreview");
+          img.src = dataUrl;
+          img.style.display = "block";
+        });
+      });
+
+      document.getElementById("toolPhotoInput").addEventListener("change", function () {
+        readImage(this.files[0], (dataUrl) => {
+          currentToolPhoto = dataUrl;
+          const img = document.getElementById("toolPhotoPreview");
+          img.src = dataUrl;
+          img.style.display = "block";
+        });
+      });
+    }
+
+    function readImage(file, callback) {
       if (!file) return;
-
       const reader = new FileReader();
-      reader.onload = function (event) {
-        currentPhoto = event.target.result;
-        photoPreview.src = currentPhoto;
-        photoPreview.style.display = "block";
-      };
+      reader.onload = event => callback(event.target.result);
       reader.readAsDataURL(file);
-    });
+    }
 
     function getValue(id) {
       return document.getElementById(id).value.trim();
     }
 
-    function loadLocks() {
-      const oldData = JSON.parse(localStorage.getItem("lockLibrary") || "[]");
-      const newData = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-
-      if (newData.length === 0 && oldData.length > 0) {
-        const migrated = oldData.map((item, index) => ({
-          id: item.id || "OLD-" + Date.now() + "-" + index,
-          photo: item.photo || "",
-          name: item.name || "",
-          origin: item.origin || "",
-          category: item.category || "",
-          level: item.level || "",
-          features: item.features || "",
-          weakness: item.weakness || "",
-          tools: item.tools || "",
-          notes: item.notes || "",
-          createdAt: item.createdAt || new Date().toLocaleString()
-        }));
-        saveLocks(migrated);
-        return migrated;
-      }
-
-      return newData;
+    function setValue(id, value) {
+      document.getElementById(id).value = value || "";
     }
 
-    function saveLocks(locks) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(locks));
-    }
-
-    function addLock() {
-      const item = {
-        id: "LOCK-" + Date.now(),
-        photo: currentPhoto,
-        name: getValue("lockName"),
-        origin: getValue("lockOrigin"),
-        category: getValue("lockCategory"),
-        level: getValue("lockLevel"),
-        features: getValue("lockFeatures"),
-        weakness: getValue("lockWeakness"),
-        tools: getValue("lockTools"),
-        notes: getValue("lockNotes"),
-        createdAt: new Date().toLocaleString()
-      };
-
-      if (!item.photo && !item.name && !item.origin && !item.category && !item.level && !item.features && !item.weakness && !item.tools && !item.notes) {
-        alert("请至少填写一个项目，或上传一张照片。");
-        return;
-      }
-
-      const locks = loadLocks();
-      locks.unshift(item);
-      saveLocks(locks);
-      renderLocks();
+    function openAddModal() {
+      editingId = null;
       resetForm();
-      location.hash = "#records";
+      const cat = getCategory();
+      document.getElementById("modalTitle").textContent = `新增：${cat.title}`;
+      document.getElementById("itemModal").classList.add("show");
     }
 
-    function resetForm() {
+    function openEditModal(id) {
+      const store = loadStore();
+      const item = store[currentCategory].find(row => row.id === id);
+      if (!item) return;
+      editingId = id;
+      resetForm(false);
+
+      fields.forEach(field => setValue(field + "Input", item[field] || ""));
+      currentPhoto = item.photo || "";
+      currentToolPhoto = item.toolPhoto || "";
+
+      if (currentPhoto) {
+        const img = document.getElementById("photoPreview");
+        img.src = currentPhoto;
+        img.style.display = "block";
+      }
+      if (currentToolPhoto) {
+        const img = document.getElementById("toolPhotoPreview");
+        img.src = currentToolPhoto;
+        img.style.display = "block";
+      }
+
+      document.getElementById("modalTitle").textContent = "編輯資料";
+      document.getElementById("itemModal").classList.add("show");
+    }
+
+    function closeItemModal() {
+      document.getElementById("itemModal").classList.remove("show");
+    }
+
+    function resetForm(clearId = true) {
+      if (clearId) editingId = null;
       currentPhoto = "";
-      photoInput.value = "";
-      photoPreview.src = "";
-      photoPreview.style.display = "none";
-      [
-        "lockName",
-        "lockOrigin",
-        "lockCategory",
-        "lockLevel",
-        "lockFeatures",
-        "lockWeakness",
-        "lockTools",
-        "lockNotes"
-      ].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = "";
+      currentToolPhoto = "";
+      document.getElementById("itemForm").reset();
+      ["photoPreview", "toolPhotoPreview"].forEach(id => {
+        const img = document.getElementById(id);
+        img.src = "";
+        img.style.display = "none";
       });
     }
 
-    function clearLocks() {
-      if (confirm("确定要清空全部记录吗？这个动作不能恢复。")) {
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem("lockLibrary");
-        renderLocks();
+    function saveItem(event) {
+      event.preventDefault();
+      const store = loadStore();
+      const now = new Date().toLocaleString();
+      const item = {
+        id: editingId || "ITEM-" + Date.now(),
+        categoryKey: currentCategory,
+        photo: currentPhoto,
+        toolPhoto: currentToolPhoto,
+        updatedAt: now,
+        createdAt: now
+      };
+
+      fields.forEach(field => {
+        item[field] = getValue(field + "Input");
+      });
+
+      const hasContent = Boolean(currentPhoto || currentToolPhoto || fields.some(field => String(item[field] || "").trim() !== ""));
+      if (!hasContent) {
+        alert("請至少填寫一個欄位或上傳一張圖片。");
+        return;
       }
+
+      if (editingId) {
+        const index = store[currentCategory].findIndex(row => row.id === editingId);
+        if (index >= 0) {
+          item.createdAt = store[currentCategory][index].createdAt || now;
+          store[currentCategory][index] = item;
+        }
+      } else {
+        store[currentCategory].unshift(item);
+      }
+
+      saveStore(store);
+      closeItemModal();
+      renderCategory();
     }
 
-    function deleteLock(id) {
-      if (!confirm("确定删除这条记录吗？")) return;
-      const locks = loadLocks().filter(item => item.id !== id);
-      saveLocks(locks);
-      renderLocks();
+    function getFilteredRecords() {
+      const store = loadStore();
+      const records = store[currentCategory] || [];
+      const q = getValue("searchInput").toLowerCase();
+      const rating = getValue("ratingFilter");
+
+      return records.filter(item => {
+        const haystack = [
+          item.name, item.type, item.supplier, item.price, item.scene, item.buying,
+          item.pros, item.cons, item.rating, item.itemLink, item.intro,
+          item.openTools, item.toolLink, item.createdAt, item.updatedAt
+        ].join(" ").toLowerCase();
+
+        const matchQ = !q || haystack.includes(q);
+        const matchRating = !rating || String(item.rating || "") === rating;
+        return matchQ && matchRating;
+      });
+    }
+
+    function renderCategory() {
+      const store = loadStore();
+      const all = store[currentCategory] || [];
+      const records = getFilteredRecords();
+      updateStats(all);
+
+      const body = document.getElementById("recordBody");
+      const emptyState = document.getElementById("emptyState");
+
+      if (records.length === 0) {
+        body.innerHTML = "";
+        emptyState.style.display = "block";
+        return;
+      }
+
+      emptyState.style.display = "none";
+      body.innerHTML = records.map(item => `
+        <tr>
+          <td>${item.photo ? `<img class="record-img" src="${item.photo}" alt="${escapeHtml(item.name || '圖片')}">` : `<span class="tag tag-muted">無圖片</span>`}</td>
+          <td><strong>${escapeHtml(item.name || "未命名")}</strong><br><span class="muted">${escapeHtml(item.createdAt || "")}</span></td>
+          <td>${item.type ? `<span class="tag">${escapeHtml(item.type)}</span>` : "-"}<br>${item.supplier ? `<span class="muted">供應商：${escapeHtml(item.supplier)}</span>` : ""}</td>
+          <td>${escapeHtml(item.price || "-")}</td>
+          <td>${escapeHtml(compact(item.scene, 72)) || "-"}</td>
+          <td>${escapeHtml(compact(item.buying, 72)) || "-"}</td>
+          <td>${escapeHtml(compact(item.pros, 72)) || "-"}</td>
+          <td>${escapeHtml(compact(item.cons, 72)) || "-"}</td>
+          <td>${renderStars(item.rating)}</td>
+          <td>${renderLink(item.itemLink, "物品鏈接")}</td>
+          <td>${escapeHtml(compact(item.intro, 90)) || "-"}</td>
+          <td>${escapeHtml(compact(item.openTools, 85)) || "-"}</td>
+          <td>${renderLink(item.toolLink, "工具鏈接")}</td>
+          <td>${item.toolPhoto ? `<img class="record-img" src="${item.toolPhoto}" alt="工具圖片">` : `<span class="tag tag-muted">無圖片</span>`}</td>
+          <td>
+            <div class="action-row">
+              <button class="btn btn-secondary btn-small" type="button" onclick="viewItem('${item.id}')">詳情</button>
+              <button class="btn btn-secondary btn-small" type="button" onclick="openEditModal('${item.id}')">編輯</button>
+              <button class="btn btn-danger btn-small" type="button" onclick="deleteItem('${item.id}')">刪除</button>
+            </div>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    function updateStats(records) {
+      const total = records.length;
+      const photos = records.filter(item => item.photo).length;
+      const ratings = records.map(item => Number(item.rating)).filter(n => n >= 1 && n <= 5);
+      const avg = ratings.length ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1) + "★" : "-";
+      document.getElementById("statTotal").textContent = total;
+      document.getElementById("statPhotos").textContent = photos;
+      document.getElementById("statAvg").textContent = avg;
+    }
+
+    function viewItem(id) {
+      const item = (loadStore()[currentCategory] || []).find(row => row.id === id);
+      if (!item) return;
+      document.getElementById("detailTitle").textContent = item.name || "未命名資料";
+      document.getElementById("detailSubtitle").textContent = `${getCategory().title} · ${item.createdAt || ""}`;
+
+      document.getElementById("detailContent").innerHTML = `
+        ${item.photo ? `<img class="detail-main-img" src="${item.photo}" alt="${escapeHtml(item.name || '圖片')}">` : ""}
+        <div class="detail-grid">
+          ${detailBox("名字", item.name)}
+          ${detailBox("類型", item.type)}
+          ${detailBox("供應商 / 品牌", item.supplier)}
+          ${detailBox("大約價格", item.price)}
+          ${detailBox("常見場景 / 地點", item.scene, true)}
+          ${detailBox("選購重點", item.buying, true)}
+          ${detailBox("優點", item.pros, true)}
+          ${detailBox("缺點", item.cons, true)}
+          ${detailBox("安全性", item.rating ? renderStars(item.rating, false) : "未評估")}
+          ${detailBox("物品鏈接", item.itemLink ? `<a class="link" href="${safeUrl(item.itemLink)}" target="_blank" rel="noopener">${escapeHtml(item.itemLink)}</a>` : "", true, true)}
+          ${detailBox("介紹", item.intro, true)}
+          ${detailBox("可以被那些工具開啟 / 維修 / 保養", item.openTools, true)}
+          ${detailBox("工具鏈接", item.toolLink ? `<a class="link" href="${safeUrl(item.toolLink)}" target="_blank" rel="noopener">${escapeHtml(item.toolLink)}</a>` : "", true, true)}
+          ${item.toolPhoto ? `<div class="detail-box full"><span>工具圖片</span><img class="detail-main-img" src="${item.toolPhoto}" alt="工具圖片" style="margin:0;"></div>` : ""}
+          ${detailBox("建立時間", item.createdAt)}
+          ${detailBox("更新時間", item.updatedAt)}
+        </div>
+      `;
+      document.getElementById("detailModal").classList.add("show");
+    }
+
+    function closeDetailModal() {
+      document.getElementById("detailModal").classList.remove("show");
+    }
+
+    function detailBox(title, value, paragraph = false, rawHtml = false) {
+      if (!value) return "";
+      const content = rawHtml ? value : escapeHtml(value);
+      return `
+        <div class="detail-box ${paragraph ? "full" : ""}">
+          <span>${escapeHtml(title)}</span>
+          ${paragraph ? `<p>${content}</p>` : `<strong>${content}</strong>`}
+        </div>
+      `;
+    }
+
+    function deleteItem(id) {
+      if (!confirm("確定刪除這筆資料嗎？")) return;
+      const store = loadStore();
+      store[currentCategory] = store[currentCategory].filter(item => item.id !== id);
+      saveStore(store);
+      renderCategory();
+    }
+
+    function clearCurrentCategory() {
+      const cat = getCategory();
+      if (!confirm(`確定清空「${cat.title}」全部資料嗎？這個動作不能恢復。`)) return;
+      const store = loadStore();
+      store[currentCategory] = [];
+      saveStore(store);
+      renderCategory();
+    }
+
+    function exportCurrentJSON() {
+      const cat = getCategory();
+      const data = loadStore()[currentCategory] || [];
+      downloadBlob(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }), `${cat.key}-records.json`);
+    }
+
+    function exportCurrentCSV() {
+      const cat = getCategory();
+      const rows = loadStore()[currentCategory] || [];
+      const headers = ["name", "type", "supplier", "price", "scene", "buying", "pros", "cons", "rating", "itemLink", "intro", "openTools", "toolLink", "createdAt", "updatedAt"];
+      const csv = [
+        headers.join(","),
+        ...rows.map(row => headers.map(key => `"${String(row[key] || "").replaceAll('"', '""')}"`).join(","))
+      ].join("\n");
+      downloadBlob(new Blob([csv], { type: "text/csv;charset=utf-8" }), `${cat.key}-records.csv`);
+    }
+
+    function downloadBlob(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function renderStars(value, wrap = true) {
+      const n = Number(value);
+      if (!n) return `<span class="tag tag-muted">未評估</span>`;
+      const stars = "★".repeat(n) + "☆".repeat(5 - n);
+      return wrap ? `<span class="stars">${stars}</span>` : stars;
+    }
+
+    function renderLink(url, label) {
+      if (!url) return "-";
+      return `<a class="link" href="${safeUrl(url)}" target="_blank" rel="noopener">${escapeHtml(label)}</a>`;
+    }
+
+    function safeUrl(url) {
+      const value = String(url || "").trim();
+      if (/^https?:\/\//i.test(value)) return value.replaceAll('"', '%22');
+      return "#";
+    }
+
+    function compact(text, max = 70) {
+      const value = String(text || "");
+      return value.length > max ? value.slice(0, max) + "..." : value;
     }
 
     function escapeHtml(text) {
@@ -1666,163 +1327,17 @@
         .replaceAll("'", "&#039;");
     }
 
-    function compact(text, max = 70) {
-      const value = String(text || "");
-      return value.length > max ? value.slice(0, max) + "..." : value;
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("open");
     }
 
-    function getFilteredLocks() {
-      const locks = loadLocks();
-      const q = getValue("recordSearch").toLowerCase();
-      const category = getValue("recordCategory");
-      const level = getValue("recordLevel");
-
-      return locks.filter(item => {
-        const haystack = [
-          item.name,
-          item.origin,
-          item.category,
-          item.level,
-          item.features,
-          item.weakness,
-          item.tools,
-          item.notes,
-          item.createdAt
-        ].join(" ").toLowerCase();
-
-        const matchQ = !q || haystack.includes(q);
-        const matchCategory = !category || item.category === category;
-        const matchLevel = !level || item.level === level;
-
-        return matchQ && matchCategory && matchLevel;
-      });
-    }
-
-    function updateStats(locks) {
-      const total = locks.length;
-      const photos = locks.filter(item => item.photo).length;
-      const types = new Set(locks.map(item => item.category).filter(Boolean)).size;
-      const latest = locks[0]?.createdAt || "-";
-
-      document.getElementById("statTotal").textContent = total;
-      document.getElementById("statPhotos").textContent = photos;
-      document.getElementById("statTypes").textContent = types;
-      document.getElementById("statLatest").textContent = latest;
-    }
-
-    function renderLocks() {
-      const allLocks = loadLocks();
-      const locks = getFilteredLocks();
-      const body = document.getElementById("recordTableBody");
-
-      updateStats(allLocks);
-
-      if (locks.length === 0) {
-        body.innerHTML = `
-          <tr>
-            <td colspan="10" style="text-align:center;padding:28px;color:#a9b0bb;">
-              还没有符合条件的记录。你可以先新增锁头资料。
-            </td>
-          </tr>
-        `;
-        return;
+    function closeSidebarOnMobile() {
+      if (window.innerWidth <= 1100) {
+        document.getElementById("sidebar").classList.remove("open");
       }
-
-      body.innerHTML = locks.map(item => `
-        <tr>
-          <td>
-            ${item.photo
-              ? `<img class="mini-img" src="${item.photo}" alt="${escapeHtml(item.name || "锁头照片")}">`
-              : `<span class="tag level-tag">无照片</span>`}
-          </td>
-          <td><strong>${escapeHtml(item.name || "未命名")}</strong></td>
-          <td>${item.category ? `<span class="tag">${escapeHtml(item.category)}</span>` : "-"}</td>
-          <td>${item.level ? `<span class="tag level-tag">${escapeHtml(item.level)}</span>` : "-"}</td>
-          <td>${escapeHtml(compact(item.origin, 55)) || "-"}</td>
-          <td>${escapeHtml(compact(item.features, 72)) || "-"}</td>
-          <td>${escapeHtml(compact(item.weakness, 72)) || "-"}</td>
-          <td>${escapeHtml(compact(item.tools, 72)) || "-"}</td>
-          <td>${escapeHtml(item.createdAt || "-")}</td>
-          <td>
-            <div class="action-row">
-              <button class="btn btn-steel" type="button" onclick="viewLock('${item.id}')">详情</button>
-              <button class="btn btn-danger" type="button" onclick="deleteLock('${item.id}')">删除</button>
-            </div>
-          </td>
-        </tr>
-      `).join("");
     }
 
-    function viewLock(id) {
-      const item = loadLocks().find(record => record.id === id);
-      if (!item) return;
-
-      document.getElementById("detailTitle").textContent = item.name || "锁头详情";
-
-      document.getElementById("detailContent").innerHTML = `
-        ${item.photo ? `<img class="detail-img" src="${item.photo}" alt="${escapeHtml(item.name || "锁头照片")}">` : ""}
-        <div class="detail-grid">
-          ${detailBox("名字", item.name)}
-          ${detailBox("类型", item.category)}
-          ${detailBox("等级", item.level)}
-          ${detailBox("来源 / 使用场景", item.origin)}
-          ${detailBox("特点", item.features, true)}
-          ${detailBox("缺点 / 风险", item.weakness, true)}
-          ${detailBox("合法维修 / 保养工具", item.tools, true)}
-          ${detailBox("备注", item.notes, true)}
-          ${detailBox("记录时间", item.createdAt)}
-        </div>
-      `;
-
-      document.getElementById("detailModal").classList.add("show");
-    }
-
-    function detailBox(title, value, paragraph = false) {
-      if (!value) return "";
-      return `
-        <div class="detail-box ${paragraph ? "full" : ""}">
-          <span>${escapeHtml(title)}</span>
-          ${paragraph ? `<p>${escapeHtml(value)}</p>` : `<strong>${escapeHtml(value)}</strong>`}
-        </div>
-      `;
-    }
-
-    function closeDetail() {
-      document.getElementById("detailModal").classList.remove("show");
-    }
-
-    function exportJSON() {
-      const data = loadLocks();
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-      downloadBlob(blob, "lock-records.json");
-    }
-
-    function exportCSV() {
-      const rows = loadLocks();
-      const headers = ["id", "name", "category", "level", "origin", "features", "weakness", "tools", "notes", "createdAt"];
-      const csv = [
-        headers.join(","),
-        ...rows.map(row => headers.map(key => `"${String(row[key] || "").replaceAll('"', '""')}"`).join(","))
-      ].join("\n");
-
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-      downloadBlob(blob, "lock-records.csv");
-    }
-
-    function downloadBlob(blob, filename) {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    document.getElementById("detailModal").addEventListener("click", function (event) {
-      if (event.target.id === "detailModal") closeDetail();
-    });
-
-    renderLocks();
+    init();
   </script>
 </body>
 </html>
