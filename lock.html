@@ -595,7 +595,7 @@
             <span class="badge">左側目錄 · 右側資料 · 本機保存</span>
             <h2 class="home-title">建立你的鎖具知識庫與收藏資料庫</h2>
             <p class="lead">
-              這個新版把資料分成六大目錄：鎖芯、電子鎖、鎖頭、掛鎖、大門鎖、古老絕版鎖頭。每個目錄右上角都有「新增」按鈕，資料格式統一，方便你記錄圖片、價格、場景、優缺點、安全星級、物品連結與合法授權工具資料。
+              這個新版把資料分成六大目錄：鎖芯、電子鎖、鎖頭、掛鎖、大門鎖、古老絕版鎖頭。每個目錄右上角都有「新增」按鈕，並已預載基礎百科資料。資料格式統一，方便你記錄圖片、價格、場景、優缺點、安全星級、物品連結與合法授權工具資料。
             </p>
             <div class="notice danger-notice">
               注意：工具欄位只適合記錄「合法擁有者、授權維修、保養與安全評估」用途。本頁不提供非法開鎖、繞過門鎖或入侵他人財物的操作教學。
@@ -690,7 +690,7 @@
                   <th>安全性</th>
                   <th>物品鏈接</th>
                   <th>介紹</th>
-                  <th>合法授權 / 維修工具</th>
+                  <th>合法開啟 / 維修 / 保養工具</th>
                   <th>工具鏈接</th>
                   <th>工具圖片</th>
                   <th>操作</th>
@@ -799,7 +799,7 @@
           </div>
 
           <div class="full">
-            <label for="openToolsInput">可以被那些工具開啟 / 維修 / 保養</label>
+            <label for="openToolsInput">合法開啟 / 維修 / 保養工具</label>
             <textarea id="openToolsInput" placeholder="只記錄合法授權用途，例如：原廠鑰匙、授權維修工具、安裝工具、保養工具。請勿填寫非法繞過或入侵教學。"></textarea>
           </div>
 
@@ -891,6 +891,107 @@
       "rating", "itemLink", "intro", "openTools", "toolLink"
     ];
 
+    function svgPhoto(label, emoji, accent = "#e0b85a") {
+      const safeLabel = String(label || "LOCK").slice(0, 26);
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="720" height="460" viewBox="0 0 720 460">
+          <defs>
+            <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#10151d"/>
+              <stop offset="1" stop-color="#05070a"/>
+            </linearGradient>
+            <radialGradient id="glow" cx="50%" cy="40%" r="60%">
+              <stop offset="0" stop-color="${accent}" stop-opacity="0.38"/>
+              <stop offset="1" stop-color="${accent}" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <rect width="720" height="460" rx="34" fill="url(#bg)"/>
+          <rect x="28" y="28" width="664" height="404" rx="28" fill="none" stroke="${accent}" stroke-opacity="0.45" stroke-width="3"/>
+          <circle cx="360" cy="190" r="150" fill="url(#glow)"/>
+          <text x="360" y="215" text-anchor="middle" font-size="118" font-family="Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji, sans-serif">${emoji}</text>
+          <text x="360" y="332" text-anchor="middle" fill="#f8fafc" font-size="36" font-weight="800" font-family="Segoe UI, Microsoft YaHei, Arial">${safeLabel}</text>
+          <text x="360" y="374" text-anchor="middle" fill="#a9b0bb" font-size="22" font-family="Segoe UI, Microsoft YaHei, Arial">Lock Archive Knowledge</text>
+        </svg>`;
+      return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+    }
+
+    function searchLink(keyword) {
+      return "https://shopee.com.my/search?keyword=" + encodeURIComponent(keyword || "lock maintenance");
+    }
+
+    function seedItem(categoryKey, index, data) {
+      return {
+        id: `SEED-${categoryKey}-${index}`,
+        categoryKey,
+        createdAt: "2026-04-29 15:00",
+        updatedAt: "2026-04-29 15:00",
+        photo: svgPhoto(data.name, data.emoji, data.accent),
+        toolPhoto: svgPhoto("合法工具", data.tool_emoji || "🛠️", "#9aa4b2"),
+        name: data.name || "",
+        type: data.type || "",
+        supplier: data.supplier || "",
+        price: data.price || "",
+        scene: data.scene || "",
+        buying: data.buying || "",
+        pros: data.pros || "",
+        cons: data.cons || "",
+        rating: data.rating || "",
+        itemLink: data.item_kw ? searchLink(data.item_kw) : "",
+        intro: data.intro || "",
+        openTools: data.openTools || "",
+        toolLink: data.tool_kw ? searchLink(data.tool_kw) : ""
+      };
+    }
+
+    const KNOWLEDGE_DATA = {
+      cylinders: [
+        seedItem("cylinders", 1, {"name": "單排彈子鎖芯", "type": "Pin Tumbler / 彈子鎖芯", "supplier": "常見品牌 / OEM", "price": "RM20 - RM180", "scene": "住宅房門、普通掛鎖、木門、辦公室門。", "buying": "看鑰匙精度、鎖芯材質、防鑽片、防拔設計與鑰匙管理。", "pros": "普及度高、維修容易、價格範圍廣。", "cons": "低階款安全性普通；缺乏保養會卡頓。", "rating": "3", "intro": "最常見的機械鎖芯之一，內部以多組彈子高度對齊後才允許鎖芯旋轉。", "openTools": "原配鑰匙、授權備用鑰匙、鎖芯潤滑劑、軟布、合法安裝調整工具。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "🧩", "tool_emoji": "🔑", "item_kw": "pin tumbler lock cylinder", "tool_kw": "lock lubricant", "accent": "#e0b85a"}),
+        seedItem("cylinders", 2, {"name": "多排 / 高安全彈子鎖芯", "type": "Multi-row Pin / 多排彈子", "supplier": "中高階鎖芯品牌", "price": "RM80 - RM350+", "scene": "大門、防盜門、辦公室主入口。", "buying": "優先看防鑽、防拔、防扭斷、鑰匙授權卡和售後。", "pros": "比普通單排彈子更複雜，安全性通常較高。", "cons": "價格較高；配鑰匙與維修通常要找授權店。", "rating": "4", "intro": "多排彈子鎖芯用更多方向或更多彈子組提升防護，常見於較高防護需求。", "openTools": "原廠鑰匙、授權卡片、官方更換鎖芯服務與保養工具。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "🧬", "tool_emoji": "🛠️", "item_kw": "high security lock cylinder", "tool_kw": "lock lubricant", "accent": "#e0b85a"}),
+        seedItem("cylinders", 3, {"name": "葉片鎖芯", "type": "Wafer Tumbler / 葉片鎖芯", "supplier": "抽屜鎖 / 車用鎖常見", "price": "RM8 - RM80", "scene": "抽屜、櫃子、信箱、機車箱、部分輕型門鎖。", "buying": "適合低中風險用途；注意尺寸、鎖舌方向和鑰匙厚度。", "pros": "便宜、小巧、容易安裝。", "cons": "低階款安全性和耐用度有限。", "rating": "2", "intro": "葉片鎖芯利用薄片對齊控制鎖芯旋轉，常見於小型櫃鎖或輕量用途。", "openTools": "原配小鑰匙、合法更換鎖芯、螺絲刀與保養清潔用品。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "📎", "tool_emoji": "🪛", "item_kw": "wafer lock cylinder", "tool_kw": "lock lubricant", "accent": "#e0b85a"}),
+        seedItem("cylinders", 4, {"name": "碟片鎖芯", "type": "Disc Detainer / 碟片鎖芯", "supplier": "高階掛鎖 / 戶外鎖常見", "price": "RM60 - RM500+", "scene": "戶外掛鎖、腳車鎖、倉庫、工業場景。", "buying": "看防水、防塵、硬化鎖梁、實心鎖體和防剪設計。", "pros": "耐候性好、結構耐用，適合戶外。", "cons": "低價仿製品差異大；維修配件不一定普遍。", "rating": "4", "intro": "碟片鎖芯由多片圓盤角度配合運作，常見於高耐候掛鎖。", "openTools": "原配鑰匙、官方授權備用鑰匙、防鏽保養、鎖梁清潔與潤滑。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "💿", "tool_emoji": "🧴", "item_kw": "disc detainer padlock", "tool_kw": "lock lubricant", "accent": "#e0b85a"}),
+        seedItem("cylinders", 5, {"name": "管狀鎖芯", "type": "Tubular / 管狀鎖芯", "supplier": "設備鎖 / 小型鎖常見", "price": "RM15 - RM120", "scene": "售賣機、展示櫃、電腦鎖、設備面板。", "buying": "確認管徑、固定方式、鎖舌方向與替換尺寸。", "pros": "體積小、適合設備面板。", "cons": "便宜款安全性普通；尺寸不合會難安裝。", "rating": "3", "intro": "管狀鎖芯的鑰匙孔呈圓形，常用於設備與小型櫃體。", "openTools": "原配管狀鑰匙、官方更換鎖芯、套筒、螺絲刀與潤滑。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "⭕", "tool_emoji": "🔩", "item_kw": "tubular lock cylinder", "tool_kw": "lock lubricant", "accent": "#e0b85a"}),
+        seedItem("cylinders", 6, {"name": "凹點鎖芯", "type": "Dimple / 凹點鎖芯", "supplier": "中高階住宅鎖常見", "price": "RM80 - RM450", "scene": "公寓大門、辦公室、商店門。", "buying": "注意鑰匙授權制度、防鑽片、鎖芯等級和門體搭配。", "pros": "鑰匙厚實、手感好，可做成較複雜結構。", "cons": "配鑰匙可能較貴；品牌品質差距大。", "rating": "4", "intro": "凹點鎖芯使用鑰匙表面凹點與鎖芯部件配合，常見於中高階門鎖。", "openTools": "原廠鑰匙、授權配匙卡、鎖芯潤滑劑與合法安裝服務。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "🔘", "tool_emoji": "🔑", "item_kw": "dimple lock cylinder", "tool_kw": "lock lubricant", "accent": "#e0b85a"}),
+        seedItem("cylinders", 7, {"name": "滑片鎖芯", "type": "Slider / 滑片鎖芯", "supplier": "高安全鎖芯 / 車用結構", "price": "RM100 - RM600+", "scene": "中高階門鎖、部分汽車鎖、專用安全鎖。", "buying": "看滑片數量、鎖芯材質、抗破壞設計與售後支援。", "pros": "可做得精密，鑰匙外形通常較特殊。", "cons": "維修依賴專業；不同系統相容性低。", "rating": "4", "intro": "滑片鎖芯以滑動片位置配合控制開合，常見於較精密的安全結構。", "openTools": "原廠鑰匙、授權維修服務、官方零件與日常保養用品。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "↔️", "tool_emoji": "🧰", "item_kw": "slider lock cylinder", "tool_kw": "lock lubricant", "accent": "#e0b85a"}),
+        seedItem("cylinders", 8, {"name": "磁性鎖芯", "type": "Magnetic / 磁性鎖芯", "supplier": "特殊安全鎖系統", "price": "RM120 - RM700+", "scene": "特殊門鎖、設備鎖、部分中高階安全系統。", "buying": "確認磁性鑰匙授權管理；避免來源不明仿品。", "pros": "鑰匙磨損少，設計可較隱蔽。", "cons": "維修與配件較不普遍；遺失處理成本高。", "rating": "4", "intro": "磁性鎖芯利用磁性元件配合開合，屬於較特殊的機械鎖設計。", "openTools": "原廠磁性鑰匙、授權更換服務、安裝固定工具。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "🧲", "tool_emoji": "🔧", "item_kw": "magnetic lock cylinder", "tool_kw": "lock lubricant", "accent": "#e0b85a"})
+      ],
+      electronic: [
+        seedItem("electronic", 1, {"name": "指紋智能門鎖", "type": "Fingerprint Smart Lock / 指紋鎖", "supplier": "Samsung / Yale / Aqara / OEM", "price": "RM350 - RM1800+", "scene": "住宅大門、公寓、辦公室、民宿。", "buying": "看指紋穩定度、電池續航、應急供電、機械鑰匙備援和售後。", "pros": "方便管理多使用者，可有開門記錄與臨時密碼。", "cons": "依賴電池與電子模組；低品質產品容易故障。", "rating": "4", "intro": "透過指紋辨識控制開門，常結合密碼、卡片與機械鑰匙備援。", "openTools": "已授權指紋、管理員密碼、官方 App、應急供電、原廠機械鑰匙。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "👆", "tool_emoji": "🔋", "item_kw": "fingerprint smart door lock", "tool_kw": "smart lock battery", "accent": "#22c55e"}),
+        seedItem("electronic", 2, {"name": "密碼電子鎖", "type": "Keypad Electronic Lock / 密碼鎖", "supplier": "Yale / Philips / Kaadas / OEM", "price": "RM180 - RM1200", "scene": "房門、辦公室、短租單位、儲物室。", "buying": "看防窺輸入、臨時密碼、低電量提醒與耐用鍵盤。", "pros": "不用帶鑰匙，適合多人使用和臨時授權。", "cons": "密碼管理不好會外洩；鍵盤磨損可能留下痕跡。", "rating": "3", "intro": "使用數字密碼作為授權方式，常與門把手或插芯鎖體整合。", "openTools": "管理員密碼、授權密碼、官方重設流程、電池與應急供電。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "🔢", "tool_emoji": "🔌", "item_kw": "keypad electronic door lock", "tool_kw": "lock lubricant", "accent": "#e0b85a"}),
+        seedItem("electronic", 3, {"name": "IC / RFID 卡片門禁鎖", "type": "RFID / Card Access Lock", "supplier": "HID / ZKTeco / Hotel lock OEM", "price": "RM120 - RM1500+", "scene": "辦公室、酒店、宿舍、健身房、門禁系統。", "buying": "注意卡片管理、後台權限、斷電策略、門禁記錄和系統維護。", "pros": "方便集中管理，適合多人進出。", "cons": "卡片遺失需即時停用；系統設定錯誤會降低安全。", "rating": "4", "intro": "使用卡片或感應扣作為授權憑證，常與門禁控制器連動。", "openTools": "授權門禁卡、管理後台、官方讀卡器、應急鑰匙與合法維護服務。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "💳", "tool_emoji": "🪪", "item_kw": "rfid access control door lock", "tool_kw": "lock lubricant", "accent": "#e0b85a"}),
+        seedItem("electronic", 4, {"name": "藍牙智能掛鎖", "type": "Bluetooth Smart Padlock", "supplier": "Master Lock / eGeeTouch / OEM", "price": "RM80 - RM500", "scene": "行李、倉庫小門、共享設備、短期授權場景。", "buying": "看 App 穩定性、防水等級、電池更換方式與備援方式。", "pros": "可用手機管理，部分型號支援臨時授權。", "cons": "手機沒電、App 停服或藍牙故障會影響使用。", "rating": "3", "intro": "透過手機藍牙授權開啟的掛鎖，重點在 App 與電池可靠性。", "openTools": "已授權手機 App、管理員帳號、應急電源或原廠備援方式。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "📱", "tool_emoji": "🔋", "item_kw": "bluetooth smart padlock", "tool_kw": "lock lubricant", "accent": "#e0b85a"}),
+        seedItem("electronic", 5, {"name": "WiFi 視訊智能門鎖", "type": "WiFi Video Smart Lock", "supplier": "Aqara / Eufy / Xiaomi / OEM", "price": "RM600 - RM2500+", "scene": "住宅大門、民宿、需要遠端通知的入口。", "buying": "看網路穩定、隱私設定、影像儲存方式、遠端權限和更新支援。", "pros": "可遠端查看與通知，方便家庭或短租管理。", "cons": "價格高，依賴網路與雲端；隱私設定重要。", "rating": "4", "intro": "結合智能鎖、攝像頭或門鈴功能，適合需要遠端管理的入口。", "openTools": "官方 App、授權帳號、應急供電、備用機械鑰匙、原廠售後。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "📹", "tool_emoji": "🛰️", "item_kw": "wifi video smart door lock", "tool_kw": "lock lubricant", "accent": "#e0b85a"}),
+        seedItem("electronic", 6, {"name": "電磁鎖", "type": "Magnetic Door Lock / 磁力鎖", "supplier": "門禁工程品牌", "price": "RM80 - RM600", "scene": "辦公室玻璃門、門禁出口、逃生門配套。", "buying": "要搭配控制器、電源、出門按鈕與消防/斷電策略。", "pros": "結構簡單、維護容易，適合門禁系統。", "cons": "斷電策略要設計好；單靠磁力鎖不等於完整防盜。", "rating": "3", "intro": "利用電磁吸力固定門扇，常搭配門禁控制器和出門按鈕。", "openTools": "授權門禁卡、出門按鈕、門禁控制器、合法電工/門禁工程維護。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "🧲", "tool_emoji": "⚡", "item_kw": "magnetic door lock access control", "tool_kw": "lock lubricant", "accent": "#e0b85a"})
+      ],
+      lockheads: [
+        seedItem("lockheads", 1, {"name": "抽屜鎖 / 櫃鎖", "type": "Cabinet Lock / 抽屜鎖", "supplier": "家具五金 / OEM", "price": "RM5 - RM60", "scene": "辦公桌、文件櫃、展示櫃、收銀抽屜。", "buying": "確認孔徑、鎖舌方向、門板厚度和鑰匙管理。", "pros": "便宜、好安裝、適合一般收納管理。", "cons": "防護能力有限，不適合高價值物品單獨保護。", "rating": "2", "intro": "常見小型鎖頭，用於櫃子和抽屜，主要用途是基本管理。", "openTools": "原配鑰匙、螺絲刀、量尺、合法更換鎖芯與保養清潔。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "🗄️", "tool_emoji": "🪛", "item_kw": "cabinet drawer lock", "tool_kw": "lock lubricant", "accent": "#e0b85a"}),
+        seedItem("lockheads", 2, {"name": "信箱鎖", "type": "Mailbox Lock / 信箱鎖", "supplier": "住宅五金", "price": "RM8 - RM50", "scene": "公寓信箱、辦公信箱、收件箱。", "buying": "確認鎖舌角度、安裝孔尺寸和防鏽能力。", "pros": "小巧、便宜、容易替換。", "cons": "安全性有限，適合低價值文件與信件管理。", "rating": "2", "intro": "信箱鎖通常是小型葉片或簡易鎖芯，重點在尺寸相容。", "openTools": "原配鑰匙、合法更換鎖芯、螺絲刀、除鏽與潤滑用品。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "📮", "tool_emoji": "🔩", "item_kw": "mailbox lock replacement", "tool_kw": "lock lubricant", "accent": "#e0b85a"}),
+        seedItem("lockheads", 3, {"name": "玻璃展示櫃鎖", "type": "Showcase Glass Lock", "supplier": "展示櫃五金", "price": "RM10 - RM120", "scene": "店鋪展示櫃、收藏展示櫃、玻璃櫥窗。", "buying": "注意玻璃厚度、夾具保護墊、鎖體位置與外觀。", "pros": "不需要破壞玻璃即可安裝，展示效果好。", "cons": "玻璃本身抗破壞能力有限，需要搭配監控和位置管理。", "rating": "2", "intro": "用於滑動玻璃或展示櫃，適合店鋪和收藏展示。", "openTools": "原配鑰匙、橡膠墊、螺絲刀、玻璃清潔與合法安裝工具。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "🪟", "tool_emoji": "🧽", "item_kw": "glass showcase lock", "tool_kw": "lock lubricant", "accent": "#e0b85a"}),
+        seedItem("lockheads", 4, {"name": "行李箱 TSA 鎖", "type": "TSA Luggage Lock", "supplier": "TSA Travel Lock", "price": "RM10 - RM80", "scene": "行李箱、旅行包、短期行李管理。", "buying": "選擇密碼手感清楚、鎖梁不鬆、可更改密碼的款式。", "pros": "旅行方便，部分國家安檢較容易處理。", "cons": "不適合高價值物品長期防盜；忘記密碼會麻煩。", "rating": "2", "intro": "旅行箱常見小型鎖，主要是防誤開和一般管理。", "openTools": "正確密碼、原廠設定流程、行李保養用品。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "🧳", "tool_emoji": "🔢", "item_kw": "tsa luggage lock", "tool_kw": "lock lubricant", "accent": "#e0b85a"}),
+        seedItem("lockheads", 5, {"name": "球形門鎖", "type": "Knob Lock / 球形鎖", "supplier": "普通門鎖品牌", "price": "RM25 - RM180", "scene": "房間門、室內門、辦公室內門。", "buying": "外門不建議只靠普通球形鎖；注意鎖舌長度與門厚。", "pros": "安裝簡單、價格實惠、室內用途足夠。", "cons": "抗破壞能力通常不如插芯鎖或大門鎖。", "rating": "2", "intro": "球形門鎖常見於室內房門，重點是便利而非高防護。", "openTools": "原配鑰匙、螺絲刀、門孔開孔器、水平尺與合法安裝服務。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "🚪", "tool_emoji": "📏", "item_kw": "knob door lock", "tool_kw": "lock lubricant", "accent": "#e0b85a"})
+      ],
+      padlocks: [
+        seedItem("padlocks", 1, {"name": "黃銅掛鎖", "type": "Brass Padlock / 黃銅掛鎖", "supplier": "Yale / Master / OEM", "price": "RM8 - RM120", "scene": "鐵門、工具箱、倉庫小門、室內外一般用途。", "buying": "看鎖梁粗細、鎖體厚度、防鏽能力和鑰匙精度。", "pros": "耐腐蝕、價格範圍大、常見好買。", "cons": "便宜款鎖梁和鎖扣可能較弱。", "rating": "3", "intro": "最常見掛鎖類型之一，黃銅外觀經典，適合一般用途。", "openTools": "原配鑰匙、授權備用鑰匙、防鏽劑、鎖芯潤滑劑。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "🔒", "tool_emoji": "🧴", "item_kw": "brass padlock", "tool_kw": "lock lubricant", "accent": "#e0b85a"}),
+        seedItem("padlocks", 2, {"name": "不鏽鋼戶外掛鎖", "type": "Stainless Outdoor Padlock", "supplier": "戶外五金品牌", "price": "RM25 - RM250", "scene": "戶外鐵門、海邊潮濕環境、倉庫。", "buying": "注意不鏽鋼等級、防水蓋、排水孔與鎖梁硬度。", "pros": "抗鏽能力較好，適合潮濕環境。", "cons": "價格比普通掛鎖高；仍需定期清潔。", "rating": "4", "intro": "以戶外耐候為重點的掛鎖，適合長期暴露在雨水或潮濕處。", "openTools": "原配鑰匙、防鏽保養、鎖梁清潔、合法更換服務。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "🌧️", "tool_emoji": "🧽", "item_kw": "stainless steel outdoor padlock", "tool_kw": "lock lubricant", "accent": "#e0b85a"}),
+        seedItem("padlocks", 3, {"name": "護梁防剪掛鎖", "type": "Shrouded Shackle Padlock", "supplier": "安全掛鎖品牌", "price": "RM40 - RM400+", "scene": "倉庫、鐵閘、工業門、需要抗剪的場景。", "buying": "選擇硬化鎖梁、護梁包覆、實心鎖體和合適鎖扣。", "pros": "鎖梁外露少，抗剪能力通常較好。", "cons": "體積較大，可能不適合所有鎖扣孔位。", "rating": "4", "intro": "護梁掛鎖把鎖梁兩側包覆，減少外露部位，提升抗破壞能力。", "openTools": "原配鑰匙、鎖扣加固件、安裝工具、保養潤滑。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "🛡️", "tool_emoji": "🔩", "item_kw": "shrouded shackle padlock", "tool_kw": "lock lubricant", "accent": "#e0b85a"}),
+        seedItem("padlocks", 4, {"name": "長梁掛鎖", "type": "Long Shackle Padlock", "supplier": "一般五金品牌", "price": "RM10 - RM150", "scene": "需要穿過較遠孔位的鐵閘、鏈條、臨時固定。", "buying": "長梁越長越方便但外露越多；高風險場景要慎用。", "pros": "靈活、容易搭配不同鎖扣。", "cons": "鎖梁外露多，抗剪通常不如護梁掛鎖。", "rating": "2", "intro": "鎖梁較長的掛鎖，適合孔位距離較大的場合。", "openTools": "原配鑰匙、鎖芯潤滑、鎖扣調整工具。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "⛓️", "tool_emoji": "🔑", "item_kw": "long shackle padlock", "tool_kw": "lock lubricant", "accent": "#e0b85a"}),
+        seedItem("padlocks", 5, {"name": "腳車 U 型鎖", "type": "U Lock / Bicycle Lock", "supplier": "Kryptonite / OnGuard / OEM", "price": "RM50 - RM600+", "scene": "腳車、電動滑板車、機車輔助防盜。", "buying": "看鎖梁硬度、尺寸、支架、重量與安全等級。", "pros": "抗剪能力通常比細鋼纜更好。", "cons": "較重；尺寸不合會不好固定。", "rating": "4", "intro": "U 型鎖用硬化金屬框住車架與固定物，是常見交通工具防盜鎖。", "openTools": "原配鑰匙、支架、鎖芯保養、防鏽清潔。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "🚲", "tool_emoji": "🛢️", "item_kw": "bicycle u lock", "tool_kw": "lock lubricant", "accent": "#e0b85a"})
+      ],
+      gateLocks: [
+        seedItem("gateLocks", 1, {"name": "插芯大門鎖", "type": "Mortise Door Lock / 插芯鎖", "supplier": "Yale / Hafele / Dormakaba / OEM", "price": "RM80 - RM600+", "scene": "住宅大門、木門、防盜門、辦公室門。", "buying": "看鎖體尺寸、鎖舌材質、把手品質、鎖芯等級和門厚相容。", "pros": "結構完整，手感好，適合主門使用。", "cons": "安裝需要準確開孔；門框弱會影響整體安全。", "rating": "4", "intro": "插芯鎖把鎖體嵌入門內，是大門和辦公門常見方案。", "openTools": "原配鑰匙、安裝模板、螺絲刀、水平尺、合法鎖匠安裝。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "🚪", "tool_emoji": "📏", "item_kw": "mortise door lock set", "tool_kw": "lock lubricant", "accent": "#e0b85a"}),
+        seedItem("gateLocks", 2, {"name": "多點鎖 / 天地鎖", "type": "Multipoint Lock", "supplier": "防盜門品牌", "price": "RM250 - RM1500+", "scene": "防盜門、大型木門、金屬門。", "buying": "注意門體是否適合、鎖點數量、天地杆順暢度與售後維修。", "pros": "多個鎖點同時固定，提升門扇受力分散能力。", "cons": "安裝與調整較複雜；門變形會影響鎖點運作。", "rating": "5", "intro": "多點鎖透過多個鎖點同時鎖定門框，適合較高防護的大門。", "openTools": "原配鑰匙、官方鎖體零件、門框調整工具、合法安裝維修。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "↕️", "tool_emoji": "🛠️", "item_kw": "multipoint door lock", "tool_kw": "lock lubricant", "accent": "#e0b85a"}),
+        seedItem("gateLocks", 3, {"name": "鐵門掛鎖 + 加強鎖扣", "type": "Gate Hasp + Padlock", "supplier": "五金店 / 戶外配件", "price": "RM20 - RM300", "scene": "鐵閘、倉庫門、後門、戶外小門。", "buying": "掛鎖和鎖扣要一起看；螺絲長度、焊接位置與鎖扣厚度很重要。", "pros": "成本可控，維修替換簡單。", "cons": "鎖扣弱時，再好的掛鎖也發揮有限。", "rating": "3", "intro": "鐵門常用掛鎖搭配鎖扣，整體強度取決於掛鎖、鎖扣和固定方式。", "openTools": "原配鑰匙、鎖扣加固件、螺絲刀、扳手、防鏽保養。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "🏗️", "tool_emoji": "🔩", "item_kw": "gate hasp padlock", "tool_kw": "lock lubricant", "accent": "#e0b85a"}),
+        seedItem("gateLocks", 4, {"name": "玻璃門電插鎖", "type": "Electric Drop Bolt Lock", "supplier": "門禁工程品牌", "price": "RM120 - RM800", "scene": "玻璃門、辦公室門禁、商業入口。", "buying": "看斷電策略、感應器、門夾相容、消防需求與施工品質。", "pros": "適合玻璃門門禁，外觀乾淨。", "cons": "需要穩定電源與專業安裝；單獨防盜能力有限。", "rating": "3", "intro": "電插鎖透過電控鎖舌固定門，常見於玻璃門門禁。", "openTools": "授權門禁卡、出門按鈕、門禁電源、合法門禁工程工具。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "🪟", "tool_emoji": "⚡", "item_kw": "electric drop bolt lock glass door", "tool_kw": "lock lubricant", "accent": "#e0b85a"}),
+        seedItem("gateLocks", 5, {"name": "智能大門鎖套裝", "type": "Smart Mortise Lock Set", "supplier": "Aqara / Kaadas / Philips / Samsung", "price": "RM700 - RM3000+", "scene": "公寓主門、智能家居、家庭大門。", "buying": "看鎖體相容、門厚、指紋/密碼/卡片備援、App 隱私與售後。", "pros": "功能全面，可與智能家居和臨時密碼整合。", "cons": "價格高，安裝要求高，電子故障需要備援方案。", "rating": "4", "intro": "把智能識別與插芯大門鎖體結合，是現代住宅常見升級方向。", "openTools": "授權指紋、密碼、卡片、官方 App、應急供電、原廠鑰匙。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "🏠", "tool_emoji": "🔋", "item_kw": "smart mortise door lock", "tool_kw": "lock lubricant", "accent": "#e0b85a"})
+      ],
+      antique: [
+        seedItem("antique", 1, {"name": "老式擋片掛鎖", "type": "Warded Padlock / 擋片鎖", "supplier": "古董鎖 / 收藏品", "price": "RM30 - RM500+", "scene": "收藏展示、老屋、古董市場、歷史教材。", "buying": "確認完整度、鑰匙是否原配、銹蝕程度和是否只是展示用途。", "pros": "歷史感強，結構直觀，收藏價值高。", "cons": "不適合現代高安全用途；零件磨損後修復困難。", "rating": "1", "intro": "擋片鎖是古老機械鎖形式，靠內部擋片與鑰匙形狀配合，現代多作收藏。", "openTools": "原配古董鑰匙、收藏修復工具、除鏽保養用品；建議只作展示或合法修復。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "🗝️", "tool_emoji": "🧴", "item_kw": "antique warded padlock", "tool_kw": "lock lubricant", "accent": "#e0b85a"}),
+        seedItem("antique", 2, {"name": "骨架鑰匙門鎖", "type": "Skeleton Key Mortise Lock", "supplier": "古董門鎖", "price": "RM80 - RM1000+", "scene": "老屋木門、古董家具、電影道具、收藏。", "buying": "重點看鎖體完整、彈簧狀況、鑰匙是否匹配與木門尺寸。", "pros": "復古美觀，適合老屋修復。", "cons": "安全性低於現代鎖；配件不易找。", "rating": "1", "intro": "常見於老式木門的古董鎖，通常使用長柄骨架鑰匙。", "openTools": "原配鑰匙、合法修復服務、木工工具、潤滑與除鏽用品。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "🗝️", "tool_emoji": "🪵", "item_kw": "skeleton key mortise lock", "tool_kw": "lock lubricant", "accent": "#e0b85a"}),
+        seedItem("antique", 3, {"name": "老式箱櫃槓桿鎖", "type": "Lever Cabinet / Chest Lock", "supplier": "古董家具鎖", "price": "RM30 - RM800", "scene": "古董木箱、衣櫃、收納箱、展示收藏。", "buying": "看鎖舌是否完整、彈簧是否回彈、螺絲孔是否破損。", "pros": "適合復古家具修復，外觀漂亮。", "cons": "抗破壞能力有限，不適合保管貴重物。", "rating": "1", "intro": "槓桿鎖常見於古董箱櫃，內部以槓桿片位置控制開合。", "openTools": "原配鑰匙、合法修復、木工螺絲刀、除鏽與保養用品。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "📜", "tool_emoji": "🧰", "item_kw": "antique chest lock lever", "tool_kw": "lock lubricant", "accent": "#e0b85a"}),
+        seedItem("antique", 4, {"name": "中國古鎖 / 廣鎖", "type": "Chinese Antique Lock", "supplier": "古董收藏", "price": "RM100 - RM3000+", "scene": "收藏展示、文化展覽、古董市場。", "buying": "注意年代、工藝、包漿、鑰匙是否存在和來源合法性。", "pros": "文化特色強，收藏與展示價值高。", "cons": "多數不適合作現代防盜；真偽與來源需要判斷。", "rating": "1", "intro": "中國古鎖造型多樣，有橫式、動物造型與文字裝飾，常作收藏。", "openTools": "原配鑰匙、文物保養用品、合法收藏修復服務。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "🏮", "tool_emoji": "🧽", "item_kw": "chinese antique lock", "tool_kw": "lock lubricant", "accent": "#e0b85a"}),
+        seedItem("antique", 5, {"name": "老式保險箱轉盤鎖", "type": "Mechanical Safe Dial Lock", "supplier": "保險箱古董配件", "price": "RM150 - RM2000+", "scene": "古董保險箱、收藏展示、道具。", "buying": "查看轉盤狀態、組件完整度、是否有合法來源與維修記錄。", "pros": "機械感強，展示價值高。", "cons": "維修專業度高；未知狀態不建議作實際保管。", "rating": "2", "intro": "機械轉盤保險箱鎖具具有收藏與展示價值，現代使用需專業評估。", "openTools": "原廠資料、合法保險箱維修服務、清潔保養用品。 僅限合法擁有者、授權維修、保養或更換使用；不提供繞過、破解或未授權開啟方法。", "emoji": "🎛️", "tool_emoji": "🧰", "item_kw": "antique safe dial lock", "tool_kw": "lock lubricant", "accent": "#e0b85a"})
+      ]
+    };
+
     function init() {
       renderSideMenu();
       renderHomeCards();
@@ -904,11 +1005,38 @@
       });
     }
 
+    function cloneKnowledge(categoryKey) {
+      return JSON.parse(JSON.stringify(KNOWLEDGE_DATA[categoryKey] || []));
+    }
+
     function defaultStore() {
-      return CATEGORIES.reduce((acc, cat) => {
-        acc[cat.key] = [];
+      const store = CATEGORIES.reduce((acc, cat) => {
+        acc[cat.key] = cloneKnowledge(cat.key);
         return acc;
       }, {});
+      store.__seedVersion = 3;
+      return store;
+    }
+
+    function mergeKnowledge(store) {
+      if (store.__seedVersion === 3) return store;
+
+      let changed = false;
+      CATEGORIES.forEach(cat => {
+        if (!Array.isArray(store[cat.key])) store[cat.key] = [];
+        const existingIds = new Set(store[cat.key].map(item => item.id));
+        cloneKnowledge(cat.key).forEach(item => {
+          if (!existingIds.has(item.id)) {
+            store[cat.key].push(item);
+            changed = true;
+          }
+        });
+      });
+
+      store.__seedVersion = 3;
+      changed = true;
+      if (changed) localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+      return store;
     }
 
     function loadStore() {
@@ -917,7 +1045,7 @@
       CATEGORIES.forEach(cat => {
         if (!Array.isArray(store[cat.key])) store[cat.key] = [];
       });
-      return store;
+      return mergeKnowledge(store);
     }
 
     function saveStore(store) {
@@ -1225,7 +1353,7 @@
           ${detailBox("安全性", item.rating ? renderStars(item.rating, false) : "未評估")}
           ${detailBox("物品鏈接", item.itemLink ? `<a class="link" href="${safeUrl(item.itemLink)}" target="_blank" rel="noopener">${escapeHtml(item.itemLink)}</a>` : "", true, true)}
           ${detailBox("介紹", item.intro, true)}
-          ${detailBox("可以被那些工具開啟 / 維修 / 保養", item.openTools, true)}
+          ${detailBox("合法開啟 / 維修 / 保養工具", item.openTools, true)}
           ${detailBox("工具鏈接", item.toolLink ? `<a class="link" href="${safeUrl(item.toolLink)}" target="_blank" rel="noopener">${escapeHtml(item.toolLink)}</a>` : "", true, true)}
           ${item.toolPhoto ? `<div class="detail-box full"><span>工具圖片</span><img class="detail-main-img" src="${item.toolPhoto}" alt="工具圖片" style="margin:0;"></div>` : ""}
           ${detailBox("建立時間", item.createdAt)}
