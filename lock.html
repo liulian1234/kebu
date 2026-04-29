@@ -724,10 +724,115 @@
       color: #fff;
     }
 
+
+
+    .cylinder-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+
+    .cylinder-card {
+      padding: 22px;
+      background: linear-gradient(180deg, rgba(29, 35, 43, 0.92), rgba(17, 21, 26, 0.92));
+      border: 1px solid rgba(224, 184, 90, 0.16);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: 0.16s ease;
+    }
+
+    .cylinder-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(224, 184, 90, 0.38);
+    }
+
+    .cylinder-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .cylinder-head h3 {
+      color: #fff;
+      font-size: 21px;
+      line-height: 1.28;
+    }
+
+    .cylinder-head span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 3px;
+    }
+
+    .diagram {
+      width: 100%;
+      min-height: 150px;
+      margin: 12px 0 15px;
+      border-radius: 10px;
+      background:
+        radial-gradient(circle at 18% 20%, rgba(224,184,90,0.12), transparent 26%),
+        linear-gradient(135deg, rgba(11, 13, 16, 0.84), rgba(36, 43, 53, 0.64));
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      display: grid;
+      place-items: center;
+      padding: 10px;
+    }
+
+    .diagram svg {
+      width: 100%;
+      max-width: 420px;
+      height: 140px;
+    }
+
+    .cylinder-card p {
+      color: #c4ccd7;
+      font-size: 15px;
+      margin-bottom: 12px;
+    }
+
+    .info-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .info-list div {
+      background: rgba(11, 13, 16, 0.42);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      border-radius: 8px;
+      padding: 10px 11px;
+      color: #d8dee8;
+      font-size: 14px;
+    }
+
+    .info-list strong {
+      color: #ffe3a1;
+    }
+
+    .source-box {
+      margin-top: 26px;
+      padding: 18px;
+      border-radius: 10px;
+      border: 1px solid rgba(224, 184, 90, 0.20);
+      background: rgba(224, 184, 90, 0.07);
+      color: #dbeafe;
+    }
+
+    .source-box a {
+      color: #ffe3a1;
+      font-weight: 850;
+      border-bottom: 1px dashed rgba(224, 184, 90, 0.6);
+    }
+
     @media (max-width: 900px) {
       .hero-grid,
       .two-col,
       .grid-3,
+      .cylinder-grid,
       .form-grid,
       .record-tools,
       .stats,
@@ -764,6 +869,7 @@
 
       <nav class="nav-links">
         <a href="#types">锁头类型</a>
+        <a href="#cylinders">锁芯类型</a>
         <a href="#safety">安全评估</a>
         <a href="#care">保养建议</a>
         <a href="#library">新增资料</a>
@@ -798,6 +904,7 @@
             <li>✅ 以锁具资料库为核心重新设计</li>
             <li>✅ 黑钢、黄铜、金属锁头色调</li>
             <li>✅ 新增「记录数据」独立目录</li>
+            <li>✅ 新增锁芯类型百科与 SVG 示意图</li>
             <li>✅ 支持搜索、筛选、详情、导出与删除</li>
           </ul>
         </div>
@@ -847,6 +954,234 @@
             <h3>商业门锁</h3>
             <p>适合店铺、办公室和仓库。通常需要更高等级锁芯和门禁系统配合。</p>
           </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section id="cylinders" class="highlight">
+      <div class="container">
+        <div class="section-title">
+          <h2>锁芯类型百科</h2>
+          <p>这里用简单示意图解释常见锁芯结构。内容只做合法科普、选购和维护参考，不涉及非法开启方法。</p>
+        </div>
+
+        <div class="cylinder-grid">
+
+          <div class="cylinder-card">
+            <div class="cylinder-head">
+              <div>
+                <h3>弹子锁芯</h3>
+                <span>Pin Tumbler Cylinder</span>
+              </div>
+              <span class="tag">最常见</span>
+            </div>
+            <div class="diagram" aria-label="弹子锁芯结构示意图">
+              <svg viewBox="0 0 420 150" role="img">
+      <rect x="44" y="62" width="332" height="46" rx="10" fill="#151a21" stroke="#d7a84c" stroke-width="3"/>
+      <rect x="86" y="78" width="210" height="16" rx="8" fill="#e0b85a" opacity="0.92"/>
+      <g fill="#9aa4b2" stroke="#f5d37b" stroke-width="2">
+        <rect x="105" y="30" width="16" height="48" rx="5"/>
+        <rect x="158" y="24" width="16" height="54" rx="5"/>
+        <rect x="211" y="34" width="16" height="44" rx="5"/>
+        <rect x="264" y="20" width="16" height="58" rx="5"/>
+      </g>
+      <line x1="66" y1="78" x2="354" y2="78" stroke="#22c55e" stroke-width="2" stroke-dasharray="6 5"/>
+      <text x="210" y="132" text-anchor="middle" fill="#cbd5e1" font-size="14">弹子到达剪切线，锁芯才可转动</text>
+    </svg>
+            </div>
+            <p>住宅门锁、房门锁、普通挂锁常用。安全性取决于锁芯精度、防钻片、防拔结构、钥匙控制和安装质量。</p>
+            <div class="info-list">
+              <div><strong>常见场景：</strong>家门、房门、挂锁、商铺门。</div>
+              <div><strong>选购重点：</strong>防钻、防撬、防断钥匙、锁芯等级。</div>
+            </div>
+          </div>
+          <div class="cylinder-card">
+            <div class="cylinder-head">
+              <div>
+                <h3>叶片锁芯</h3>
+                <span>Wafer Tumbler Lock</span>
+              </div>
+              <span class="tag">轻中防护</span>
+            </div>
+            <div class="diagram" aria-label="叶片锁芯结构示意图">
+              <svg viewBox="0 0 420 150" role="img">
+      <rect x="48" y="50" width="324" height="56" rx="12" fill="#151a21" stroke="#d7a84c" stroke-width="3"/>
+      <rect x="92" y="69" width="214" height="18" rx="9" fill="#e0b85a" opacity="0.9"/>
+      <g fill="#cbd5e1" stroke="#f5d37b" stroke-width="2">
+        <rect x="116" y="44" width="10" height="68" rx="3" transform="rotate(-8 121 78)"/>
+        <rect x="164" y="42" width="10" height="72" rx="3" transform="rotate(7 169 78)"/>
+        <rect x="212" y="44" width="10" height="68" rx="3" transform="rotate(-5 217 78)"/>
+        <rect x="260" y="42" width="10" height="72" rx="3" transform="rotate(6 265 78)"/>
+      </g>
+      <text x="210" y="132" text-anchor="middle" fill="#cbd5e1" font-size="14">薄片/叶片对齐后才能转动</text>
+    </svg>
+            </div>
+            <p>内部使用薄片/叶片，体积小、成本低。常见于抽屉、文件柜、信箱和部分车辆锁具。</p>
+            <div class="info-list">
+              <div><strong>常见场景：</strong>抽屉、信箱、文件柜、车锁。</div>
+              <div><strong>选购重点：</strong>适合轻防护，重要位置建议升级。</div>
+            </div>
+          </div>
+          <div class="cylinder-card">
+            <div class="cylinder-head">
+              <div>
+                <h3>碟片锁芯</h3>
+                <span>Disc Detainer Lock</span>
+              </div>
+              <span class="tag">户外常见</span>
+            </div>
+            <div class="diagram" aria-label="碟片锁芯结构示意图">
+              <svg viewBox="0 0 420 150" role="img">
+      <rect x="46" y="42" width="328" height="74" rx="15" fill="#151a21" stroke="#d7a84c" stroke-width="3"/>
+      <g fill="#26313d" stroke="#e0b85a" stroke-width="3">
+        <circle cx="110" cy="79" r="25"/><circle cx="160" cy="79" r="25"/><circle cx="210" cy="79" r="25"/><circle cx="260" cy="79" r="25"/><circle cx="310" cy="79" r="25"/>
+      </g>
+      <g stroke="#cbd5e1" stroke-width="5" stroke-linecap="round">
+        <line x1="110" y1="79" x2="126" y2="64"/><line x1="160" y1="79" x2="176" y2="79"/><line x1="210" y1="79" x2="224" y2="94"/><line x1="260" y1="79" x2="260" y2="59"/><line x1="310" y1="79" x2="294" y2="64"/>
+      </g>
+      <text x="210" y="134" text-anchor="middle" fill="#cbd5e1" font-size="14">圆盘旋转到正确角度后解锁</text>
+    </svg>
+            </div>
+            <p>内部是一片片圆盘，需要转到正确角度。常见于脚车锁、高安全挂锁和户外锁。</p>
+            <div class="info-list">
+              <div><strong>常见场景：</strong>脚车锁、户外挂锁、仓库锁。</div>
+              <div><strong>选购重点：</strong>锁梁硬度、防锈、锁体厚度。</div>
+            </div>
+          </div>
+          <div class="cylinder-card">
+            <div class="cylinder-head">
+              <div>
+                <h3>槓桿锁</h3>
+                <span>Lever Tumbler Lock</span>
+              </div>
+              <span class="tag">老式门锁</span>
+            </div>
+            <div class="diagram" aria-label="槓桿锁结构示意图">
+              <svg viewBox="0 0 420 150" role="img">
+      <rect x="50" y="38" width="320" height="80" rx="12" fill="#151a21" stroke="#d7a84c" stroke-width="3"/>
+      <rect x="252" y="72" width="82" height="16" rx="8" fill="#9aa4b2"/>
+      <g stroke="#e0b85a" stroke-width="8" stroke-linecap="round">
+        <line x1="90" y1="88" x2="196" y2="62"/><line x1="92" y1="74" x2="200" y2="82"/><line x1="93" y1="60" x2="198" y2="101"/>
+      </g>
+      <circle cx="95" cy="87" r="16" fill="#26313d" stroke="#cbd5e1" stroke-width="3"/>
+      <text x="210" y="134" text-anchor="middle" fill="#cbd5e1" font-size="14">多片槓桿抬到正确高度，锁舌才会移动</text>
+    </svg>
+            </div>
+            <p>通过钥匙抬起多片槓桿控制锁舌。常见于老式门锁、部分保险箱或大型锁具。</p>
+            <div class="info-list">
+              <div><strong>常见场景：</strong>老式木门、铁门、保险柜类结构。</div>
+              <div><strong>选购重点：</strong>槓桿数量、锁体强度、安装质量。</div>
+            </div>
+          </div>
+          <div class="cylinder-card">
+            <div class="cylinder-head">
+              <div>
+                <h3>管状锁芯</h3>
+                <span>Tubular Lock</span>
+              </div>
+              <span class="tag">圆孔钥匙</span>
+            </div>
+            <div class="diagram" aria-label="管状锁芯结构示意图">
+              <svg viewBox="0 0 420 150" role="img">
+      <circle cx="210" cy="72" r="48" fill="#151a21" stroke="#d7a84c" stroke-width="4"/>
+      <circle cx="210" cy="72" r="20" fill="#26313d" stroke="#9aa4b2" stroke-width="3"/>
+      <g fill="#e0b85a">
+        <circle cx="210" cy="28" r="6"/><circle cx="241" cy="41" r="6"/><circle cx="254" cy="72" r="6"/><circle cx="241" cy="103" r="6"/>
+        <circle cx="210" cy="116" r="6"/><circle cx="179" cy="103" r="6"/><circle cx="166" cy="72" r="6"/><circle cx="179" cy="41" r="6"/>
+      </g>
+      <text x="210" y="136" text-anchor="middle" fill="#cbd5e1" font-size="14">圆形钥匙孔，弹子环绕中心排列</text>
+    </svg>
+            </div>
+            <p>圆形钥匙孔，弹子围绕中心排列。常见于设备箱、售卖机、机柜和电脑锁。</p>
+            <div class="info-list">
+              <div><strong>常见场景：</strong>设备柜、售卖机、电脑锁、机柜。</div>
+              <div><strong>选购重点：</strong>品牌、材质、钥匙控制、安装位置。</div>
+            </div>
+          </div>
+          <div class="cylinder-card">
+            <div class="cylinder-head">
+              <div>
+                <h3>凹点锁芯</h3>
+                <span>Dimple Lock</span>
+              </div>
+              <span class="tag">钥匙有小孔</span>
+            </div>
+            <div class="diagram" aria-label="凹点锁芯结构示意图">
+              <svg viewBox="0 0 420 150" role="img">
+      <rect x="64" y="55" width="292" height="48" rx="12" fill="#151a21" stroke="#d7a84c" stroke-width="3"/>
+      <rect x="105" y="70" width="210" height="18" rx="9" fill="#e0b85a" opacity="0.92"/>
+      <g fill="#26313d" stroke="#cbd5e1" stroke-width="2">
+        <circle cx="138" cy="79" r="6"/><circle cx="176" cy="79" r="6"/><circle cx="214" cy="79" r="6"/><circle cx="252" cy="79" r="6"/><circle cx="290" cy="79" r="6"/>
+        <circle cx="157" cy="67" r="5"/><circle cx="233" cy="91" r="5"/>
+      </g>
+      <text x="210" y="132" text-anchor="middle" fill="#cbd5e1" font-size="14">钥匙表面有凹点，可配合多方向弹子</text>
+    </svg>
+            </div>
+            <p>钥匙表面有一排或多排小凹点，常见于较新款门锁。不要只看钥匙外观，要看认证和结构。</p>
+            <div class="info-list">
+              <div><strong>常见场景：</strong>住宅门、办公门、中高端锁芯。</div>
+              <div><strong>选购重点：</strong>认证、防钻、防拔、专利钥匙控制。</div>
+            </div>
+          </div>
+          <div class="cylinder-card">
+            <div class="cylinder-head">
+              <div>
+                <h3>擋片锁</h3>
+                <span>Warded Lock</span>
+              </div>
+              <span class="tag">传统结构</span>
+            </div>
+            <div class="diagram" aria-label="擋片锁结构示意图">
+              <svg viewBox="0 0 420 150" role="img">
+      <rect x="62" y="42" width="296" height="74" rx="14" fill="#151a21" stroke="#d7a84c" stroke-width="3"/>
+      <path d="M112 94 C150 48, 190 48, 225 92 S290 112, 326 58" fill="none" stroke="#e0b85a" stroke-width="10" stroke-linecap="round"/>
+      <g fill="#26313d" stroke="#cbd5e1" stroke-width="3">
+        <rect x="130" y="54" width="18" height="50" rx="4"/><rect x="196" y="48" width="18" height="56" rx="4"/><rect x="262" y="58" width="18" height="46" rx="4"/>
+      </g>
+      <text x="210" y="134" text-anchor="middle" fill="#cbd5e1" font-size="14">内部固定挡片限制钥匙形状</text>
+    </svg>
+            </div>
+            <p>靠内部固定挡片限制钥匙形状。常见于老式挂锁、装饰锁和小箱柜，通常不适合高价值防护。</p>
+            <div class="info-list">
+              <div><strong>常见场景：</strong>老式挂锁、装饰锁、小箱柜。</div>
+              <div><strong>选购重点：</strong>只适合基础管理，不适合真正防盗。</div>
+            </div>
+          </div>
+          <div class="cylinder-card">
+            <div class="cylinder-head">
+              <div>
+                <h3>智能 / 电子锁芯</h3>
+                <span>Smart / Electronic Lock</span>
+              </div>
+              <span class="tag">便利型</span>
+            </div>
+            <div class="diagram" aria-label="智能 / 电子锁芯结构示意图">
+              <svg viewBox="0 0 420 150" role="img">
+      <rect x="82" y="30" width="120" height="92" rx="14" fill="#151a21" stroke="#d7a84c" stroke-width="3"/>
+      <rect x="110" y="48" width="64" height="28" rx="7" fill="#26313d" stroke="#9aa4b2" stroke-width="2"/>
+      <g fill="#e0b85a">
+        <circle cx="116" cy="92" r="5"/><circle cx="142" cy="92" r="5"/><circle cx="168" cy="92" r="5"/>
+        <circle cx="116" cy="108" r="5"/><circle cx="142" cy="108" r="5"/><circle cx="168" cy="108" r="5"/>
+      </g>
+      <rect x="230" y="56" width="116" height="42" rx="10" fill="#26313d" stroke="#cbd5e1" stroke-width="3"/>
+      <path d="M218 77h-16M346 77h20" stroke="#cbd5e1" stroke-width="7" stroke-linecap="round"/>
+      <path d="M274 49 q14 -20 28 0" fill="none" stroke="#22c55e" stroke-width="4" stroke-linecap="round"/>
+      <text x="210" y="137" text-anchor="middle" fill="#cbd5e1" font-size="14">由电机、密码、指纹、卡片或手机控制锁舌</text>
+    </svg>
+            </div>
+            <p>重点不只是锁芯，还包括电池、应急钥匙、系统安全、售后和安装质量。</p>
+            <div class="info-list">
+              <div><strong>常见场景：</strong>住宅门、公寓、办公室、民宿。</div>
+              <div><strong>选购重点：</strong>备用开门方式、低电提醒、售后和兼容性。</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="source-box">
+          <strong>学习关键词：</strong>
+          Pin Tumbler、Wafer Lock、Disc Detainer、Lever Lock、Warded Lock、Tubular Lock、Dimple Lock、Smart Lock。
+          你也可以在资料记录里把「锁具类型」选得更细，方便以后分类搜索。
         </div>
       </div>
     </section>
@@ -934,9 +1269,16 @@
               <label for="lockCategory">锁具类型</label>
               <select id="lockCategory">
                 <option value="">请选择</option>
-                <option>弹子锁</option>
-                <option>叶片锁</option>
-                <option>智能锁</option>
+                <option>弹子锁芯</option>
+                <option>叶片锁芯</option>
+                <option>碟片锁芯</option>
+                <option>槓桿锁</option>
+                <option>擋片锁</option>
+                <option>管状锁芯</option>
+                <option>凹点锁芯</option>
+                <option>滑片锁芯</option>
+                <option>磁性锁芯</option>
+                <option>智能 / 电子锁芯</option>
                 <option>挂锁</option>
                 <option>机械密码锁</option>
                 <option>商业门锁</option>
@@ -1024,9 +1366,16 @@
               <label for="recordCategory">按类型筛选</label>
               <select id="recordCategory" onchange="renderLocks()">
                 <option value="">全部类型</option>
-                <option>弹子锁</option>
-                <option>叶片锁</option>
-                <option>智能锁</option>
+                <option>弹子锁芯</option>
+                <option>叶片锁芯</option>
+                <option>碟片锁芯</option>
+                <option>槓桿锁</option>
+                <option>擋片锁</option>
+                <option>管状锁芯</option>
+                <option>凹点锁芯</option>
+                <option>滑片锁芯</option>
+                <option>磁性锁芯</option>
+                <option>智能 / 电子锁芯</option>
                 <option>挂锁</option>
                 <option>机械密码锁</option>
                 <option>商业门锁</option>
