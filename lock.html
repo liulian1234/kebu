@@ -1026,6 +1026,473 @@
       .action-row .btn { width: auto; }
       .panel { padding: 20px; }
     }
+
+    /* ================================
+       商品卡片版：像電商網站的橫排顯示界面
+       ================================ */
+    body {
+      background: #050505;
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    .app {
+      display: block;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      z-index: 70;
+      height: auto;
+      width: 100%;
+      overflow: visible;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      padding: 18px 64px;
+      background: rgba(0, 0, 0, 0.94);
+      border-right: none;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 10px 36px rgba(0,0,0,0.34);
+      backdrop-filter: blur(16px);
+    }
+
+    .brand {
+      flex: 0 0 auto;
+      min-width: 190px;
+      gap: 10px;
+      padding: 0;
+      margin: 0;
+      border-bottom: none;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      font-size: 20px;
+      background: #080808;
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #fff;
+      box-shadow: none;
+    }
+
+    .brand strong {
+      font-size: 17px;
+      letter-spacing: 0.3px;
+      color: #fff;
+    }
+
+    .brand span {
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      color: #9ca3af;
+    }
+
+    .menu-title,
+    .sidebar-note {
+      display: none;
+    }
+
+    .menu {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      flex: 1 1 auto;
+      min-width: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .menu::-webkit-scrollbar {
+      display: none;
+    }
+
+    .menu button {
+      width: auto;
+      flex: 0 0 auto;
+      justify-content: center;
+      gap: 0;
+      padding: 10px 14px;
+      border-radius: 999px;
+      color: #ededed;
+      background: transparent;
+      border-color: transparent;
+      white-space: nowrap;
+    }
+
+    .menu button:hover,
+    .menu button.active {
+      border-color: rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+    }
+
+    .menu .ico {
+      display: none;
+    }
+
+    .menu .menu-text strong {
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .menu .menu-text span {
+      display: none;
+    }
+
+    .main {
+      padding: 30px 64px 72px;
+      min-width: 0;
+    }
+
+    .topbar {
+      position: relative;
+      top: auto;
+      z-index: 10;
+      display: flex;
+      align-items: flex-end;
+      padding: 12px 0 24px;
+      margin: 0 0 8px;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+      backdrop-filter: none;
+    }
+
+    .topbar h1 {
+      font-size: clamp(28px, 3vw, 44px);
+      letter-spacing: -0.6px;
+      color: #fff;
+    }
+
+    .topbar p {
+      font-size: 15px;
+      color: #9ca3af;
+    }
+
+    .top-actions {
+      gap: 10px;
+    }
+
+    .category-hero {
+      display: none;
+    }
+
+    .records-panel {
+      padding: 0;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+    }
+
+    .tools-row {
+      grid-template-columns: minmax(260px, 1fr) 210px auto auto;
+      gap: 12px;
+      align-items: end;
+      padding: 16px;
+      margin-bottom: 28px;
+      background: rgba(18,18,18,0.78);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      box-shadow: 0 16px 42px rgba(0,0,0,0.22);
+    }
+
+    label {
+      font-size: 13px;
+      color: #cbd5e1;
+    }
+
+    input,
+    textarea,
+    select {
+      background: #070707;
+      border-color: rgba(255,255,255,0.12);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 15px;
+      padding: 13px 14px;
+    }
+
+    .record-list {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(230px, 1fr));
+      gap: 28px;
+    }
+
+    .record-card {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 590px;
+      padding: 0;
+      overflow: hidden;
+      border-radius: 17px;
+      background: #111;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 14px 36px rgba(0,0,0,0.26);
+      transition: 0.16s ease;
+    }
+
+    .record-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255,255,255,0.18);
+      box-shadow: 0 22px 54px rgba(0,0,0,0.34);
+    }
+
+    .product-image-box {
+      position: relative;
+      height: 310px;
+      padding: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 50% 40%, rgba(255,255,255,0.08), transparent 42%),
+        linear-gradient(180deg, #202020, #151515);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .product-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 16px 22px rgba(0,0,0,0.38));
+    }
+
+    .product-no-photo {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      border-radius: 14px;
+      color: #a9b1bd;
+      background: rgba(0,0,0,0.22);
+      border: 1px dashed rgba(255,255,255,0.16);
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .product-sale-badge {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: #0d2638;
+      color: #35aaff;
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: 0.2px;
+    }
+
+    .product-body {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 24px 24px 22px;
+    }
+
+    .product-title {
+      min-height: 92px;
+      margin: 0 0 12px;
+      color: #f5f5f5;
+      font-size: clamp(22px, 2vw, 30px);
+      line-height: 1.15;
+      letter-spacing: -0.5px;
+      font-weight: 900;
+    }
+
+    .product-monthly {
+      min-height: 48px;
+      margin: 0 0 16px;
+      color: #a8a8a8;
+      font-size: 16px;
+      line-height: 1.45;
+    }
+
+    .product-rating {
+      min-height: 28px;
+      margin-bottom: 12px;
+      color: #ffd36b;
+      letter-spacing: 1px;
+      font-size: 16px;
+    }
+
+    .product-price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin: 0 0 22px;
+    }
+
+    .product-old-price {
+      color: #7c7c7c;
+      font-size: 16px;
+      text-decoration: line-through;
+      white-space: nowrap;
+    }
+
+    .product-price {
+      color: #f4f4f4;
+      font-size: clamp(28px, 2.6vw, 38px);
+      line-height: 1;
+      font-weight: 950;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+
+    .product-button {
+      width: 100%;
+      margin-top: auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 54px;
+      padding: 14px 18px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: #3c3c3c;
+      color: #f4f4f4;
+      font-size: 16px;
+      font-weight: 900;
+      text-decoration: none;
+      transition: 0.16s ease;
+    }
+
+    .product-button:hover {
+      background: #555;
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .product-admin-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .product-admin-actions .btn {
+      width: 100%;
+      padding: 9px 8px;
+      border-radius: 10px;
+      font-size: 13px;
+    }
+
+    .product-meta-line {
+      margin-top: 12px;
+      color: #6f7784;
+      font-size: 12px;
+      min-height: 18px;
+    }
+
+    .empty-state {
+      background: #111;
+      border-color: rgba(255,255,255,0.08);
+    }
+
+    .modal-box,
+    .panel,
+    .card {
+      background: linear-gradient(180deg, rgba(26,26,26,0.98), rgba(12,12,12,0.98));
+      border-color: rgba(255,255,255,0.08);
+    }
+
+    .badge {
+      border-color: rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: #dbeafe;
+    }
+
+    @media (max-width: 1350px) {
+      .sidebar {
+        padding-left: 36px;
+        padding-right: 36px;
+      }
+      .main {
+        padding-left: 36px;
+        padding-right: 36px;
+      }
+      .record-list {
+        grid-template-columns: repeat(3, minmax(230px, 1fr));
+      }
+    }
+
+    @media (max-width: 1000px) {
+      .sidebar {
+        position: sticky;
+        inset: auto;
+        transform: none;
+        width: 100%;
+        height: auto;
+        padding: 14px 18px;
+      }
+      .sidebar.open {
+        transform: none;
+      }
+      .mobile-menu-btn {
+        display: none !important;
+      }
+      .main {
+        padding: 18px 18px 54px;
+      }
+      .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .tools-row {
+        grid-template-columns: 1fr;
+      }
+      .record-list {
+        grid-template-columns: repeat(2, minmax(220px, 1fr));
+        gap: 18px;
+      }
+      .product-image-box {
+        height: 270px;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .brand {
+        min-width: 145px;
+      }
+      .brand strong {
+        font-size: 15px;
+      }
+      .menu button {
+        padding: 9px 11px;
+      }
+      .menu .menu-text strong {
+        font-size: 13px;
+      }
+      .record-list {
+        grid-template-columns: 1fr;
+      }
+      .record-card {
+        min-height: auto;
+      }
+      .product-title {
+        min-height: auto;
+      }
+      .product-monthly {
+        min-height: auto;
+      }
+      .product-image-box {
+        height: 260px;
+      }
+      .top-actions,
+      .top-actions .btn {
+        width: 100%;
+      }
+    }
+
   </style>
 </head>
 
@@ -1535,7 +2002,7 @@
 
       if (page === "home") {
         document.getElementById("pageTitle").textContent = "首頁";
-        document.getElementById("pageDesc").textContent = "左邊是目錄，右邊顯示對應資料。";
+        document.getElementById("pageDesc").textContent = "上方是目錄，下面用商品卡片方式顯示資料。";
         document.getElementById("topActions").innerHTML = `
           <button class="btn btn-primary" type="button" onclick="setCategory('cylinders')">開始記錄</button>
         `;
@@ -1746,63 +2213,87 @@
     }
 
     function renderRecordCard(item) {
-      const imageHtml = item.photo
-        ? `<img class="record-card-img" src="${item.photo}" alt="${escapeHtml(item.name || '圖片')}">`
-        : `<div class="no-photo-box">無圖片</div>`;
+      const img = item.photo
+        ? `<img class="product-img" src="${item.photo}" alt="${escapeHtml(item.name || '圖片')}">`
+        : `<div class="product-no-photo">無圖片</div>`;
 
-      const typeSupplierText = [
-        item.type || "",
-        item.supplier ? `供應商：${item.supplier}` : ""
-      ].filter(Boolean).join("｜") || "未填寫";
+      const title = item.name || "未命名商品";
+      const price = productPrice(item.price);
+      const oldPrice = productOldPrice(item.price);
+      const monthly = productMonthlyText(item);
+      const rating = item.rating ? renderStars(item.rating, false) : "未評估";
+      const meta = [item.type, item.supplier ? `Brand: ${item.supplier}` : ""].filter(Boolean).join(" · ");
 
-      const itemLink = item.itemLink
-        ? `<a class="link-pill" href="${safeUrl(item.itemLink)}" target="_blank" rel="noopener">🔗 查看物品鏈接</a>`
-        : `<span class="field-value empty">未填寫</span>`;
-
-      const introSummary = item.intro || item.buying || item.scene || "這筆資料尚未填寫介紹。";
+      const primaryAction = item.itemLink
+        ? `<a class="product-button" href="${safeUrl(item.itemLink)}" target="_blank" rel="noopener">Buy Now</a>`
+        : `<button class="product-button" type="button" onclick="viewItem('${item.id}')">Buy Now</button>`;
 
       return `
         <article class="record-card">
-          <div class="record-media">
-            ${imageHtml}
-            <div class="record-thumb-note">圖片</div>
+          <div class="product-image-box">
+            <span class="product-sale-badge">Sale!</span>
+            ${img}
           </div>
-          <div class="record-content">
-            <div class="record-head">
-              <div class="record-title">
-                <h3>${escapeHtml(item.name || "未命名")}</h3>
-                <div class="record-subline">
-                  ${item.rating ? renderStars(item.rating) : `<span class="tag tag-muted">未評估</span>`}
-                  ${item.createdAt ? `<span class="tag tag-muted">${escapeHtml(item.createdAt)}</span>` : ""}
-                </div>
-              </div>
-              <div class="record-summary">${escapeHtml(compact(introSummary, 180))}</div>
+
+          <div class="product-body">
+            <h3 class="product-title">${escapeHtml(title)}</h3>
+
+            <p class="product-monthly">${escapeHtml(monthly)}</p>
+
+            <div class="product-rating">${escapeHtml(rating)}</div>
+
+            <div class="product-price-row">
+              ${oldPrice ? `<span class="product-old-price">${escapeHtml(oldPrice)}</span>` : ""}
+              <span class="product-price">${escapeHtml(price)}</span>
             </div>
 
-            <div class="field-list">
-              ${infoRow("名字", item.name || "未填寫")}
-              ${infoRow("類型（供應商）", typeSupplierText)}
-              ${infoRow("大約價格", item.price || "未填寫")}
-              ${infoRow("常見場景 / 地點", item.scene || "未填寫")}
-              ${infoRow("選購重點", item.buying || "未填寫")}
-              ${infoRow("優點", item.pros || "未填寫")}
-              ${infoRow("缺點", item.cons || "未填寫")}
-              ${rawInfoRow("安全性 1 至 5 星", item.rating ? renderStars(item.rating, false) : `<span class="field-value empty">未評估</span>`)}
-              ${rawInfoRow("物品鏈接", itemLink)}
-              ${infoRow("介紹", item.intro || "未填寫")}
-            </div>
+            ${primaryAction}
 
-            <div class="record-actions">
+            <div class="product-admin-actions">
               <button class="btn btn-secondary btn-small" type="button" onclick="viewItem('${item.id}')">詳情</button>
               <button class="btn btn-secondary btn-small" type="button" onclick="openEditModal('${item.id}')">編輯</button>
               <button class="btn btn-danger btn-small" type="button" onclick="deleteItem('${item.id}')">刪除</button>
             </div>
+
+            <div class="product-meta-line">${escapeHtml(compact(meta || item.intro || item.scene || "", 80))}</div>
           </div>
         </article>
       `;
     }
 
-    function infoRow(label, value) {
+    function productPrice(raw) {
+      const value = String(raw || "").trim();
+      if (!value) return "$0.00";
+      return value;
+    }
+
+    function productOldPrice(raw) {
+      const value = String(raw || "").trim();
+      if (!value) return "";
+      const num = firstNumber(value);
+      if (!num) return "";
+      const currency = /RM/i.test(value) ? "RM" : "$";
+      const old = num * 1.28;
+      return `${currency}${old.toFixed(2)}`;
+    }
+
+    function productMonthlyText(item) {
+      const value = String(item.price || "").trim();
+      const num = firstNumber(value);
+      if (num) {
+        const currency = /RM/i.test(value) ? "RM" : "$";
+        return `or ${currency}${(num / 4).toFixed(2)} X 4 monthly payments.`;
+      }
+      const line = item.type || item.supplier || item.scene || getCategory(item.categoryKey).subtitle;
+      return `or ${line}`;
+    }
+
+    function firstNumber(value) {
+      const match = String(value || "").replaceAll(",", "").match(/(\d+(?:\.\d+)?)/);
+      return match ? Number(match[1]) : 0;
+    }
+
+        function infoRow(label, value) {
       const isEmpty = !value || value === "未填寫";
       return `
         <div class="field-row">
